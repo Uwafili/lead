@@ -1,7 +1,7 @@
 <!-- filepath: c:\Users\Bishop\leadway\resources\views\post\index.blade.php -->
 @extends('layouts.layout')
 @section('content')
-<h1>it's cooking time hggfdf</h1>
+<h1>it's cooking time</h1>
 <div id="container" class="flex justify-center items-center mt-8">
     <form action="" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         @csrf
