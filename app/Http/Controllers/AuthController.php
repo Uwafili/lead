@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
 
 use App\Models\User;
 
@@ -13,8 +14,8 @@ class AuthController extends Controller
   public function register(Request $request){
       $field=$request->validate([
             'name'=>['required', 'max:255'],
-            'email'=>['required', 'max:255', 'email'],
-            'password'=>['required', 'min:4']
+            'email'=>['required', 'max:255', 'email' ,'unique:users,email'],
+            'password'=>['required', 'confirmed',  Password::min(8)->mixedCase(),] // Ensure password confirmation is handled
       ]);
       
       $field['usertype']=($request->email==='leadway@gmail.com')?'admin':'user';
