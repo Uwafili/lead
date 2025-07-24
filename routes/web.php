@@ -3,9 +3,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 // Authenticated routes
-Route::middleware("auth")->group(function(){
+Route::middleware(["auth","admin"])->group(function(){
     Route::view('/', 'post.index')->name('home'); // Correct view name: posts.index
     Route::post('/logout',[AuthController::class,'logout'])->name('logout');
+
+
+    Route::get('/Admin/dashboard', [AuthController::class, 'adminDashboard'])->name('Admin.dashboard');
 });
 
 
