@@ -66,5 +66,12 @@ public function adminDashboard(){
   }
 
   
+  public function deleteUser(User $user){
+      if(Auth::check() && Auth::user()->usertype === 'admin'){
+          $user->delete();
+          return redirect()->route('admin.dashboard')->with('success', 'User deleted successfully.');
+      }
+      return redirect()->route('login')->with('error', 'You do not have permission to perform this action.');
+  }
 
 }

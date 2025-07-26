@@ -20,7 +20,7 @@
                         <td class="py-2 px-4 border-b">{{ $user->email }}</td>
                         <td class="py-2 px-4 border-b capitalize">{{ $user->role }}</td>
                         <td class="py-2 px-4 border-b">{{ $user->created_at->format('d M Y') }}</td>
-                    <form action="" method="post">
+                    <form action=" {{ route('admin.dashboard.destroy') }}">" method="post">
                         @csrf
                         @method('DELETE')
                         <td class="py-2 px-4 border-b">

@@ -23,5 +23,6 @@ Route::middleware("guest")->group(function(){
 
 Route::middleware(["admin"])->group(function(){
      Route::get('/Admin/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
-     Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
+        Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
+
 });
