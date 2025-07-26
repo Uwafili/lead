@@ -20,6 +20,15 @@
                         <td class="py-2 px-4 border-b">{{ $user->email }}</td>
                         <td class="py-2 px-4 border-b capitalize">{{ $user->role }}</td>
                         <td class="py-2 px-4 border-b">{{ $user->created_at->format('d M Y') }}</td>
+                    <form action="" method="post">
+                        @csrf
+                        @method('DELETE')
+                        <td class="py-2 px-4 border-b">
+                            <button type="submit" class="text-red-600 hover:text-red-800 transition-colors duration-200">
+                                Delete
+                            </button>
+                        </td>
+                    </form>
                     </tr>
                 @endforeach
             </tbody>
