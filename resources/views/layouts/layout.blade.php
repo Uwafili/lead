@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <style>
+    
     body {
       background-image: url({{('asset/smartphone-cup-near-laptop.jpg')}});
       background-size: cover;
@@ -96,6 +97,7 @@
     </nav>
   </div>
 </header>
+
   <!-- 🔽 Page Content with overlay for readability -->
   <main class="flex-1">
     <div class="bg-overlay py-10">
