@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 Route::middleware("auth")->group(function(){
     Route::view('/', 'post.index')->name('home');
     Route::view('/consultation', 'follow.consultation')->name('consultation'); 
+    Route::view('/Service', 'follow.Service')->name('Service'); 
     Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
 

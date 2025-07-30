@@ -1,5 +1,4 @@
 @extends('layouts.layout')
-
 @section('content')
 <!-- Hero Header -->
 <div class="relative flex items-center justify-center h-[40vh] md:h-[50vh] bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-500 shadow-lg overflow-hidden mb-10">
@@ -31,7 +30,7 @@
         <!-- Description -->
         <div>
             <label class="block font-semibold text-orange-600 mb-1">Description</label>
-            <input type="text" placeholder="e.g. Urologist Consultation"
+            <input type="text" placeholder="e.g. Electrocardiogram"
                    class="w-full px-4 py-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-orange-50" />
         </div>
 

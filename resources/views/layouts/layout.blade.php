@@ -103,7 +103,7 @@
     <span class="text-xs mt-1 text-gray-700">Consultation</span>
   </a>
   <!-- Service Icon (Clipboard) -->
-  <a href="#" class="flex flex-col items-center group">
+  <a href="="{{route('Service')}}" class="flex flex-col items-center group">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-500 group-hover:text-orange-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <rect x="6" y="4" width="12" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6M9 12h6M9 16h6" />
