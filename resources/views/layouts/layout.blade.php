@@ -75,6 +75,18 @@
     @endif
 @endauth
 
+        @auth
+        <form action="{{ route('logout') }}" method="POST" class="inline">
+          @csrf
+          <button type="submit" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
+            <!-- Logout Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H3m0 0l4-4m-4 4l4 4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Logout
+          </button>
+        </form>
+        @endauth
 
 
       </nav>
@@ -103,7 +115,7 @@
     <span class="text-xs mt-1 text-gray-700">Consultation</span>
   </a>
   <!-- Service Icon (Clipboard) -->
-  <a href="="{{route('Service')}}" class="flex flex-col items-center group">
+  <a href="{{route('Service')}}" class="flex flex-col items-center group">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-500 group-hover:text-orange-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <rect x="6" y="4" width="12" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6M9 12h6M9 16h6" />
@@ -134,6 +146,7 @@
   </a>
 </aside>
 @endauth
+
     <!-- Main Content -->
     <main class="flex-1">
       <div class="bg-overlay py-10">
