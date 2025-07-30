@@ -4,7 +4,8 @@ use App\Http\Controllers\AuthController;
 
 // Authenticated routes
 Route::middleware("auth")->group(function(){
-    Route::view('/', 'post.index')->name('home'); // Correct view name: posts.index
+    Route::view('/', 'post.index')->name('home');
+    Route::view('/consultation', 'follow.consultation')->name('consultation'); 
     Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
 

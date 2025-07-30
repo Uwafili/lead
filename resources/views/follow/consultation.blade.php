@@ -3,13 +3,17 @@
 @section('content')
 <!-- Hero Header -->
 <div class="relative flex items-center justify-center h-[40vh] md:h-[50vh] bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-500 shadow-lg overflow-hidden mb-10">
-    <img src="{{ asset('asset/collection.jpg') }}" alt="Pharmacy" class="absolute inset-0 w-full h-full object-cover opacity-40" />
+    <img src="{{ asset('asset/consultation.jpg') }}" alt="Pharmacy" class="absolute inset-0 w-full h-full object-cover opacity-40" />
     <div class="absolute inset-0 bg-gradient-to-t from-orange-700/60 via-orange-400/30 to-transparent"></div>
     <div class="relative z-10 text-center px-4">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow mb-4">Pharmacy Services</h1>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow mb-4">Consultation Services</h1>
         <p class="text-lg md:text-xl text-white font-medium drop-shadow leading-relaxed">
-            Welcome to our Pharmacy section, where we ensure access to quality medications and healthcare essentials.<br>
-            Whether you're managing chronic conditions or picking up over-the-counter remedies, our facility is ready to serve you.
+            Welcome to the Consultation Services section.
+           This page allows your facility to add or update consultation services provided at your cente
+            <br>
+            Please fill in details such as consultation type, description, attending professional, and fees.
+            <br>
+            Keeping this information accurate helps Leadway PMU better understand your services and improve patient access and coordination
         </p>
     </div>
 </div>
@@ -32,12 +36,7 @@
         </div>
 
         <!-- Quantity -->
-        <div>
-            <label class="block font-semibold text-orange-700 mb-1">Quantity</label>
-            <input type="number" placeholder="e.g. 30"
-                   class="w-full px-4 py-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-orange-50" />
-        </div>
-
+       
         <!-- Payment -->
         <div>
             <label class="block font-semibold text-orange-700 mb-1">Payment (₦)</label>
@@ -46,14 +45,7 @@
         </div>
 
         <!-- Pack / Tab -->
-        <div>
-            <label class="block font-semibold text-orange-700 mb-1">Pack / Tab</label>
-            <select class="w-full px-4 py-3 border border-orange-300 rounded-lg bg-white focus:ring-2 focus:ring-orange-500 focus:outline-none">
-                <option value="">Select</option>
-                <option value="pack">Pack</option>
-                <option value="tab">Tab</option>
-            </select>
-        </div>
+        
 
         <!-- Submit -->
         <div class="md:col-span-2 text-center mt-4">
