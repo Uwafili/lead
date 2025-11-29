@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tariff;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 
@@ -44,7 +45,8 @@ public function login(Request $request){
 }
 public function adminDashboard(){
     if(Auth::check()&& Auth::user()->usertype=='admin'){
-      $users=user::latest()->get();
+      $users=user::with('pendingtariffs')->get();
+      
       return view('admin.dashboard', compact('users'));
     }
     else if(Auth::check()&& Auth::user()->usertype==='user'){
@@ -65,13 +67,14 @@ public function adminDashboard(){
     return redirect()->route('register');
   }
 
-  
-  public function deleteUser(User $user){
-      if(Auth::check() && Auth::user()->usertype === 'admin'){
-          $user->delete();
-          return redirect()->route('admin.dashboard')->with('success', 'User deleted successfully.');
-      }
-      return redirect()->route('login')->with('error', 'You do not have permission to perform this action.');
-  }
+public function adminTar($id){
+$tariffs=Tariff::where('user_id',$id)->get();
+
+return view('Admin.tariff', compact('tariffs'));
+}  
+ 
+
+
+
 
 }

@@ -1,16 +1,19 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\updateTariffController;
 
 // Authenticated routes
 Route::middleware("auth")->group(function(){
     Route::view('/', 'post.index')->name('home');
-    Route::view('/consultation', 'follow.consultation')->name('consultation'); 
+    Route::get('/consultation', [updateTariffController::class,'show'])->name('consultation'); 
     Route::view('/Service', 'follow.Service')->name('Service'); 
     Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
+  Route::view('/updateTariff',"follow.updateTar")->name('updateTar');
+Route::post('/UpdateTar',[updateTariffController::class,'index'])->name('UpdateTar');
+Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateSinTar');
 
-   
 });
 
 
@@ -26,5 +29,8 @@ Route::middleware("guest")->group(function(){
 Route::middleware(["admin"])->group(function(){
      Route::get('/Admin/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
         Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
+Route::get('/Admin/tariff/{id?}', [AuthController::class, 'adminTar'])->name('admin.tariff');
+
+Route::get('/export-tariffs-csv{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
 
 });

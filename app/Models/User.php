@@ -46,4 +46,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+        public function pendingtariffs()
+{
+    return $this->hasMany(PendingTariff::class); // one user has many tariffs
+}
+
 }
