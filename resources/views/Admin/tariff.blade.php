@@ -2,6 +2,11 @@
 @section('content')
  
  <div class="overflow-x-auto bg-white rounded-lg shadow">
+
+    <div id="successAlert" class="hidden fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
+    Updated successfully!
+</div>
+
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-orange-50">
                 <tr>
@@ -26,7 +31,18 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                         <div class="inline-flex gap-2">
-                            <button class="px-3 py-1 bg-teal-500 text-white rounded hover:bg-teal-600 send" row="{{$tariff['id']}}" >Send</button>
+<button 
+    class="px-3 py-1 bg-teal-500 text-white rounded hover:bg-teal-600 flex items-center gap-2 send"
+    row="{{$tariff['id']}}"
+>
+    <!-- Spinner (hidden by default) -->
+    <svg class="hidden animate-spin h-4 w-4 text-white spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+
+    <span class="label">Send</span>
+</button>
                             <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Reject</button>
                         </div>
                     </td>
@@ -50,6 +66,10 @@
 const send=document.querySelectorAll(".send");
 send.forEach(ele => {
     ele.addEventListener('click',()=>{
+         ele.querySelector(".spinner").classList.remove("hidden");
+        ele.querySelector(".label").textContent = "Loading...";
+        ele.disabled = true;
+
         const row=ele.getAttribute("row");
         const Parent=ele.parentElement.parentElement.parentElement
 const newTar=Parent.querySelector("#newTar").value;
@@ -69,12 +89,27 @@ fetch('/UpdateSinTar', {
 })
 .then(response => response.json())
 .then(data => {
-    console.log(data); // {message: "Item created successfully", name: "Wooden Bed"}
+    showAlert()
+    console.log(data); 
+     ele.querySelector(".spinner").classList.add("hidden");
+        ele.querySelector(".label").textContent = "Send";
+        ele.disabled = false;
+        
 })
-.catch(error => console.error('Error:', error)); 
-
+.catch(error => {showAlert()}); 
     })
 });
+
+
+
+function showAlert() {
+    const alert = document.getElementById("successAlert");
+    alert.classList.remove("hidden");
+
+    setTimeout(() => {
+        alert.classList.add("hidden");
+    }, 2000); // hides after 2 seconds
+}
 
 </script>
 

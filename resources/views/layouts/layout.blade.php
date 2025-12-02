@@ -28,7 +28,7 @@
   <!-- Top Navbar -->
   <header class="bg-orange-400 bg-opacity-95 text-black shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-extrabold tracking-wide">Leadway Health</h1>
+      <h1 class="text-2xl font-extrabold tracking-wide">Love</h1>
       <nav class="space-x-6 flex items-center">
         <a href="{{ route('home') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
           <!-- Home Icon -->
@@ -74,23 +74,12 @@
           </svg>
           Admin   
         </a>
+        @else   <p class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"><a href="{{route('updateTar')}}">Update Tariff</a></p>
+
     @endif
 @endauth
 
-        @auth
-        <p class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"><a href="{{route('updateTar')}}">Update Tariff</a></p>
-
-        <form action="{{ route('logout') }}" method="POST" class="inline">
-          @csrf
-          <button type="submit" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
-            <!-- Logout Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H3m0 0l4-4m-4 4l4 4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Logout
-          </button>
-        </form>
-        @endauth
+       <a href="{{ route('logoutDemo') }}">Logout</a>
 
 
       </nav>
@@ -132,14 +121,14 @@
       <rect x="3" y="7" width="18" height="10" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
       <circle cx="12" cy="12" r="3" stroke-width="2" stroke="currentColor" fill="none"/>
     </svg>
-    <span class="text-xs mt-1 text-gray-700">Radiology</span>
+    <span class="text-xs mt-1 text-gray-700">TARIFF</span>
   </a>
   <!-- Accommodation Icon (Home) -->
-  <a href="#" class="flex flex-col items-center group">
+  <a href="{{route('admin.users')}}" class="flex flex-col items-center group">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600 group-hover:text-yellow-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
     </svg>
-    <span class="text-xs mt-1 text-gray-700">Accommodation</span>
+    <span class="text-xs mt-1 text-gray-700">USERS</span>
   </a>
   <!-- Laboratory Icon (Beaker) -->
   <a href="#" class="flex flex-col items-center group">

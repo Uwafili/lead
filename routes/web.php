@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\updateTariffController;
 
 // Authenticated routes
@@ -10,10 +11,15 @@ Route::middleware("auth")->group(function(){
     Route::view('/Service', 'follow.Service')->name('Service'); 
     Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
-  Route::view('/updateTariff',"follow.updateTar")->name('updateTar');
+    Route::view("/logout",'logout')->name('logoutDemo');
+
+Route::view('/updateTariff',"follow.updateTar")->name('updateTar');
 Route::post('/UpdateTar',[updateTariffController::class,'index'])->name('UpdateTar');
 Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateSinTar');
 
+
+Route::view('/ViewFacilities',"admin.users")->name('admin.users');
+Route::view('/AddFacilities',"admin.AddUser")->name('addFacility');
 });
 
 
@@ -33,4 +39,5 @@ Route::get('/Admin/tariff/{id?}', [AuthController::class, 'adminTar'])->name('ad
 
 Route::get('/export-tariffs-csv{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
 
+Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
 });

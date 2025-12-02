@@ -1,9 +1,17 @@
 @extends('layouts.layout')
 @section('content')
 <div class="max-w-7xl mx-auto bg-white rounded-3xl shadow-lg p-8">
-    <h1 class="text-3xl font-bold text-orange-600 mb-6">Facilities with Pending Tariff</h1>
+ <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-orange-600">Facilities with Pending Tariff</h1>
+
+    <a href="{{ route('updateTar') }}"
+        class="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-semibold shadow-md hover:bg-orange-700 hover:shadow-lg transition transform hover:scale-105">
+        Update Facility Tariff
+    </a>
+</div>
 
     <div class="overflow-x-auto">
+
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-orange-100">
           <tr>

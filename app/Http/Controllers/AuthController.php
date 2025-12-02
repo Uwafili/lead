@@ -19,6 +19,7 @@ class AuthController extends Controller
             'password'=>['required', 'confirmed',  Password::min(8)->mixedCase(),] // Ensure password confirmation is handled
       ]);
       
+      
       $field['usertype']=($request->email==='leadway@gmail.com')?'admin':'user';
       $user=user::create($field);
 
