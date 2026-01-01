@@ -124,12 +124,16 @@
     <span class="text-xs mt-1 text-gray-700">TARIFF</span>
   </a>
   <!-- Accommodation Icon (Home) -->
+    @auth
+    @if(Auth::user() && Auth::user()->usertype == 'admin')
   <a href="{{route('admin.users')}}" class="flex flex-col items-center group">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600 group-hover:text-yellow-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
     </svg>
     <span class="text-xs mt-1 text-gray-700">USERS</span>
   </a>
+   @endif
+@endauth
   <!-- Laboratory Icon (Beaker) -->
   <a href="#" class="flex flex-col items-center group">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500 group-hover:text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
