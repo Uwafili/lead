@@ -1,4 +1,3 @@
-<!-- filepath: c:\Users\Bishop\leadway\resources\views\Auth\login.blade.php -->
 @extends('layouts.layout')
 @section('content')
 <div class="flex items-center justify-center min-h-screen">
@@ -20,8 +19,16 @@
       <!-- Password -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-        <input type="password" name="password" id="password" required
-          class="w-full px-4 py-2 mt-1 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="relative">
+          <input type="password" name="password" id="password" required
+            class="w-full px-4 py-2 mt-1 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <span class="absolute inset-y-0 right-0 flex items-center pr-2 cursor-pointer" onclick="togglePasswordVisibility('password')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12s2-4 9-4 9 4 9 4-2 4-9 4-9-4-9-4z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </span>
+        </div>
         @error('password')
           <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
         @enderror
@@ -51,4 +58,10 @@
     </p>
   </div>
 </div>
+<script>
+  function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    field.type = field.type === 'password' ? 'text' : 'password';
+  }
+</script>
 @endsection
