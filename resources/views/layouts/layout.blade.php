@@ -97,7 +97,7 @@
           <rect x="6" y="6" width="12" height="12" rx="3" stroke-width="2" stroke="currentColor" fill="none"/>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6" />
     </svg>
-    <span class="text-xs mt-1 text-gray-700">Pharmacy</span>
+    <span class="text-xs mt-1 text-gray-700">Leadway</span>
   </a>
   <!-- Consultation Icon (User/Doctor) -->
   <a href="{{route('consultation')}}" class="flex flex-col items-center group">

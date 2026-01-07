@@ -1,7 +1,7 @@
 <!-- filepath: c:\Users\Bishop\leadway\resources\views\Auth\register.blade.php -->
 @extends('layouts.layout')
 @section('content')
-<div class="flex items-center justify-center min-h-screen">
+<div class="flex items-center justify-center min-h-screen tariff-background">
   <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-xl">
     <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Welcome To PMU Kitchen</h2>
     <p class="text-center text-gray-500 mb-6">Create your account below</p>

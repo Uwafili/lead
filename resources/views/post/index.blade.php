@@ -6,62 +6,103 @@
     <img src="{{ asset('asset/collection.jpg') }}" alt="Pharmacy" class="absolute inset-0 w-full h-full object-cover opacity-40" />
     <div class="absolute inset-0 bg-gradient-to-t from-orange-700/60 via-orange-400/30 to-transparent"></div>
     <div class="relative z-10 text-center px-4">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow mb-4">Pharmacy Services</h1>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow mb-4"> {{ \Carbon\Carbon::now()->format('Y') }} Leadway Tariff</h1>
         <p class="text-lg md:text-xl text-white font-medium drop-shadow leading-relaxed">
-            Welcome to our Pharmacy section, where we ensure access to quality medications and healthcare essentials.<br>
-            Whether you're managing chronic conditions or picking up over-the-counter remedies, our facility is ready to serve you.
-        </p>
+            This document represents Leadway Assurance’s full tariff and is provided solely for the purpose of engagement and 
+            negotiation with healthcare service providers nationwide. The rates displayed reflect our best tariff across Nigeria,
+             carefully structured to ensure fairness, consistency, and alignment with national healthcare service standards. </p>
     </div>
 </div>
 
 <!-- Form Section -->
 <div class="max-w-4xl mx-auto bg-white bg-opacity-95 rounded-xl shadow-2xl p-10 mt-10">
     <div class="mb-8 text-center">
-        <h2 class="text-3xl font-bold text-orange-600 mb-2">Medication Entry Form</h2>
+        <h2 class="text-3xl font-bold text-orange-600 mb-2">Tariff Entry</h2>
         <p class="text-gray-600">
-            Kindly fill in the medication details below. Our team is committed to affordability and quality care.
+            Find our full tariff below. Rates reflect Leadway’s best pricing across services and locations, for your review and negotiation.
         </p>
     </div>
+<table class="min-w-full border border-gray-300 border-collapse text-left rounded-lg shadow">
+    <thead>
+        <tr class="bg-orange-200">
+            <th class="border px-4 py-2 text-orange-900">Service</th>
+            <th class="border px-4 py-2 text-orange-900">Service Category</th>
+            <th class="border px-4 py-2 text-orange-900">Tariff (₦)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="border px-4 py-2">ALKALINE PHOSPHATASE</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">1,000.00</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ALPHA FETO PROTEIN</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">7,680.00</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">AMYLASE(PANCREATIC)</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">2,500.00</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANC SCREEN ONLY</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">10,000.00</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANTI NEUTROPHIL CYTOPLASMIC</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">16,742.40</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANTI NUCLEAR ANTIBODY</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">9,523.20</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANTI DNA</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">8,140.80</td>
+        </tr>
+        
+        <!-- Continue for the rest of the services -->
+        <tr>
+            <td class="border px-4 py-2">ANTI DNA</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">8,140.80</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANTI DNA</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">8,140.80</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANTI DNA</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">8,140.80</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANTI DNA</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">8,140.80</td>
+        </tr>
+        <tr>
+            <td class="border px-4 py-2">ANTI DNA</td>
+            <td class="border px-4 py-2">LABORATORY</td>
+            <td class="border px-4 py-2">8,140.80</td>
+        </tr>
 
-    <form class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Description -->
-        <div>
-            <label class="block font-semibold text-orange-600 mb-1">Description</label>
-            <input type="text" placeholder="e.g. Amoxicillin 250mg"
-                   class="w-full px-4 py-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-orange-50" />
-        </div>
+    </tbody>
+</table>
 
-        <!-- Quantity -->
-        <div>
-            <label class="block font-semibold text-orange-700 mb-1">Quantity</label>
-            <input type="number" placeholder="e.g. 30"
-                   class="w-full px-4 py-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-orange-50" />
-        </div>
 
-        <!-- Payment -->
-        <div>
-            <label class="block font-semibold text-orange-700 mb-1">Payment (₦)</label>
-            <input type="number" placeholder="e.g. 3000"
-                   class="w-full px-4 py-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-orange-50" />
-        </div>
-
-        <!-- Pack / Tab -->
-        <div>
-            <label class="block font-semibold text-orange-700 mb-1">Pack / Tab</label>
-            <select class="w-full px-4 py-3 border border-orange-300 rounded-lg bg-white focus:ring-2 focus:ring-orange-500 focus:outline-none">
-                <option value="">Select</option>
-                <option value="pack">Pack</option>
-                <option value="tab">Tab</option>
-            </select>
-        </div>
-
-        <!-- Submit -->
-        <div class="md:col-span-2 text-center mt-4">
-            <button type="submit"
-                    class="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg shadow hover:from-orange-600 hover:to-yellow-600 transition">
-                Submit
-            </button>
-        </div>
-    </form>
+     <div class="mt-6 text-right">
+        <a href="{{ route('tariff.download') }}" 
+           class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded shadow font-semibold transition duration-200">
+            Download Full Tariff
+        </a>
+    </div>
 </div>
 @endsection

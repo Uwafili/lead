@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" width="100%" height="100%">
+  <defs>
+    <style>
+      .land { fill: #e0f2f1; stroke: #b2dfdb; stroke-width: 0.5; }
+      .tariff-low { fill: #c8e6c9; }
+      .tariff-medium { fill: #fff3e0; }
+      .tariff-high { fill: #ffcdd2; }
+      .ocean { fill: #e3f2fd; }
+    </style>
+  </defs>
+  <!-- Ocean -->
+  <rect width="1000" height="500" class="ocean"/>
+  <!-- Simplified World Map -->
+  <!-- North America -->
+  <path d="M100 150 L150 100 L200 120 L180 180 L120 200 Z" class="land tariff-low"/>
+  <!-- South America -->
+  <path d="M180 200 L220 250 L200 350 L160 320 L150 250 Z" class="land tariff-medium"/>
+  <!-- Europe -->
+  <path d="M450 120 L500 100 L550 130 L520 160 L470 150 Z" class="land tariff-high"/>
+  <!-- Africa -->
+  <path d="M480 180 L520 200 L500 350 L450 320 L430 250 Z" class="land tariff-medium"/>
+  <!-- Asia -->
+  <path d="M550 100 L700 80 L750 120 L720 180 L600 160 Z" class="land tariff-low"/>
+  <!-- Australia -->
+  <path d="M700 300 L750 280 L800 320 L780 360 L720 340 Z" class="land tariff-high"/>
+  <!-- Antarctica (simplified) -->
+  <path d="M200 400 L800 400 L850 450 L150 450 Z" class="land tariff-medium"/>
+</svg>

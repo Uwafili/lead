@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\updateTariffController;
+use App\Http\Controllers\TariffController;
+
 
 // Authenticated routes
 Route::middleware("auth")->group(function(){
@@ -30,6 +32,10 @@ Route::post('/register',[AuthController::class,'register'])->name('register'); /
 Route::middleware("guest")->group(function(){
     Route::view('/login','Auth.login')->name('login'); // Unique name for GET
     Route::post('/login',[AuthController::class,'login'])->name('login'); // POST
+
+
+    Route::get('/download-tariff', [TariffController::class, 'downloadFullTariff'])->name('tariff.download');
+
 });
 
 Route::middleware(["admin"])->group(function(){
