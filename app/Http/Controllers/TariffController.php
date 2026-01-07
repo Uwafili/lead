@@ -18,6 +18,6 @@ class TariffController extends Controller
 
     $collection = new Collection($fullTariff);
 
-    return Excel::download($collection, 'Leadway_Full_Tariff.xlsx');
+    return Excel::download($collection, '/app/LEADWAY HEALTH TARIFF.xlsx');
 }
 }
