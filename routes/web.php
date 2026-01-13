@@ -25,13 +25,13 @@ Route::view('/AddFacilities',"admin.AddUser")->name('addFacility');
 });
 
 
-Route::view('/register','Auth.register')->name('register'); // Unique name for GET
-Route::post('/register',[AuthController::class,'register'])->name('register'); // POST
-
+// Route::view('/register','Auth.register')->name('register');
+// Route::post('/register',[AuthController::class,'register'])->name('register.store');
+ 
 // Guest routes
 Route::middleware("guest")->group(function(){
-    Route::view('/login','Auth.login')->name('login'); // Unique name for GET
-    Route::post('/login',[AuthController::class,'login'])->name('login'); // POST
+    // Route::view('/login','Auth.login')->name('login');
+    // Route::post('/login',[AuthController::class,'login'])->name('login.store'); // POST
 
 
     Route::get('/download-tariff', [TariffController::class, 'downloadFullTariff'])->name('tariff.download');
@@ -39,9 +39,9 @@ Route::middleware("guest")->group(function(){
 });
 
 Route::middleware(["admin"])->group(function(){
-     Route::get('/Admin/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
+        Route::get('/Admin/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
         Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
-Route::get('/Admin/tariff/{id?}', [AuthController::class, 'adminTar'])->name('admin.tariff');
+        Route::get('/Admin/tariff/{id?}', [AuthController::class, 'adminTar'])->name('admin.tariff');
 
 Route::get('/export-tariffs-csv{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
 
