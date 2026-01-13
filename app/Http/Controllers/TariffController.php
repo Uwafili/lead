@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 
 namespace App\Http\Controllers;
 
@@ -20,4 +20,4 @@ class TariffController extends Controller
 
     return Excel::download($collection, '/app/LEADWAY HEALTH TARIFF.xlsx');
 }
-}
+} -->
