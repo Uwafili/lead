@@ -25,13 +25,13 @@ Route::view('/AddFacilities',"admin.AddUser")->name('addFacility');
 });
 
 
-// Route::view('/register','Auth.register')->name('register');
-// Route::post('/register',[AuthController::class,'register'])->name('register.store');
+Route::view('/register','Auth.register')->name('register');
+Route::post('/register',[AuthController::class,'register'])->name('register.store');
  
 // Guest routes
 Route::middleware("guest")->group(function(){
-    // Route::view('/login','Auth.login')->name('login');
-    // Route::post('/login',[AuthController::class,'login'])->name('login.store'); // POST
+    Route::view('/login','Auth.login')->name('login');
+    Route::post('/login',[AuthController::class,'login'])->name('login.store'); // POST
 
 
     Route::get('/download-tariff', [TariffController::class, 'downloadFullTariff'])->name('tariff.download');
