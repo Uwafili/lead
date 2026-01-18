@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pendingTariffs', function (Blueprint $table) {
+        Schema::create('pending_tariffs', function (Blueprint $table) {
             $table->id();
             $table->string('user_id');
              $table->string('user_name');
-            
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('_pending_tariff');
+        Schema::dropIfExists('pending_tariffs');
     }
 };
