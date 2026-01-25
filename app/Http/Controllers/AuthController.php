@@ -44,6 +44,7 @@ public function login(Request $request){
         ]);
     }
 }
+
 public function adminDashboard(){
     if(Auth::check()&& Auth::user()->usertype=='admin'){
       $users=user::with('pendingtariffs')->get();
@@ -58,6 +59,7 @@ public function adminDashboard(){
          
       }
 }
+
   public function logout(Request $request){
     Auth::logout();
 
@@ -74,8 +76,5 @@ $tariffs=Tariff::where('user_id',$id)->get();
 return view('Admin.tariff', compact('tariffs'));
 }  
  
-
-
-
 
 }
