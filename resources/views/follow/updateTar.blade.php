@@ -1,9 +1,16 @@
 @extends('layouts.layout')
 @section('content')
 
+<style>
+    .top{
+      width: 50vw;
+      height: 70vh;
+      margin: 20%;
+    }
+</style>
 
-
-  <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md border border-orange-200">
+  {{-- <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md border border-orange-200"> --}}
+    <div class="top">
     <h2 class="text-3xl font-bold text-center text-orange-700 mb-6">Upload Your File</h2>
 
     @if ($errors->any())
