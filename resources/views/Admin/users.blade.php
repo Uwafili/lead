@@ -26,16 +26,17 @@ Add New Facility
 <tbody class="bg-white divide-y divide-gray-200">
 <!-- Example Row (You will populate dynamically with Laravel) -->
 
-@foreach ( $users as $user )
+{{-- @foreach ( $users as $user )
     
 <tr class="hover:bg-orange-50 transition">
-    <td class="px-6 py-4 whitespace-nowrap">{{$user['email']}}</td>
     <td class="px-6 py-4 whitespace-nowrap">{{$user['name']}}</td>
+    <td class="px-6 py-4 whitespace-nowrap">{{$user['email']}}</td>
+    <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
 </tr>
-@endforeach
+@endforeach --}}
 
 
-{{-- <tr class="hover:bg-orange-50 transition">
+<tr class="hover:bg-orange-50 transition">
 <td class="px-6 py-4 whitespace-nowrap">Chivar Specialist Hospital</td>
 <td class="px-6 py-4 whitespace-nowrap">chivar@example.com</td>
 <td class="px-6 py-4 whitespace-nowrap">••••••••</td>
@@ -48,7 +49,7 @@ Add New Facility
 <td class="px-6 py-4 whitespace-nowrap">prime@example.com</td>
 <td class="px-6 py-4 whitespace-nowrap">••••••••</td>
 
-</tr> --}}
+</tr>
 <!-- Repeat as needed -->
 </tbody>
 </table>

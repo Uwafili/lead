@@ -52,4 +52,5 @@ class User extends Authenticatable
     return $this->hasMany(PendingTariff::class); // one user has many tariffs
 }
 
+
 }

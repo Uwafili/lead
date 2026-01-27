@@ -76,5 +76,8 @@ $tariffs=Tariff::where('user_id',$id)->get();
 return view('Admin.tariff', compact('tariffs'));
 }  
  
-
+public function show(Request $request){
+        $users = User::all();
+        return view('Admin.users',compact('users'));
+    }
 }

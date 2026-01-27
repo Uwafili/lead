@@ -28,7 +28,11 @@
   <!-- Top Navbar -->
   <header class="bg-orange-400 bg-opacity-95 text-black shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-extrabold tracking-wide">welcome {{ Auth()->user()->name }}</h1>
+    @auth()
+      
+    <h1 class="text-2xl font-extrabold tracking-wide">welcome {{ Auth()->user()->name }}</h1>
+    @endauth
+      
       <nav class="space-x-6 flex items-center">
         <a href="{{ route('home') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
           <!-- Home Icon -->
@@ -79,7 +83,13 @@
     @endif
 @endauth
 
-       <a href="{{ route('logoutDemo') }}">Logout</a>
+       {{-- <a href="{{ route('logout') }}">Logout</a> --}}
+       <form method="POST" action="{{ route('logout') }}">
+@csrf
+<button type="submit" class="text-black-600">
+Logout
+</button>
+</form>
 
 
       </nav>

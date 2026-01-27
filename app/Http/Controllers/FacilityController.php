@@ -53,8 +53,5 @@ class FacilityController extends Controller
 
         return back()->with('csverror', 'Unable to open CSV file.');
     }
-    public function show(Request $request){
-        $users = User::all();
-        return view('show',compact('users'));
-    }
+    
 }
