@@ -46,7 +46,7 @@ Route::middleware(["admin"])->group(function(){
         
         // Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
         
-Route::get('/Admin/users', [AuthController::class, 'show'])->name('admin.users');
+        Route::get('/Admin/users', [AuthController::class, 'show'])->name('admin.users');
 
 
 
