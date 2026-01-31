@@ -1,5 +1,5 @@
 self.onmessage = function (e) {
-  const { word, dictionary } = e.data;
+  const {id, word, dictionary, } = e.data;
 
   /*************************************************
  * SMART FUZZY MATCHING ENGINE (MEDICAL-GRADE)
@@ -17,7 +17,7 @@ function normalize(str) {
     if(str){
         return str
             .toLowerCase()
-            .replace(/[^a-z]/g, "")
+            .replace(/[^a-z0-9]/g, "")
             .trim();
     }
  
@@ -146,7 +146,7 @@ function smartFuzzyMatch(input, target) {
     .slice(0, limit);
 }
 
-
-self.postMessage(topMatches(word,dictionary));
+const rest=topMatches(word,dictionary)
+self.postMessage({id,rest});
 
 }
