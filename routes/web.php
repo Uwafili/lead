@@ -46,10 +46,12 @@ Route::middleware(["admin"])->group(function(){
         
 Route::get('/export-tariffs-csv{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
 
-// Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
+ Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
 
-Route::get('users', [FacilityController::class, 'users'])->name('admin.users');
+Route::view("/addFacility",'Admin.AddUser')->name('addFacility');
+Route::get('/users', [FacilityController::class,'getUsers'])->name('admin.users');
 
+//Route::get('/users', [FacilityController::class, 'users'])->name('admin.users');
 
 
 });

@@ -26,17 +26,19 @@
 
         <tbody class="bg-white divide-y divide-gray-100">
             @foreach ($tariffs as $tariff)
-            <tr data-service="{{ $tariff['SERVICE'] }}">
+            <tr class="{{$loop->index}}" data-service="{{ $tariff['SERVICE'] }}">
                 <td>
-                    <div class="relative w-full max-w-sm">
-                        <button class="dropdownButton w-full flex justify-between items-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 focus:ring-2 focus:ring-indigo-200">
-                            <span class="selectedValue emp px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tariff['SERVICE'] }}</span>
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    <div class="relative inline-block text-left drops" >
+                        <button id="" class="btn{{$loop->index}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ $tariff['SERVICE'] }}
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <ul class="dropdownMenu absolute z-10 mt-2 hidden w-full rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden"></ul>
-                    </div>
+                       
+                   <!-- Menu -->
+  <div id="" class="dropdownMenu loop{{$loop->index}} hidden absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+  </div>
+</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tariff['TARIFF'] }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -86,22 +88,50 @@ tariffs.forEach(ele => {
 });
 
 // Send all tariffs to worker
-tariffs.forEach(tariff => {
-    worker.postMessage({ word: tariff['SERVICE'], dictionary: drugs });
+tariffs.forEach((tariff,id) => {
+    worker.postMessage({id:id, word: tariff['SERVICE'], dictionary: drugs });
+
 });
+
+
+    worker.onmessage = function (event) {
+      
+    const idName='.loop'+event.data.id
+
+    const ul=document.querySelector(idName);
+    const div=document.createElement("div")
+    div.className="py-1"
+   
+    console.log(event.data)
+   event.data.rest.forEach(element => {
+    
+    const li=document.createElement('div');
+    li.className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+    li.innerHTML=element.value
+div.append(li)
+   }); 
+   ul.append(div)
+
+}
 
 // Dropdown open/close logic
-document.querySelectorAll(".dropdownButton").forEach(button => {
-    const menu = button.nextElementSibling;
-    button.addEventListener("click", e => {
-        e.stopPropagation();
-        menu.classList.toggle("hidden");
-    });
+const drops =document.querySelectorAll(".drops");
+drops.forEach(element => {
+    const btn = element.querySelector('.dropdownButton');
+  const menu = element.querySelector('.dropdownMenu');
+
+  btn.addEventListener('click', () => {
+  drops.forEach(d => {
+    if (d !== element) {
+      d.querySelector('.dropdownMenu')?.classList.add('hidden');
+    }
+  });
+  menu.classList.toggle('hidden');
 });
 
-document.addEventListener("click", () => {
-    document.querySelectorAll(".dropdownMenu").forEach(menu => menu.classList.add("hidden"));
 });
+  
+ 
 
 // CSRF & Send button logic
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

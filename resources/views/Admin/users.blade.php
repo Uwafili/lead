@@ -6,7 +6,7 @@
  <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-lg p-8">
 <div class="flex items-center justify-between mb-6">
 <h1 class="text-3xl font-bold text-orange-600">All Facilities</h1>
-<a href="{{ route('addFacility') }}" class="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-semibold shadow-md hover:bg-orange-700 hover:shadow-lg transition transform hover:scale-105">
+ <a href="{{ route('addFacility') }}" class="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-semibold shadow-md hover:bg-orange-700 hover:shadow-lg transition transform hover:scale-105"> 
 Add New Facility
 </a>
 </div>
