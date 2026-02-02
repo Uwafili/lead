@@ -82,14 +82,15 @@ return view('follow.consultation', compact('tariffs'));
     $id=$request['id'];
     $tariff = Tariff::find($id);
 
-// Check if the row exists
-if ($tariff) {
-    $tariff['TARIFF'] = $request['Tariff'];
-    $tariff->save();              // Save changes to DB
-    return response()->json(['message'=>"successful",200]);
-}else{
-    return response()->json(['message'=>"something went wrong",500]);
-}
+        // Check if the row exists
+        if ($tariff) {
+            $tariff['Edited']=$request['des'];
+            $tariff['TARIFF'] = $request['Tariff'];
+            $tariff->save();              // Save changes to DB
+            return response()->json(['message'=>"successful",200]);
+        }else{
+            return response()->json(['message'=>"something went wrong",500]);
+        }
 
 
 
