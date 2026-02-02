@@ -73,10 +73,9 @@ public function adminDashboard(){
   }
 
 public function adminTar($id){
-$tariffs=Tariff::where('user_id',$id)->get();
-
-return view('Admin.tariff', compact('tariffs'));
-}  
+    $tariffs = Tariff::where('user_id', $id)->paginate(200); // number per page
+    return view('Admin.tariff', compact('tariffs'));
+}
  
 public function show(Request $request){
         $users = User::all();
