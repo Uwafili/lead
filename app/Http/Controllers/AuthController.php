@@ -49,6 +49,8 @@ public function adminDashboard(){
     if(Auth::check()&& Auth::user()->usertype=='admin'){
       $users=user::with('pendingtariffs')->get();
       
+
+      
       return view('admin.dashboard', compact('users'));
     }
     else if(Auth::check()&& Auth::user()->usertype==='user'){

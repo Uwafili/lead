@@ -3,7 +3,7 @@
 
 <style>
   .dropdown-item {
-    @apply px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer;
+    @apply px-7 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer;
   }
 </style>
 
@@ -19,10 +19,12 @@
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Service</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Current Price</th>
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Requested Price</th>
+                {{-- <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Tariff code</th> --}}
+                {{-- <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">leadway tariff</th> --}}
                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
                 <th class="px-6 py-3 text-center text-sm font-medium text-gray-700">Action</th>
             </tr>
-        </thead>
+        </thead> 
 
         <tbody class="bg-white divide-y divide-gray-100">
             @foreach ($tariffs as $tariff)
