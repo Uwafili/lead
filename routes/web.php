@@ -50,7 +50,7 @@ Route::middleware(["admin"])->group(function(){
         Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
 
         Route::view("/addFacility",'Admin.AddUser')->name('addFacility');
-        Route::get('/users', [FacilityController::class,'getUsers'])->name('admin.users');
+        // Route::get('/users', [FacilityController::class,'getUsers'])->name('admin.users');
 
         //Route::get('/users', [FacilityController::class, 'users'])->name('admin.users');
 
