@@ -46,8 +46,7 @@ Route::middleware(["admin"])->group(function(){
         
         Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
         Route::get('/Admin/users', [AuthController::class, 'show'])->name('admin.users');
-        Route::get('/export-tariffs-csv{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
-
+        Route::get('/export-tariffs-csv/{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
         Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
 
         Route::view("/addFacility",'Admin.AddUser')->name('addFacility');
