@@ -44,7 +44,7 @@ Route::middleware(["admin"])->group(function(){
         Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
         Route::get('/Admin/tariff/{id?}', [AuthController::class, 'adminTar'])->name('admin.tariff');
         
-        // Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
+        Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
         Route::get('/Admin/users', [AuthController::class, 'show'])->name('admin.users');
         Route::get('/export-tariffs-csv{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
 
