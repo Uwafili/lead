@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Tariff;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 
-use App\Models\User;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -49,6 +49,8 @@ public function adminDashboard(){
     if(Auth::check()&& Auth::user()->usertype=='admin'){
       $users=user::with('pendingtariffs')->get();
       
+
+      
       return view('admin.dashboard', compact('users'));
     }
     else if(Auth::check()&& Auth::user()->usertype==='user'){
@@ -75,8 +77,8 @@ public function adminTar($id){
     return view('Admin.tariff', compact('tariffs'));
 }
  
-public function show(Request $request){
+public function show(){
         $users = User::all();
-        return view('Admin.users',compact('users'));
+        return view('admin.users',compact('users'));
     }
 }

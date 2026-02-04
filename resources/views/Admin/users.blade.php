@@ -35,6 +35,22 @@ Add New Facility
 </tr>
 @endforeach --}}
 
+ {{-- @forelse ($users as $user)
+            <tr>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ $user->id }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ $user->name }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ $user->email }}</td>
+                <td class="px-6 py-4 text-sm">
+                    <form method="POST" action="{{ route('admin.users.delete', $user) }}" style="display:inline;">
+                        @csrf @method('DELETE')
+                        <button class="text-red-600 hover:text-red-900">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            @empty
+            <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>
+            @endforelse --}}
+
 
 <tr class="hover:bg-orange-50 transition">
 <td class="px-6 py-4 whitespace-nowrap">Chivar Specialist Hospital</td>

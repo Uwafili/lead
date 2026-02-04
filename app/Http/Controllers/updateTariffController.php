@@ -115,7 +115,7 @@ dd($tariffs);
 
         // Set CSV headers
     $headers = [
-        "Content-Type" => "text/csv",
+        "Content-Type" => "text/csv charset=utf-8",
         "Content-Disposition" => "attachment; filename=tariffs.csv",
     ];
 // Callback to write CSV content

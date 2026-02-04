@@ -81,8 +81,12 @@
     @endif
 @endauth
 
-       <a href="{{ route('logoutDemo') }}">Logout</a>
-
+     <form action="{{ route('logoutDemo') }}" method="POST">
+    @csrf
+    <button type="submit" class="text-black-600 hover:underline">
+        Logout
+    </button>
+</form>
 
       </nav>
 

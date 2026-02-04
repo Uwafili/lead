@@ -44,14 +44,13 @@ Route::middleware(["admin"])->group(function(){
         Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
         Route::get('/Admin/tariff/{id?}', [AuthController::class, 'adminTar'])->name('admin.tariff');
         
-        // Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
+        Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
         Route::get('/Admin/users', [AuthController::class, 'show'])->name('admin.users');
-        Route::get('/export-tariffs-csv{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
-
+        Route::get('/export-tariffs-csv/{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
         Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
 
         Route::view("/addFacility",'Admin.AddUser')->name('addFacility');
-        Route::get('/users', [FacilityController::class,'getUsers'])->name('admin.users');
+        // Route::get('/users', [FacilityController::class,'getUsers'])->name('admin.users');
 
         //Route::get('/users', [FacilityController::class, 'users'])->name('admin.users');
 
