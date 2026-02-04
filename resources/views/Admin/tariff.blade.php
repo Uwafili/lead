@@ -74,12 +74,14 @@
       {{ $tariffs->links() }}
 </div>
 
-<a href="{{ route('tariffs.export', ['id' => $tariffs[0]['user_id']]) }}" class="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-semibold rounded-xl shadow-md hover:bg-orange-700 hover:shadow-lg transition transform hover:scale-105">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
-    Save
-</a>
+@if($tariffs && $tariffs->count() > 0)
+    <a href="{{ route('tariffs.export', ['id' => $tariffs->first()['user_id']]) }}" class="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-semibold rounded-xl shadow-md hover:bg-orange-700 hover:shadow-lg transition transform hover:scale-105">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        Save
+    </a>
+@endif
 
 <script type="module">
     // Initialize Worker

@@ -107,9 +107,9 @@ return view('follow.consultation', compact('tariffs'));
  public function exportTariffsCsv($id){
 
 $tariffs = json_decode(file_get_contents(public_path('js/Tar.json')),true);
-dd($tariffs);
+// dd($tariffs);
 
-/*  $tariffs = Tariff::where('user_id', $id)
+  $tariffs = Tariff::where('user_id', $id)
         ->get(['Edited_Service', 'Edited_Tariff']); 
 
 
@@ -143,7 +143,7 @@ if ($Pendtariff) {
     Tariff::where('user_id',$id)->delete();
    return response()->stream($callback, 200, $headers);
 } 
- */
+ 
     
 } 
 
