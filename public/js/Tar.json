@@ -1,4 +1,4 @@
- const Tar=[
+[
   {
     "tariff_code":"J0110259C",
     "tariff_desc":"CO AMOXICLAV 500MG"
@@ -107145,4 +107145,3 @@
   }
 ]
 
-export default Tar

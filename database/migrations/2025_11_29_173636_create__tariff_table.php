@@ -16,7 +16,9 @@ return new class extends Migration
             $table->integer("user_id");
              $table->string('SERVICE');
              $table->string('TARIFF');
-             $table->string("Edited");
+             $table->string("Edited_Tariff");
+             $table->string("Edited_Service");
+             $table->string('Negotiated');
 
             $table->timestamps();
         });

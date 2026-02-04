@@ -9,6 +9,9 @@ class Tariff extends Model
      protected $fillable=[
         'user_id',
         'TARIFF',
-        'SERVICE'
+        'SERVICE',
+        'Edited_Service',
+        'Edited_Tariff',
+        'Negotiated'
     ];
 }

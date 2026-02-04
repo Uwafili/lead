@@ -53,7 +53,9 @@ class updateTariffController extends Controller
             'user_id'=>$id,
             'SERVICE'  => $row[0],
             'TARIFF' => $row[1],
-            
+            'Edited_Service'=>'',
+            'Edited_Tariff'=>'',
+            'Negotiated'=>'false'
         ]);
     }
     fclose($handle);
@@ -84,8 +86,12 @@ return view('follow.consultation', compact('tariffs'));
 
         // Check if the row exists
         if ($tariff) {
-            $tariff['Edited']=$request['des'];
-            $tariff['TARIFF'] = $request['Tariff'];
+         if ($request['type'] == 'drops') {
+              $tariff['Edited_Service']=$request['des'];
+         }else{
+             $tariff['Edited_Tariff'] = $request['Tariff'];
+            $tariff['Negotiated']='Negotiated';
+         }
             $tariff->save();              // Save changes to DB
             return response()->json(['message'=>"successful",200]);
         }else{
@@ -99,8 +105,12 @@ return view('follow.consultation', compact('tariffs'));
 
 
  public function exportTariffsCsv($id){
-  $tariffs = Tariff::where('user_id', $id)
-        ->get(['SERVICE', 'TARIFF']); 
+
+$tariffs = json_decode(file_get_contents(public_path('js/Tar.json')),true);
+dd($tariffs);
+
+/*  $tariffs = Tariff::where('user_id', $id)
+        ->get(['Edited_Service', 'Edited_Tariff']); 
 
 
         // Set CSV headers
@@ -133,9 +143,9 @@ if ($Pendtariff) {
     Tariff::where('user_id',$id)->delete();
    return response()->stream($callback, 200, $headers);
 } 
-
+ */
     
-}
+} 
 
 
 }
