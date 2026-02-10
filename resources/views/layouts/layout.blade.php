@@ -157,6 +157,8 @@
       <div class="bg-overlay py-10">
         <div class="container mx-auto px-4">
           @yield('content')
+
+          @stack('script')
         </div>
       </div>
     </main>

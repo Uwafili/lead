@@ -7,7 +7,57 @@
   }
 </style>
 
+@push('script')
+<script src="{{ asset('js/tariffHandler.js') }}"></script>
+@endpush
 <div class="overflow-x-auto bg-white rounded-lg shadow">
+
+<!-- Sticky Wrapper -->
+<div class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
+
+  <!-- Toolbar -->
+  <div class="max-w-full px-4 py-3">
+    <div class="flex flex-wrap items-center gap-3">
+
+      <!-- Reduce Price -->
+      <button class="px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">
+        Reduce Price
+      </button>
+
+      <input type="number" placeholder="%" class="w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"/>
+
+      <!-- Increase Price -->
+      <button class="px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600">
+        Increase Price
+      </button>
+
+      <!-- Divider -->
+      <div class="hidden md:block h-6 w-px bg-gray-300 mx-2"></div>
+              <input type="number" placeholder="%" class="w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"/>
+
+
+      <button class="px-4 py-2 text-sm font-medium bg-blue-500 text-white rounded-md hover:bg-blue-600">
+        Apply
+      </button>
+
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+
+      <!-- Search -->
+      <input
+        type="text"
+        placeholder="Search..."
+        class="w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
+      />
+
+      <button class="px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
+        Reset
+      </button>
+
+    </div>
+  </div>
+</div>
+
 
     <div id="successAlert" class="hidden fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
         Updated successfully!
@@ -54,7 +104,7 @@
         @endif
 
         <!-- Dropdown Menu -->
-        <div id="btn{{$tariff['id']}}" class="dropdownMenu loop{{$tariff['id']}} hidden absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+        <div id="btn{{$tariff['id']}}" class="dropdownMenu loop{{$tariff['id']}} hidden absolute z-50 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
         </div>
 
     </div>
