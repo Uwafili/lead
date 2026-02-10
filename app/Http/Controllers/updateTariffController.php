@@ -105,49 +105,50 @@ return view('follow.consultation', compact('tariffs'));
  }
 
 
-
- public function exportTariffsCsv($id){
-
+public function exportTariffsCsv($id){
 
 
-$tariffs = Tariff::where('user_id', $id)
-    ->whereNotNull('code')
-    ->where('code', '<>', '')
-    ->get(['Edited_Service', 'Edited_Tariff', 'code']);
 
-        // Set CSV headers
-    $headers = [
-        "Content-Type" => "text/csv charset=utf-8",
-        "Content-Disposition" => "attachment; filename=tariffs.csv",
-    ];
-// Callback to write CSV content
-    $callback = function() use ($tariffs) {
-        $file = fopen('php://output', 'w');
+            $tariffs = Tariff::where('user_id', $id)
+                ->whereNotNull('code')
+                ->where('code', '<>', '')
+                ->get(['Edited_Service','SERVICE', 'Edited_Tariff', 'TARIFF', 'code']);
 
-        // Add CSV column headers
-        fputcsv($file, [ 'SERVICE', 'TARIFF','CODE']);
+                    // Set CSV headers
+                $headers = [
+                    "Content-Type" => "text/csv charset=utf-8",
+                    "Content-Disposition" => "attachment; filename=tariffs.csv",
+                ];
+            // Callback to write CSV content
+                $callback = function() use ($tariffs) {
+                    $file = fopen('php://output', 'w');
 
-        // Add data rows
-        foreach ($tariffs as $tariff) {
-            fputcsv($file, [ $tariff->Edited_Service,$tariff->Edited_Tariff,$tariff->code]);
-        }
+                    // Add CSV column headers
+                    fputcsv($file, [ 'SERVICE', 'TARIFF','CODE']);
 
-        fclose($file);
-    };
+                    // Add data rows
+                    foreach ($tariffs as $tariff) {
+                        $tar;
+                        if (strlen($tariff['Edited_Tariff'])===0) {$tar=$tariff['TARIFF'];}else{ $tar=$tariff['Edited_Tariff'];}   
+                        fputcsv($file, [ $tariff->Edited_Service,$tariff->$tar,$tariff->code]);
+                    }
 
-   
-   /*  $Pendtariff = PendingTariff::where('user_id', $id)->first();
+                    fclose($file);
+                };
+
+            
+            /*  $Pendtariff = PendingTariff::where('user_id', $id)->first();
 
 
-if ($Pendtariff) {
-    $Pendtariff->delete(); // delete the record
+            if ($Pendtariff) {
+                $Pendtariff->delete(); // delete the record
 
-    Tariff::where('user_id',$id)->delete();
- 
-} 
-  */
-  return response()->stream($callback, 200, $headers);
-    
+                Tariff::where('user_id',$id)->delete();
+            
+            } 
+            */
+            return response()->stream($callback, 200, $headers);
+                
 } 
 
 

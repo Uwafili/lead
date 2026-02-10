@@ -19,40 +19,64 @@
   <div class="max-w-full px-4 py-3">
     <div class="flex flex-wrap items-center gap-3">
 
+
+
       <!-- Reduce Price -->
-      <button class="px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">
-        Reduce Price
-      </button>
-
-      <input type="number" placeholder="%" class="w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"/>
-
-      <!-- Increase Price -->
-      <button class="px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600">
-        Increase Price
-      </button>
-
-      <!-- Divider -->
+      <button id="reducePrice" class="px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">Reduce Price</button>
+      <input type="number" placeholder="%" class="RedInp w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"/>
+  <!-- Divider -->
       <div class="hidden md:block h-6 w-px bg-gray-300 mx-2"></div>
-              <input type="number" placeholder="%" class="w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"/>
+        
+      <!-- Increase Price -->
+      <button id="increasePrice" class="px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600">Increase Price</button>
+        <input type="number" placeholder="%" class="w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400 INInp"/>
 
 
-      <button class="px-4 py-2 text-sm font-medium bg-blue-500 text-white rounded-md hover:bg-blue-600">
-        Apply
-      </button>
+         <!-- Filter Dropdown -->
+    <div class="relative">
+        <button id="filter" class="px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200 flex items-center gap-1">
+          Filter
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
+        <!-- Dropdown Menu -->
+        <div id="dropFilt" class="absolute  right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+         
+       <div class="relative group">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-between items-center">Price<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg> </button>
+
+            <!-- Price Nested Dropdown -->
+            <div class="absolute top-0 left-full mt-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Decending</label>
+                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Ascending</label>
+            
+            </div>
+          </div>
+
+          <!-- Negotiation Filter -->
+          <div class="relative group">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-between items-center">Negotiation<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /> </svg></button>
+
+            <!-- Negotiation Nested Dropdown -->
+            <div class="absolute top-0 left-full mt-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Not Negotiated</label>
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Negotiated</label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+   
       <!-- Spacer -->
       <div class="flex-1"></div>
 
       <!-- Search -->
-      <input
-        type="text"
-        placeholder="Search..."
-        class="w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
-      />
-
-      <button class="px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
-        Reset
-      </button>
+      <input id="sech" type="text"placeholder="Search..."  class="w-48 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"/>
+      <button class="px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200">Reset</button>
 
     </div>
   </div>
@@ -88,15 +112,15 @@
             </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-100">
+        <tbody class="bg-white divide-y divide-gray-100 allop" id={{count($tariffs)}}>
             @foreach ($tariffs as $tariff)
-            <tr class="{{$loop->index}}" data-service="{{ $tariff['SERVICE'] }}">
+            <tr class="{{$loop->index}} TarTR" data-service="{{ $tariff['SERVICE'] }}">
                <td>
     <div class="relative inline-block text-left drops space-y-1">
 
         <!-- CURRENT / FAKE SERVICE (Dropdown trigger) -->
         @if(empty($tariff['Edited_Service']))
-         <button  class="btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['SERVICE']}}</button>
+         <button  class=" btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['SERVICE']}}</button>
             <span class="inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Original:</span>
         @else
             <button  class="btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['Edited_Service']}}</button>
@@ -112,7 +136,7 @@
 
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tariff['TARIFF'] }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-<input type="text" value="{{ empty($tariff['Edited_Tariff']) ? $tariff['TARIFF'] : $tariff['Edited_Tariff'] }}" class="newTar w-40 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"placeholder="₦0"/>
+<input type="text" id="inp{{$tariff['id']}}" index="{{$tariff['id']}}" value="{{ empty($tariff['Edited_Tariff']) ? $tariff['TARIFF'] : $tariff['Edited_Tariff'] }}" class="newTar w-40 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"placeholder="₦0"/>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 nepo{{$tariff['id']}}">{{$tariff['Negotiated']}}</span>
@@ -127,6 +151,9 @@
                             <span class="label">Send</span>
                         </button>
                         <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Reject</button>
+
+                        <label class="hidden items-center gap-2 cursor-pointer check"><input  type="checkbox" index="#inp{{$tariff['id']}}"  class="peer hidden inpF"><span class="w-4 h-4 rounded-full border border-gray-400 peer-checked:bg-blue-500 peer-checked:border-blue-500"> </span></label>
+
                     </div>
                 </td>
             </tr>
@@ -148,6 +175,7 @@
 @endif
 
 <script type="module">
+ 
        const tariffs = @json($tariffs).data;
     // Initialize Worker
     const worker = new Worker(
@@ -166,14 +194,15 @@
     if (e.data.type === "result") {
 
     const rowId=Number(event.data.id)
-    const IOP=Number(event.data.IOP)
+    const IOP=Number(event.data.IOP)+1
     const idName='.loop'+rowId;
     const ul=document.querySelector(idName);
     const div=document.createElement("div") 
     div.className="py-1" 
    
     if (event.data.rest.length !==0) {
-        const total=200;
+           const total=document.querySelector(".allop").id
+
         const rt=Math.ceil(eval((IOP/total)*100));
         document.querySelector("#stWi").style.width=rt+"%"
         document.querySelector(".stySho").innerHTML=rt+"%"
@@ -215,66 +244,6 @@ const menu = element.querySelector('.dropdownMenu');
                  });
 });
 
-// CSRF & Send button logic
-
-
-const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-document.querySelectorAll(".send").forEach(button => {
-    button.addEventListener("click", async () => {
-        const spinner = button.querySelector(".spinner");
-        const label = button.querySelector(".label");
-        const rowId = button.dataset.id;
-        const indexId=button.getAttribute("index");
-        const nepo=button.getAttribute("nepo");
-
-        const description=document.querySelector(indexId).innerHTML
-        const newTar = button.closest("tr").querySelector(".newTar").value;
-        spinner.classList.remove("hidden");
-        label.textContent = "Loading...";
-        button.disabled = true;
-
-     sert('hj',rowId,description,'',newTar,spinner,label,button)
-
-
-    });
-});
-
-// Success alert
-function showAlert() {
-    const alert = document.getElementById("successAlert");
-    alert.classList.remove("hidden");
-    setTimeout(() => alert.classList.add("hidden"), 2000);
-}
-
-
-//send update
-async function sert(type,rowId,description,code,newTar,spinner,label,button) {
-    let body={}
-
-  if (type =='drops') {body={ id: rowId,des:description,code,type }}else{body={ id: rowId,'Tariff':newTar,des:description,type }}
-      try {
-            const res = await fetch('/UpdateSinTar', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify(body)
-            });
-           
-            const data = await res.json();
-           if (type !=="drops")showAlert();
-           
-        }  catch (err) {
-             if (type !=="drops")showAlert();
-        } finally {
-             if (type !=="drops") {
-            spinner.classList.add("hidden");
-            label.textContent = "Send";
-             const nepo=button.getAttribute("nepo");
-             document.querySelector(nepo).innerHTML='Negotaited'
-            button.disabled = false;
-            }   
-    }
-} 
 
 
 //click to choose
