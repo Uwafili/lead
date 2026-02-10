@@ -55,7 +55,8 @@ class updateTariffController extends Controller
             'TARIFF' => $row[1],
             'Edited_Service'=>'',
             'Edited_Tariff'=>'',
-            'Negotiated'=>'false'
+            'Negotiated'=>'false',
+            'code'=>''
         ]);
     }
     fclose($handle);
@@ -88,6 +89,7 @@ return view('follow.consultation', compact('tariffs'));
         if ($tariff) {
          if ($request['type'] == 'drops') {
               $tariff['Edited_Service']=$request['des'];
+              $tariff['code']=$request['code'];
          }else{
              $tariff['Edited_Tariff'] = $request['Tariff'];
             $tariff['Negotiated']='Negotiated';
@@ -106,12 +108,12 @@ return view('follow.consultation', compact('tariffs'));
 
  public function exportTariffsCsv($id){
 
-$tariffs = json_decode(file_get_contents(public_path('js/Tar.json')),true);
-dd($tariffs);
 
-/*  $tariffs = Tariff::where('user_id', $id)
-        ->get(['Edited_Service', 'Edited_Tariff']); 
 
+$tariffs = Tariff::where('user_id', $id)
+    ->whereNotNull('code')
+    ->where('code', '<>', '')
+    ->get(['Edited_Service', 'Edited_Tariff', 'code']);
 
         // Set CSV headers
     $headers = [
@@ -123,27 +125,28 @@ dd($tariffs);
         $file = fopen('php://output', 'w');
 
         // Add CSV column headers
-        fputcsv($file, [ 'SERVICE', 'TARIFF']);
+        fputcsv($file, [ 'SERVICE', 'TARIFF','CODE']);
 
         // Add data rows
         foreach ($tariffs as $tariff) {
-            fputcsv($file, [ $tariff->SERVICE, $tariff->TARIFF]);
+            fputcsv($file, [ $tariff->Edited_Service,$tariff->Edited_Tariff,$tariff->code]);
         }
 
         fclose($file);
     };
 
    
-    $Pendtariff = PendingTariff::where('user_id', $id)->first();
+   /*  $Pendtariff = PendingTariff::where('user_id', $id)->first();
 
 
 if ($Pendtariff) {
     $Pendtariff->delete(); // delete the record
 
     Tariff::where('user_id',$id)->delete();
-   return response()->stream($callback, 200, $headers);
+ 
 } 
- */
+  */
+  return response()->stream($callback, 200, $headers);
     
 } 
 

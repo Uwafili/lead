@@ -12,6 +12,7 @@ class Tariff extends Model
         'SERVICE',
         'Edited_Service',
         'Edited_Tariff',
-        'Negotiated'
+        'Negotiated',
+        'code'
     ];
 }

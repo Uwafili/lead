@@ -12,6 +12,20 @@
     <div id="successAlert" class="hidden fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
         Updated successfully!
     </div>
+<div class="w-full">
+  <div class="flex justify-between mb-1 text-sm font-medium text-gray-700">
+    <span>Progress</span>
+    <span class="stySho">0%</span>
+  </div>
+
+  <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+    <div id="stWi"
+      class="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500"
+      style="width: 0%;"
+    ></div>
+  </div>
+</div>
+
 
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-orange-50">
@@ -32,15 +46,15 @@
 
         <!-- CURRENT / FAKE SERVICE (Dropdown trigger) -->
         @if(empty($tariff['Edited_Service']))
-         <button  class="btn{{ $loop->index }} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['SERVICE']}}</button>
+         <button  class="btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['SERVICE']}}</button>
             <span class="inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Original:</span>
         @else
-            <button  class="btn{{ $loop->index }} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['Edited_Service']}}</button>
+            <button  class="btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['Edited_Service']}}</button>
             <span class="inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Original:{{$tariff['SERVICE']}}</span>
         @endif
 
         <!-- Dropdown Menu -->
-        <div id="btn{{$loop->index}}" class="dropdownMenu loop{{$loop->index}} hidden absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+        <div id="btn{{$tariff['id']}}" class="dropdownMenu loop{{$tariff['id']}} hidden absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
         </div>
 
     </div>
@@ -51,11 +65,11 @@
 <input type="text" value="{{ empty($tariff['Edited_Tariff']) ? $tariff['TARIFF'] : $tariff['Edited_Tariff'] }}" class="newTar w-40 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"placeholder="₦0"/>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 nepo{{$loop->index}}">{{$tariff['Negotiated']}}</span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 nepo{{$tariff['id']}}">{{$tariff['Negotiated']}}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                     <div class="inline-flex gap-2">
-                        <button class="send px-3 py-1 bg-teal-500 text-white rounded hover:bg-teal-600 flex items-center gap-2" index=".btn{{$loop->index}}" nepo=".nepo{{$loop->index}}" data-id="{{ $tariff['id'] }}">
+                        <button class="send px-3 py-1 bg-teal-500 text-white rounded hover:bg-teal-600 flex items-center gap-2" index=".btn{{$tariff['id']}}" nepo=".nepo{{$tariff['id']}}" data-id="{{ $tariff['id'] }}">
                             <svg class="hidden spinner animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -82,60 +96,59 @@
 </a>
 
 <script type="module">
+       const tariffs = @json($tariffs).data;
     // Initialize Worker
     const worker = new Worker(
       new URL("{{ asset('workers/tariffWorker.js') }}", import.meta.url),
       { type: "module" }
     );
+    worker.postMessage({ type: "load" });
+   worker.onmessage = function(e) {
 
- async function init() {
-  try {
-    const res = await fetch('/js/Tar.json');
-    const Tar = await res.json();
+    if (e.data.type === "loaded") {
+        tariffs.forEach((tariff,IOP) => {worker.postMessage({type: "search",id: tariff['id'],word: tariff['SERVICE'],IOP });});
+    }
 
-    const drugs = Tar.map(s => s.tariff_desc);
-    const tariffs = @json($tariffs).data;
+    // ================= WORKER MESSAGE =================
 
-    
-    // Send all tariffs to worker
-    tariffs.forEach((tariff, id) => {worker.postMessage({id: id,word: tariff['SERVICE'], dictionary: drugs});});
+    if (e.data.type === "result") {
 
-  } catch (e) {
-    console.error('Init failed:', e);
-  }
-}
-
-init();
-
-
-// ================= WORKER MESSAGE =================
-worker.onmessage = function (event) { 
-
-    const idName='.loop'+event.data.id;
+    const rowId=Number(event.data.id)
+    const IOP=Number(event.data.IOP)
+    const idName='.loop'+rowId;
     const ul=document.querySelector(idName);
     const div=document.createElement("div") 
     div.className="py-1" 
-    console.log(event.data) 
    
     if (event.data.rest.length !==0) {
-         if (event.data.rest[0].score == 1) {
+        const total=200;
+        const rt=Math.ceil(eval((IOP/total)*100));
+        document.querySelector("#stWi").style.width=rt+"%"
+        document.querySelector(".stySho").innerHTML=rt+"%"
+       
+         if (event.data.score == 1) {
+        const dof=event.data.rest['tariff_desc'];
+        const cof=event.data.rest['tariff_code']
         const ty="."+ul.id;
-        console.log(event.data.rest[0].value)
-        document.querySelector(ty).innerHTML=event.data.rest[0].value
-    }
-   else{
-         event.data.rest.forEach(element => { 
+        document.querySelector(ty).innerHTML=dof;
+        sert('drops',rowId,dof,cof)
+    }else{
+          event.data.rest.forEach(element => { 
+          
         const li=document.createElement('div');
         li.className="item-list block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50";
         li.id=event.data.id
-        li.innerHTML=element.value;
+        li.setAttribute("Code",element.code)
+        li.innerHTML=element.service;
         div.append(li) 
+        
     });
+     ul.append(div);
+    select(ul) 
     }
-} 
-    ul.append(div);
-    select(ul)   
+    }
 }
+};
 
 
 // ================= DROPDOWN OPEN / CLOSE =================
@@ -165,12 +178,11 @@ document.querySelectorAll(".send").forEach(button => {
 
         const description=document.querySelector(indexId).innerHTML
         const newTar = button.closest("tr").querySelector(".newTar").value;
-
         spinner.classList.remove("hidden");
         label.textContent = "Loading...";
         button.disabled = true;
 
-     sert('hj',rowId,description,newTar,spinner,label,button)
+     sert('hj',rowId,description,'',newTar,spinner,label,button)
 
 
     });
@@ -185,9 +197,10 @@ function showAlert() {
 
 
 //send update
-async function sert(type,rowId,description,newTar,spinner,label,button) {
+async function sert(type,rowId,description,code,newTar,spinner,label,button) {
     let body={}
-  if (type =='drops') {body={ id: rowId,des:description,type }}else{body={ id: rowId, Tariff: newTar,des:description,type }}
+
+  if (type =='drops') {body={ id: rowId,des:description,code,type }}else{body={ id: rowId,'Tariff':newTar,des:description,type }}
       try {
             const res = await fetch('/UpdateSinTar', {
                 method: 'PUT',
@@ -196,10 +209,7 @@ async function sert(type,rowId,description,newTar,spinner,label,button) {
             });
            
             const data = await res.json();
-           if (type !=="drops") {
-             document.querySelector(nepo).innerHTML='Negotaited'
-            showAlert();
-           }
+           if (type !=="drops")showAlert();
            
         }  catch (err) {
              if (type !=="drops")showAlert();
@@ -207,6 +217,8 @@ async function sert(type,rowId,description,newTar,spinner,label,button) {
              if (type !=="drops") {
             spinner.classList.add("hidden");
             label.textContent = "Send";
+             const nepo=button.getAttribute("nepo");
+             document.querySelector(nepo).innerHTML='Negotaited'
             button.disabled = false;
             }   
     }
@@ -222,11 +234,11 @@ function select(parent) {
     items.forEach(d => {
         d.addEventListener('click',()=>{
                
-            const rowId=Number(d.id)+1
+            const rowId=Number(d.id)
             const ty="."+parent.id
             document.querySelector(ty).innerHTML=d.innerHTML;
-
-             sert('drops',rowId,d.innerHTML)
+    const code=d.getAttribute("Code");
+             sert('drops',rowId,d.innerHTML,code)
             parent.classList.toggle('hidden'); 
         })
     });
