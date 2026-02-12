@@ -10,6 +10,7 @@ TarTR.forEach(d => {
        if (label.classList.contains('flex')) {
          label.classList.remove("flex");
        label.classList.add("hidden");
+        const inp=label.querySelector("input");
        inp.checked=false;
        }else{
         const inp=label.querySelector("input");
@@ -49,7 +50,7 @@ function rfd(per) {
              const index=TarInput.getAttribute("index");
              const ilo=".nepo"+index;
              document.querySelector(ilo).innerHTML="Negotiated"
-            const sol=TarInput.value*per;
+            const sol=eval(TarInput.value*per);
             document.querySelector(id).value=sol;
              exp(index,sol)
         }
@@ -166,4 +167,128 @@ const filter=document.querySelector("#filter")
 filter.addEventListener('click',()=>{
     const dropFilt=document.querySelector("#dropFilt");
     dropFilt.classList.toggle("hidden")
+})
+
+//Filter Price by Decending;
+
+const decPri=document.querySelector("#decPri");
+
+decPri.addEventListener("click",()=>{
+  const TarTR = document.querySelectorAll(".TarTR");
+const items = Array.from(TarTR);
+
+   items.sort((a, b) => {
+    const valA = Number(a.querySelector(".staTar").textContent);
+    const valB = Number(b.querySelector(".staTar").textContent);
+
+    return valB - valA;
+
+});
+console.log(items)
+items.forEach(el => el.parentNode.appendChild(el));
+})
+
+//Filter Price by Ascending;
+
+const ascPri=document.querySelector("#ascPri");
+
+ascPri.addEventListener("click",()=>{
+  const TarTR = document.querySelectorAll(".TarTR");
+const items = Array.from(TarTR);
+   items.sort((a, b) => {
+    const valA = Number(a.querySelector(".staTar").textContent);
+    const valB = Number(b.querySelector(".staTar").textContent);
+    return valA - valB;
+});
+items.forEach(el => el.parentNode.appendChild(el));
+})
+
+////Filter Negotiated by Not Negotiated;
+
+const NN=document.querySelector("#NN");
+NN.addEventListener("click",()=>{
+      const TarTR = document.querySelectorAll(".TarTR");
+const items = Array.from(TarTR);
+    items.sort((a, b) => {
+    const textA = a.querySelector(".Nego").textContent.toLowerCase();
+    const textB = b.querySelector(".Nego").textContent.toLowerCase();
+
+    const aHas = textA.includes("false");
+    const bHas = textB.includes("false");
+
+    if (aHas && !bHas){
+         const label=a.querySelector(".check");
+        const inp=label.querySelector("input");
+        inp.checked=true
+        label.classList.add("flex");
+       label.classList.remove("hidden")
+        return -1; }// A comes first
+    if (!aHas && bHas) {
+        
+          const label=b.querySelector(".check");
+        const inp=label.querySelector("input");
+        inp.checked=true
+        label.classList.add("flex");
+       label.classList.remove("hidden")
+
+        return 1};  // B comes first
+
+    return 0; // keep original order if both same
+});
+
+items.forEach(el => {
+    
+            
+   el.parentNode.appendChild(el)
+
+});
+})
+
+
+
+////Filter Negotiated by  Negotiated;
+
+const Ne=document.querySelector("#Ne");
+Ne.addEventListener("click",()=>{
+      const TarTR = document.querySelectorAll(".TarTR");
+const items = Array.from(TarTR);
+    items.sort((a, b) => {
+    const textA = a.querySelector(".Nego").textContent.toLowerCase();
+    const textB = b.querySelector(".Nego").textContent.toLowerCase();
+
+    const aHas = textA.includes("negotiated");
+    const bHas = textB.includes("negotiated");
+
+    if (aHas && !bHas) return -1; // A comes first
+    if (!aHas && bHas) return 1;  // B comes first
+
+    return 0; // keep original order if both same
+});
+
+items.forEach(el => el.parentNode.appendChild(el));
+})
+
+
+////selectAll
+
+const selectAll=document.querySelector("#selectAll");
+selectAll.addEventListener('click',()=>{
+    console.log(selectAll.checked)
+   
+     const label=document.querySelectorAll(".check");
+     label.forEach(el => {
+         if (selectAll.checked == true) {
+                 const inp=el.querySelector("input");
+        inp.checked=true
+        el.classList.add("flex");
+       el.classList.remove("hidden")
+            }else{
+                  el.classList.remove("flex");
+       el.classList.add("hidden");
+        const inp=el.querySelector("input");
+       inp.checked=false;
+            }
+         
+     });
+     
 })

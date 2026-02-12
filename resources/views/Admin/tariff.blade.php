@@ -49,8 +49,8 @@
 
             <!-- Price Nested Dropdown -->
             <div class="absolute top-0 left-full mt-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
-                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Decending</label>
-                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Ascending</label>
+                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="decPri">Decending</label>
+                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="ascPri">Ascending</label>
             
             </div>
           </div>
@@ -61,8 +61,8 @@
 
             <!-- Negotiation Nested Dropdown -->
             <div class="absolute top-0 left-full mt-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
-              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Not Negotiated</label>
-              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100">Negotiated</label>
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="NN">Not Negotiated</label>
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="Ne" >Negotiated</label>
             </div>
           </div>
 
@@ -102,21 +102,24 @@
 
 
     <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-orange-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Service</th>
-                <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Stated Price</th>
-                <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Requested Price</th>
-                <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-                <th class="px-6 py-3 text-center text-sm font-medium text-gray-700">Action</th>
-            </tr>
-        </thead>
+       <thead class="bg-orange-50">
+    <tr>
+        <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Service</th>
+        <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Stated Price</th>
+        <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Requested Price</th>
+        <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+        <th class="px-6 py-3 text-center text-sm font-medium text-gray-700">Action</th>
+        <th class="px-6 py-3 text-center text-sm font-medium text-gray-700"><input type="checkbox" id="selectAll" class="w-5 h-5 rounded-full accent-orange-500 cursor-pointer"></th>
+
+    </tr>
+</thead>
+
 
         <tbody class="bg-white divide-y divide-gray-100 allop" id={{count($tariffs)}}>
             @foreach ($tariffs as $tariff)
             <tr class="{{$loop->index}} TarTR" data-service="{{ $tariff['SERVICE'] }}">
                <td>
-    <div class="relative inline-block text-left drops space-y-1">
+              <div class="relative inline-block text-left drops space-y-1">
 
         <!-- CURRENT / FAKE SERVICE (Dropdown trigger) -->
         @if(empty($tariff['Edited_Service']))
@@ -134,12 +137,12 @@
     </div>
 </td>
 
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tariff['TARIFF'] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 staTar">{{ $tariff['TARIFF'] }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
 <input type="text" id="inp{{$tariff['id']}}" index="{{$tariff['id']}}" value="{{ empty($tariff['Edited_Tariff']) ? $tariff['TARIFF'] : $tariff['Edited_Tariff'] }}" class="newTar w-40 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"placeholder="₦0"/>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 nepo{{$tariff['id']}}">{{$tariff['Negotiated']}}</span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 nepo{{$tariff['id']}} Nego">{{$tariff['Negotiated']}}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                     <div class="inline-flex gap-2">
@@ -152,10 +155,10 @@
                         </button>
                         <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Reject</button>
 
-                        <label class="hidden items-center gap-2 cursor-pointer check"><input  type="checkbox" index="#inp{{$tariff['id']}}"  class="peer hidden inpF"><span class="w-4 h-4 rounded-full border border-gray-400 peer-checked:bg-blue-500 peer-checked:border-blue-500"> </span></label>
 
                     </div>
                 </td>
+                <td><label class="hidden items-center gap-2 cursor-pointer check"><input  type="checkbox" index="#inp{{$tariff['id']}}"  class="peer hidden inpF"><span class="w-4 h-4 rounded-full border border-gray-400 peer-checked:bg-blue-500 peer-checked:border-blue-500"> </span></label></td>
             </tr>
             @endforeach
           
