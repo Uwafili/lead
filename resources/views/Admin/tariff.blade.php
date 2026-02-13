@@ -1,11 +1,22 @@
 @extends('layouts.layout')
 @section('content')
 
-<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
   .dropdown-item {
     @apply px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer;
   }
 </style>
+</head>
+<body>
+  
+
 
 @push('script')
 <script src="{{ asset('js/tariffHandler.js') }}"></script>
@@ -271,3 +282,5 @@ function select(parent) {
 </script>
 
 @endsection
+</body>
+</html>
