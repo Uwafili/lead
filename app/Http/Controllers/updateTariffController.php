@@ -56,6 +56,8 @@ class updateTariffController extends Controller
             'Edited_Service'=>'',
             'Edited_Tariff'=>'',
             'Negotiated'=>'false',
+             'Mapped'=>'Mapped',
+             'score'=>'',
             'code'=>''
         ]);
     }
@@ -90,6 +92,8 @@ return view('follow.consultation', compact('tariffs'));
          if ($request['type'] == 'drops') {
               $tariff['Edited_Service']=$request['des'];
               $tariff['code']=$request['code'];
+              $tariff['Mapped']='Mapped';
+              $tariff['score']=$request['score'];
          }else{
              $tariff['Edited_Tariff'] = $request['Tariff'];
             $tariff['Negotiated']='Negotiated';

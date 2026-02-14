@@ -73,7 +73,7 @@ public function adminDashboard(){
   }
 
 public function adminTar($id){
-    $tariffs = Tariff::where('user_id', $id)->paginate(200); // number per page
+    $tariffs = Tariff::orderByRaw("Mapped = 'mapped'")->paginate(200); // number per page
     return view('Admin.tariff', compact('tariffs'));
 }
  

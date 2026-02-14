@@ -16,3 +16,27 @@
     background-repeat: no-repeat;
     background-position: center;
 }
+.btn-red {
+  @apply px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600;
+}
+
+.btn-green {
+  @apply px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600;
+}
+
+.btn-gray {
+  @apply px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200;
+}
+
+.input-red {
+  @apply w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400;
+}
+
+.input-blue {
+  @apply px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400;
+}
+
+.divider {
+  @apply hidden md:block h-6 w-px bg-gray-300 mx-2;
+}
+

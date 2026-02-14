@@ -43,15 +43,18 @@ function rfd(per) {
     const inpF=document.querySelectorAll(".inpF");
     inpF.forEach((d)=>{
         const rt=d.checked
-      
+      function moneyToNumber(value) {
+  return Number(value.replace(/[^\d.-]/g, ''));
+}
          if (rt == true) {
             const id=d.getAttribute("index");
             const TarInput=document.querySelector(id);
              const index=TarInput.getAttribute("index");
              const ilo=".nepo"+index;
-             document.querySelector(ilo).innerHTML="Negotiated"
-            const sol=eval(TarInput.value*per);
-            document.querySelector(id).value=sol;
+             document.querySelector(ilo).innerHTML="Negotiated";
+             console.log(typeof(Number(TarInput.value)))
+            const sol=eval(moneyToNumber(TarInput.value)*per);
+            document.querySelector(id).value=sol.toFixed(2);
              exp(index,sol)
         }
 
@@ -117,10 +120,10 @@ function showAlert() {
 
 
 //send update
-async function sert(type,rowId,description,code,newTar,spinner,label,button) {
+async function sert(type,rowId,description,code,score,newTar,spinner,label,button) {
     let body={}
 
-  if (type =='drops') {body={ id: rowId,des:description,code,type }}else{body={ id: rowId,'Tariff':newTar,des:description,type }}
+  if (type =='drops') {body={ id: rowId,des:description,code,type,score }}else{body={ id: rowId,'Tariff':newTar,des:description,type }}
       try {
             const res = await fetch('/UpdateSinTar', {
                 method: 'PUT',

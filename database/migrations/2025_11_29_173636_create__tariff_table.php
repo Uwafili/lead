@@ -19,6 +19,8 @@ return new class extends Migration
              $table->string("Edited_Tariff");
              $table->string("Edited_Service");
              $table->string('Negotiated');
+             $table->string('Mapped');
+             $table->string('score');
              $table->string('code');
 
             $table->timestamps();

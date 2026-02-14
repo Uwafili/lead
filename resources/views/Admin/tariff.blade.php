@@ -117,16 +117,16 @@
 
         <tbody class="bg-white divide-y divide-gray-100 allop" id={{count($tariffs)}}>
             @foreach ($tariffs as $tariff)
-            <tr class="{{$loop->index}} TarTR" data-service="{{ $tariff['SERVICE'] }}">
+            <tr class="TarTR   tb{{$tariff['id']}}   @if($tariff['Mapped'] == 'Mapped') bg-blue-900 @endif" data-service="{{ $tariff['SERVICE'] }}">
                <td>
               <div class="relative inline-block text-left drops space-y-1">
 
         <!-- CURRENT / FAKE SERVICE (Dropdown trigger) -->
         @if(empty($tariff['Edited_Service']))
-         <button  class=" btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['SERVICE']}}</button>
+         <button  class=" btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['SERVICE']}}<span class="text-amber-400">{{$tariff['score']}}</span></button>
             <span class="inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Original:</span>
         @else
-            <button  class="btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['Edited_Service']}}</button>
+            <button  class="btn{{$tariff['id']}} dropdownButton inline-flex w-full items-center justify-between gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{$tariff['Edited_Service']}} <span class="text-amber-400">{{$tariff['score']}}</span></button>
             <span class="inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Original:{{$tariff['SERVICE']}}</span>
         @endif
 
@@ -202,7 +202,8 @@
     const ul=document.querySelector(idName);
     const div=document.createElement("div") 
     div.className="py-1" 
-   
+   const tb=".tb"+event.data.id;
+
     if (event.data.rest.length !==0) {
            const total=document.querySelector(".allop").id
 
@@ -211,25 +212,51 @@
         document.querySelector(".stySho").innerHTML=rt+"%"
        
          if (event.data.score == 1) {
+          const scoreValue = Number(event.data.score) || 0;
+const scr = Number((scoreValue * 100).toFixed(2)) + "%";
+
+             document.querySelector(tb).classList.add("bg-blue-900")
+             let spn = document.createElement('span');
+spn.className = "block ml-4 text-amber-400";
+spn.textContent = scr;
         const dof=event.data.rest['tariff_desc'];
         const cof=event.data.rest['tariff_code']
         const ty="."+ul.id;
         document.querySelector(ty).innerHTML=dof;
-        sert('drops',rowId,dof,cof)
+        document.querySelector(ty).appendChild(spn)
+        sert('drops',rowId,dof,cof,'100%')
     }else{
+
+    console.log(event.data)
           event.data.rest.forEach(element => { 
           
-        const li=document.createElement('div');
-        li.className="item-list block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50";
-        li.id=event.data.id
-        li.setAttribute("Code",element.code)
-        li.innerHTML=element.service;
-        div.append(li) 
+       const li = document.createElement('div');
+li.className = "item-list flex px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50";
+li.id = event.data.id;
+
+const scoreValue = Number(element.score) || 0;
+const scr = Number((scoreValue * 100).toFixed(2)) + "%";
+
+li.setAttribute("Code", element.code);
+li.setAttribute("score", scr);
+const st=document.createElement("span");
+st.className="st"
+st.textContent = element.service;
+
+let spn = document.createElement('span');
+spn.className = "block ml-4 text-amber-400";
+spn.textContent = scr;
+
+li.appendChild(st);
+li.appendChild(spn);
+div.append(li);
         
     });
      ul.append(div);
     select(ul) 
     }
+    }else{
+      document.querySelector(tb).classList.add("bg-yellow-900")
     }
 }
 };
@@ -260,9 +287,17 @@ function select(parent) {
                
             const rowId=Number(d.id)
             const ty="."+parent.id
-            document.querySelector(ty).innerHTML=d.innerHTML;
-    const code=d.getAttribute("Code");
-             sert('drops',rowId,d.innerHTML,code)
+            const st=d.querySelector(".st");
+            const rfg=document.createElement("span");
+            rfg.className='text-amber-400'
+            const code=d.getAttribute("Code");
+            const scr=d.getAttribute("score");
+            document.querySelector(ty).innerHTML=st.innerHTML;
+            rfg.textContent=scr
+            document.querySelector(ty).appendChild(rfg)
+             sert('drops',rowId,st.innerHTML,code,scr)
+             const tb=".tb"+d.id;
+              document.querySelector(tb).classList="bg-blue-900"
             parent.classList.toggle('hidden'); 
         })
     });
