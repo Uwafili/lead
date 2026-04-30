@@ -176,7 +176,7 @@
         </tbody>
 
     </table>
-      {{ $tariffs->links() }}
+      {{-- {{ $tariffs->links() }} --}}
 </div>
 
 @if($tariffs && $tariffs->count() > 0)
