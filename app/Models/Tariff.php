@@ -10,6 +10,8 @@ class Tariff extends Model
         'user_id',
         'TARIFF',
         'SERVICE',
+        'tariff_Type',
+        'category',
         'Edited_Service',
         'Edited_Tariff',
         'Negotiated',

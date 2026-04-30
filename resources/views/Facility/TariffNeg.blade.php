@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Hero Header -->
-<div class="relative flex items-center justify-center h-[40vh] md:h-[50vh] bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-500 shadow-lg overflow-hidden mb-10">
+<!-- <div class="relative flex items-center justify-center h-[40vh] md:h-[50vh] bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-500 shadow-lg overflow-hidden mb-10">
     <img src="{{ asset('asset/consultation.jpg') }}" alt="Pharmacy" class="absolute inset-0 w-full h-full object-cover opacity-40" />
     <div class="absolute inset-0 bg-gradient-to-t from-orange-700/60 via-orange-400/30 to-transparent"></div>
     <div class="relative z-10 text-center px-4">
@@ -16,10 +16,11 @@
             Keeping this information accurate helps Leadway PMU better understand your services and improve patient access and coordination
         </p>
     </div>
-</div>
+</div> -->
 
 <!-- Form Section -->
-{{-- <div class="max-w-4xl mx-auto bg-white bg-opacity-95 rounded-xl shadow-2xl p-10 mt-10">
+<!-- <div class="max-w-4xl mx-auto bg-white bg-opacity-95 rounded-xl shadow-2xl p-10 mt-10">
+
     <div class="mb-8 text-center">
         <h2 class="text-3xl font-bold text-orange-600 mb-2">Consultation Entry Form</h2>
         <p class="text-gray-600">
@@ -28,44 +29,36 @@
     </div>
 
     <form class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Description -->
+       
         <div>
             <label class="block font-semibold text-orange-600 mb-1">Description</label>
             <input type="text" placeholder="e.g. Urologist Consultation"
                    class="w-full px-4 py-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-orange-50" />
         </div>
-
-        <!-- Quantity -->
-       
-        <!-- Payment -->
         <div>
             <label class="block font-semibold text-orange-700 mb-1">Payment (₦)</label>
             <input type="number" placeholder="e.g. 3000"
                    class="w-full px-4 py-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-orange-50" />
         </div>
 
-        <!-- Pack / Tab -->
-        
-
-        <!-- Submit -->
         <div class="md:col-span-2 text-center mt-4">
             <button type="submit"
                     class="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg shadow hover:from-orange-600 hover:to-yellow-600 transition">
                 Submit
             </button>
         </div>
-    </form>
-</div> --}}
+    </form></div>  -->
 
 <!-- Services Table -->
-<div class="max-w-4xl mx-auto mt-8">
+<!-- <div class="max-w-4xl mx-auto mt-8">
     <h3 class="text-2xl font-semibold text-orange-600 mb-3">Facility Dashboard</h3>
     <p class="text-gray-600 mb-4">View costs of services, negotiate pricing, or upload your own tariff proposal.</p>
 
     <div class="overflow-x-auto bg-white rounded-lg shadow">
          <div id="successAlert" class="hidden fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
     Updated successfully!
-</div>
+</div> -->
+
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-orange-50">
                 <tr>

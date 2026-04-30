@@ -9,7 +9,8 @@ use App\Http\Controllers\TariffController;
 // Authenticated routes
 Route::middleware("auth")->group(function(){
     Route::view('/', 'post.index')->name('home');
-    Route::get('/consultation', [updateTariffController::class,'show'])->name('consultation'); 
+    Route::get('/CategoryView',[updateTariffController::class,'CategoryView'])->name('CategoryView');
+    Route::get('/TariffNeg', [updateTariffController::class,'showTariffNeg'])->name('TariffNeg'); 
     Route::view('/Service', 'follow.Service')->name('Service'); 
 
 
@@ -17,7 +18,7 @@ Route::middleware("auth")->group(function(){
 
     Route::view("/logout",'logout')->name('logoutDemo');
 
-Route::view('/updateTariff',"follow.updateTar")->name('updateTar');
+Route::view('/updateTariff',"Facility.updateTar")->name('updateTar');
 Route::post('/UpdateTar',[updateTariffController::class,'index'])->name('UpdateTar');
 Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateSinTar');
  
@@ -25,7 +26,7 @@ Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateS
 
 });
 
-
+//Register
 Route::view('/register','Auth.register')->name('register');
 Route::post('/register',[AuthController::class,'register'])->name('register.store');
 
@@ -39,6 +40,8 @@ Route::middleware("guest")->group(function(){
     
 });
 
+
+//Admin
 Route::middleware(["admin"])->group(function(){
         Route::get('/Admin/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
         Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
@@ -54,5 +57,15 @@ Route::middleware(["admin"])->group(function(){
 
         //Route::get('/users', [FacilityController::class, 'users'])->name('admin.users');
 
+//Tariff Controller
 
-});
+        //Upload tariff
+        Route::view("/Tariff/AddTariff",'Admin.Tariff.AddTariff')->name("Ad_AddTariff");
+        Route::post("/Tariff/AddTariff",[TariffController::class, 'AddTariff'])->name("Post_Ad_AddTariff");
+        Route::get("/Tariff/ViewTariff",[TariffController::class,'showAdTar'])->name('Ad_ViewTariff');
+      
+        });
+
+          // getting Tariff
+
+     

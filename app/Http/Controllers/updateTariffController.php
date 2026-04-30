@@ -7,79 +7,81 @@ use App\Models\Tariff;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
-
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\DB;
 class updateTariffController extends Controller
 {
    public function index(Request $request){
      $request->validate([
-        'file' => 'required|mimes:csv|file|max:5120', 
+        'file' => 'required|file|max:5120', 
+        'type' =>'required'
     ]);
+    $file=$request->file('file');
 
-    
-    
-    if($request['facility']){
+    $spreadSheet=IOFactory::load($file->getPathname());
      
-         $user = User::where('name', $request->facility)->first();
-   if ($user) {
-     $id = $user->id;
-    $name=$user->name;
+    $sheets = $spreadSheet->getAllSheets();
+
+    DB::transaction (function () use ($sheets,$request) {
+
+    foreach ($sheets as $workSheet) {
+       $sheetName=$workSheet->getTitle();
+       $rows=$workSheet->toArray();
+         foreach ($rows as $index => $row) {
+
+                // Skip header row
+                if ($index == 0) continue;
+
+                if (empty($row[1])|| null) {
+                   $row[1]='';
+                }
+            if (empty($row[0])|| null) {
+                            $row[0]='';
+                            }
+
+                DB::table('tariffs')->insert([
+                     'user_id'=>auth()->id(),
+                    'SERVICE'  => $row[0],
+                    'TARIFF' => $row[1],
+                    'category' =>$sheetName,
+                    'tariff_Type' =>$request->type,
+                    'Edited_Service' =>'',
+                    'Edited_Tariff' =>'',
+                    'Negotiated' =>'',
+                    'Mapped'  =>'',
+                    'score'  =>'',
+                    'code' =>''
+
+                ]);
+                 
+         }
+    }
+
+    });
  PendingTariff::create([
-        'user_id'=>$id,
-        'user_name'=>$name,
-    ]);
-   }else{
-    return back()->withErrors(['message' => 'Facility Name Not Found']);
+                        'user_id'=>auth()->id(),
+                        'user_name'=>Auth::user()->name,
+                     ]);
+     return redirect()->route('CategoryView');
 
-   }
-
-    }else{
-         PendingTariff::create([
-        'user_id'=>Auth::id(),
-        'user_name'=>Auth::user()->name,
-    ]);
-    }
-
-    if (($handle = fopen($request->file('file')->getPathname(), "r")) !== FALSE) {
-            if($request['facility']){
-       $id = User::where('name', $request['facility'])->firstOrFail()->id;
-            }else{
-                $id=Auth::id();
-            }
-    $header = fgetcsv($handle); // Skip header
-    while (($row = fgetcsv($handle)) !== FALSE) {
-        Tariff::create([
-             
-            'user_id'=>$id,
-            'SERVICE'  => $row[0],
-            'TARIFF' => $row[1],
-            'Edited_Service'=>'',
-            'Edited_Tariff'=>'',
-            'Negotiated'=>'false',
-             'Mapped'=>'Mapped',
-             'score'=>'',
-            'code'=>''
-        ]);
-    }
-    fclose($handle);
-
-
-   
-}
-
- if (Auth::check()&& Auth::user()->usertype=='admin') {
-    return redirect()->route("admin.dashboard");
- }{
-    return redirect()->route('consultation');
- }
     }
 
 
-    public function show(){
+
+    //GetTariff By Category
+
+    public function CategoryView(){
         $id = Auth::id();
-$tariffs = Tariff::where('user_id', $id)->get(); 
+        $category = Tariff::distinct()->where('user_id', $id)->pluck('category'); 
 
-return view('follow.consultation', compact('tariffs'));
+        return view("GenView.CategoryView", compact('category'));
+    }
+
+    public function showTariffNeg(){
+        $id = Auth::id();
+        $tariffs = Tariff::where('user_id', $id)->get(); 
+
+        return view('Facility.TariffNeg', compact('tariffs'));
     }
 
  public function Sin(Request $request){

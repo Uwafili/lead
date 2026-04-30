@@ -22,7 +22,8 @@ return new class extends Migration
              $table->string('Mapped');
              $table->string('score');
              $table->string('code');
-
+             $table->string('category');
+             $table->string('tariff_Type');
             $table->timestamps();
         });
     }

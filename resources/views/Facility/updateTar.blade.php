@@ -38,6 +38,18 @@
       </div>
 <p class="TarName"></p>
 
+ <div class="mb-6">
+        <label class="block mb-2 text-sm font-medium text-gray-700">Select Type</label>
+
+        <select name="type" class="w-full rounded-xl border-gray-300 focus:border-green-500 focus:ring-green-500 shadow-sm">
+            <option value="">Choose Tariff Type</option>
+            <option value="Hospital">Hospital</option>
+            <option value="Dental">Dental</option>
+            <option value="Optical">Optical</option>
+        </select>
+    </div>
+
+
   @auth
     @if(Auth::user() && Auth::user()->usertype == 'admin')
     <input 

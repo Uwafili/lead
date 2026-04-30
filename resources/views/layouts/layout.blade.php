@@ -95,50 +95,55 @@
   @auth
   <div class="flex flex-1">
     <!-- Left Side Navbar with Health Icons -->
-    <!-- filepath: c:\Users\Bishop\lead\resources\views\layouts\layout.blade.php -->
-    <aside class="w-28 bg-white bg-opacity-80 shadow-lg flex flex-col items-center py-8 space-y-8">
-      <!-- Pharmacy Icon -->
-      <a href="{{route('home')}}" class="flex flex-col items-center group">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 group-hover:text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <rect x="6" y="6" width="12" height="12" rx="3" stroke-width="2" stroke="currentColor" fill="none"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6" />
-    </svg>
-    <span class="text-xs mt-1 text-gray-700">Leadway</span>
-  </a>
-  <!-- Consultation Icon (User/Doctor) -->
-  <a href="{{route('consultation')}}" class="flex flex-col items-center group">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600 group-hover:text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <circle cx="12" cy="8" r="4" stroke-width="2" stroke="currentColor" fill="none"/>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 20v-2a6 6 0 0112 0v2" />
-    </svg>
-    <span class="text-xs mt-1 text-gray-700">Consultation</span>
-  </a>
-  <!-- Service Icon (Clipboard) -->
-  <a href="{{route('Service')}}" class="flex flex-col items-center group">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-500 group-hover:text-orange-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <rect x="6" y="4" width="12" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6M9 12h6M9 16h6" />
-    </svg>
-    <span class="text-xs mt-1 text-gray-700">Service</span>
-  </a>
-  <!-- Radiology Icon (X-ray/Camera) -->
-  <a href="#" class="flex flex-col items-center group">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500 group-hover:text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <rect x="3" y="7" width="18" height="10" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
-      <circle cx="12" cy="12" r="3" stroke-width="2" stroke="currentColor" fill="none"/>
-    </svg>
-    <span class="text-xs mt-1 text-gray-700">TARIFF</span>
-  </a>
-  <!-- Accommodation Icon (Home) -->
-    @auth
-    @if(Auth::user() && Auth::user()->usertype == 'admin')
-  <a href="{{route('admin.users')}}" class="flex flex-col items-center group">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600 group-hover:text-yellow-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
-    </svg>
-    <span class="text-xs mt-1 text-gray-700">USERS</span>
-  </a>
-   @endif
+  
+<aside class="w-28 bg-white bg-opacity-80 shadow-lg flex flex-col items-center py-8 space-y-8">
+   
+          <a href="{{route('home')}}" class="flex flex-col items-center group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 group-hover:text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <rect x="6" y="6" width="12" height="12" rx="3" stroke-width="2" stroke="currentColor" fill="none"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6" />
+              </svg>
+            <span class="text-xs mt-1 text-gray-700">Leadway</span>
+          </a>
+          <!-- Category for Icon (User/Doctor) -->
+          <a href="{{route('CategoryView')}}" class="flex flex-col items-center group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600 group-hover:text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="8" r="4" stroke-width="2" stroke="currentColor" fill="none"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 20v-2a6 6 0 0112 0v2" />
+            </svg>
+            <span class="text-xs mt-1 text-gray-700">View Tariff</span>
+          </a>
+          <!-- Service Icon (Clipboard) -->
+          <a href="{{route('Service')}}" class="flex flex-col items-center group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-500 group-hover:text-orange-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="6" y="4" width="12" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6M9 12h6M9 16h6" />
+            </svg>
+            <span class="text-xs mt-1 text-gray-700">Service</span>
+          </a>
+          
+          
+            @auth
+            @if(Auth::user() && Auth::user()->usertype == 'admin')
+
+          <!-- Tariff  -->
+          <a href="{{route('Ad_ViewTariff')}}" class="flex flex-col items-center group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500 group-hover:text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="3" y="7" width="18" height="10" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
+              <circle cx="12" cy="12" r="3" stroke-width="2" stroke="currentColor" fill="none"/>
+            </svg>
+            <span class="text-xs mt-1 text-gray-700">TARIFF</span>
+          </a>
+           
+          <a href="{{route('admin.users')}}" class="flex flex-col items-center group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600 group-hover:text-yellow-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
+            </svg>
+            <span class="text-xs mt-1 text-gray-700">USERS</span>
+          </a>
+        
+
+  @endif
 @endauth
 
 
