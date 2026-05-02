@@ -10,6 +10,7 @@ use App\Http\Controllers\TariffController;
 Route::middleware("auth")->group(function(){
     Route::view('/', 'post.index')->name('home');
     Route::get('/CategoryView',[updateTariffController::class,'CategoryView'])->name('CategoryView');
+    Route::get('/currTarView',[updateTariffController::class,'currTarView'])->name('currTarView');
     Route::get('/TariffNeg', [updateTariffController::class,'showTariffNeg'])->name('TariffNeg'); 
     Route::view('/Service', 'follow.Service')->name('Service'); 
 

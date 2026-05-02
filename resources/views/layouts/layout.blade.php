@@ -105,14 +105,15 @@
               </svg>
             <span class="text-xs mt-1 text-gray-700">Leadway</span>
           </a>
-          <!-- Category for Icon (User/Doctor) -->
-          <a href="{{route('CategoryView')}}" class="flex flex-col items-center group">
+         
+          <a href="{{route('currTarView')}}" class="flex flex-col items-center group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600 group-hover:text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <circle cx="12" cy="8" r="4" stroke-width="2" stroke="currentColor" fill="none"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 20v-2a6 6 0 0112 0v2" />
             </svg>
             <span class="text-xs mt-1 text-gray-700">View Tariff</span>
           </a>
+          
           <!-- Service Icon (Clipboard) -->
           <a href="{{route('Service')}}" class="flex flex-col items-center group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-500 group-hover:text-orange-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">

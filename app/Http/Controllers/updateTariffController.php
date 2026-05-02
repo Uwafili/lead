@@ -24,40 +24,41 @@ class updateTariffController extends Controller
 
     DB::transaction (function () use ($sheets,$request) {
 
-    foreach ($sheets as $workSheet) {
+
+ foreach ($sheets as $workSheet) {
        $sheetName=$workSheet->getTitle();
        $rows=$workSheet->toArray();
          foreach ($rows as $index => $row) {
+            // Skip header row
+            if ($index == 0) continue;
 
-                // Skip header row
-                if ($index == 0) continue;
+            // Normalize values
+            $service = trim($row[0] ?? '');
+            $tariff  = trim($row[1] ?? '');
 
-                if (empty($row[1])|| null) {
-                   $row[1]='';
-                }
-            if (empty($row[0])|| null) {
-                            $row[0]='';
-                            }
+            // ✅ Skip if BOTH are empty
+            if ($service === '' && $tariff === '') {
+                continue;
+            }
 
-                DB::table('tariffs')->insert([
-                     'user_id'=>auth()->id(),
-                    'SERVICE'  => $row[0],
-                    'TARIFF' => $row[1],
-                    'category' =>$sheetName,
-                    'tariff_Type' =>$request->type,
-                    'Edited_Service' =>'',
-                    'Edited_Tariff' =>'',
-                    'Negotiated' =>'',
-                    'Mapped'  =>'',
-                    'score'  =>'',
-                    'code' =>''
-
-                ]);
-                 
+            DB::table('tariffs')->insert([
+                'user_id' => auth()->id(),
+                'SERVICE' => $service,
+                'TARIFF' => $tariff,
+                'category' => $sheetName,
+                'tariff_Type' => $request->type,
+                'Edited_Service' => '',
+                'Edited_Tariff' => '',
+                'Negotiated' => '',
+                'Mapped' => '',
+                'score' => '',
+                'code' => ''
+            ]);
+    
          }
-    }
-
+ }
     });
+   
  PendingTariff::create([
                         'user_id'=>auth()->id(),
                         'user_name'=>Auth::user()->name,
@@ -75,6 +76,15 @@ class updateTariffController extends Controller
         $category = Tariff::distinct()->where('user_id', $id)->pluck('category'); 
 
         return view("GenView.CategoryView", compact('category'));
+    }
+
+    public function currTarView(){
+        $id = Auth::id();
+
+        $tariff=Tariff::where('user_id',$id)->get();
+        $category = Tariff::distinct()->where('user_id', $id)->pluck('category');   
+
+        return view("Facility.Tariff.currTar", compact('category','tariff'));
     }
 
     public function showTariffNeg(){
