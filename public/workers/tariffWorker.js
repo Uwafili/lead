@@ -1,6 +1,6 @@
-let dictionary = null;
+export let dictionary = null;
 let rf = [];
-let Dictionary_Map = new Map();
+export let Dictionary_Map = new Map();
 let indexedEntries = [];
 let ngramMaskMap = new Map(); // bitmask representation for ngram quick filter
 
@@ -80,7 +80,7 @@ function weightedLevenshtein(a, b) {
 }
 
 /* ------------------------ SMART FUZZY TOP 10 ------------------------ */
-function smartFuzzyTop10(searchTerm) {
+export function smartFuzzyTop10(searchTerm) {
   const query = normalizeAndSort(searchTerm);
   const queryGrams = ngrams(query);
   const queryPhonetic = phonetic(query);

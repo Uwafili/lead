@@ -24,6 +24,7 @@ return new class extends Migration
              $table->string('code');
              $table->string('category');
              $table->string('tariff_Type');
+             $table->string('accept');
             $table->timestamps();
         });
     }

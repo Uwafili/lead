@@ -26,7 +26,7 @@
             <tr class="hover:bg-orange-50 transition">
             <td class="px-6 py-4 whitespace-nowrap">{{$user['pendingtariffs'][0]['user_name'] }}</td>         
             <td class="px-6 py-4 whitespace-nowrap">{{$user['pendingtariffs'][0]['updated_at'] }}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-orange-600 font-semibold"><a href="{{ route('admin.tariff', ['id' => $user['pendingtariffs'][0]['user_id'] ]) }}">View</a></td>
+        <td class="px-6 py-4 whitespace-nowrap text-orange-600 font-semibold"><a href="{{ route('AdminTarViewNeg', ['id' => $user['pendingtariffs'][0]['user_id'] ]) }}">View</a></td>
 </tr>
           @endif
        @endforeach

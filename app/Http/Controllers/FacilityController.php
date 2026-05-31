@@ -6,53 +6,71 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class FacilityController extends Controller
 {
-    public function uploadFacilityExcel(Request $request)
-    {
-        
-        $request->validate([
-            'file' => 'required|mimes:csv|file|max:5120', 
-        ]);
+    //Add Facilities
+ public function uploadFacilityExcel(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+    ]);
+
+    try {
 
         $file = $request->file('file');
 
-        if (($handle = fopen($file->getPathname(), 'r')) !== false) {
+        $spreadsheet = IOFactory::load($file->getPathname());
 
-            $header = fgetcsv($handle); // Skip header
+        $sheet = $spreadsheet->getActiveSheet();
 
-            DB::beginTransaction();
+        $rows = $sheet->toArray();
 
-            try {
-                while (($row = fgetcsv($handle)) !== false) {
-                    if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
-                        continue; // skip empty rows
-                    }
+        DB::beginTransaction();
 
-                    // Check if email already exists
-                    if (!User::where('email', $row[1])->exists()) {
-                        User::create([
-                            'name'     => $row[0],
-                            'email'    => $row[1],
-                            'password' => Hash::make($row[2]),
-                        ]);
-                    }
-                }
+        foreach ($rows as $index => $row) {
 
-                DB::commit();
-                fclose($handle);
+            // Skip header row
+            if ($index == 0) {
+                continue;
+            }
 
-                return back()->with('success', 'USERS imported successfully!');
-            } catch (\Exception $e) {
-                DB::rollBack();
-                fclose($handle);
-                return back()->with('csverror', 'Error importing CSV: ' . $e->getMessage());
+            // Skip empty rows
+            if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
+                continue;
+            }
+
+            $name = trim($row[0]);
+            $email = trim($row[1]);
+            $password = trim($row[2]);
+
+            // Check if user already exists
+            if (!User::where('email', $email)->exists()) {
+
+                User::create([
+                    'name'     => $name,
+                    'email'    => $email,
+                    'password' => Hash::make($password),
+                ]);
             }
         }
 
-        return back()->with('csverror', 'Unable to open CSV file.');
+        DB::commit();
+
+        return back()->with('success', 'Users imported successfully!');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return back()->with(
+            'FileError',
+            'Error importing file: ' . $e->getMessage()
+        );
     }
+}
+
     public function getUsers(Request $request){
         $users = User::where('id','!=',auth()->id())->get();
         return view('Admin.users',compact('users'));

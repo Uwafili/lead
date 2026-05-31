@@ -10,7 +10,7 @@ use App\Http\Controllers\TariffController;
 Route::middleware("auth")->group(function(){
     Route::view('/', 'post.index')->name('home');
     Route::get('/CategoryView',[updateTariffController::class,'CategoryView'])->name('CategoryView');
-    Route::get('/currTarView',[updateTariffController::class,'currTarView'])->name('currTarView');
+    Route::get('/currTarView/',[updateTariffController::class,'currTarView'])->name('currTarView');
     Route::get('/TariffNeg', [updateTariffController::class,'showTariffNeg'])->name('TariffNeg'); 
     Route::view('/Service', 'follow.Service')->name('Service'); 
 
@@ -23,7 +23,8 @@ Route::view('/updateTariff',"Facility.updateTar")->name('updateTar');
 Route::post('/UpdateTar',[updateTariffController::class,'index'])->name('UpdateTar');
 Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateSinTar');
  
-
+Route::put('/updatePrice',[updateTariffController::class,'updatePrice'])->name('updatePrice');
+ 
 
 });
 
@@ -46,7 +47,7 @@ Route::middleware("guest")->group(function(){
 Route::middleware(["admin"])->group(function(){
         Route::get('/Admin/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
         Route::delete('/Admin/users/{user}', [AuthController::class, 'deleteUser'])->name('admin.users.delete');
-        Route::get('/Admin/tariff/{id?}', [AuthController::class, 'adminTar'])->name('admin.tariff');
+        Route::get('/Admin/tariff/{id?}', [updateTariffController::class, 'AdminTarViewNeg'])->name('AdminTarViewNeg');
         
         Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
         Route::get('/Admin/users', [AuthController::class, 'show'])->name('admin.users');

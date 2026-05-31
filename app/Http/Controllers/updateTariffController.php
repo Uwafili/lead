@@ -52,7 +52,8 @@ class updateTariffController extends Controller
                 'Negotiated' => '',
                 'Mapped' => '',
                 'score' => '',
-                'code' => ''
+                'code' => '',
+                'accept'=>''
             ]);
     
          }
@@ -80,11 +81,18 @@ class updateTariffController extends Controller
 
     public function currTarView(){
         $id = Auth::id();
-
         $tariff=Tariff::where('user_id',$id)->get();
         $category = Tariff::distinct()->where('user_id', $id)->pluck('category');   
 
         return view("Facility.Tariff.currTar", compact('category','tariff'));
+    }
+
+     public function AdminTarViewNeg($isd){
+        $id = $isd;
+        $tariff=Tariff::where('user_id',$id)->get();
+        $category = Tariff::distinct()->where('user_id', $id)->pluck('category');   
+
+        return view("Admin.Negotiate.Tar", compact('category','tariff'));
     }
 
     public function showTariffNeg(){
@@ -92,6 +100,18 @@ class updateTariffController extends Controller
         $tariffs = Tariff::where('user_id', $id)->get(); 
 
         return view('Facility.TariffNeg', compact('tariffs'));
+    }
+
+    public function updatePrice(Request $request){
+            $id=$request['id'];
+            $tariff = Tariff::find($id);
+            if ($tariff) {
+                $tariff['Edited_Tariff'] = $request['Tariff'];
+                $tariff['Negotiated']='Negotiated';
+
+                $tariff->save(); // Save changes to DB
+                return response()->json(['message'=>"successful",200]);
+            }
     }
 
  public function Sin(Request $request){
@@ -108,6 +128,7 @@ class updateTariffController extends Controller
               $tariff['score']=$request['score'];
          }else{
              $tariff['Edited_Tariff'] = $request['Tariff'];
+             $tariff['accept']=$request['accept'];
             $tariff['Negotiated']='Negotiated';
          }
             $tariff->save();              // Save changes to DB

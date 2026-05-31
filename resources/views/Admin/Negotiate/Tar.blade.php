@@ -1,9 +1,9 @@
-@extends('layouts.layout')
+ @extends('layouts.layout')
 
 @section('content')
 
 <div class="h-screen bg-gray-100 flex flex-col overflow-hidden">
- <div id="successAlert" class="hidden fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">Updated successfully!</div>
+ <div id="successAlert" class="hidden fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg">Updated successfully!</div>
     <!-- Header -->
     <div class="p-6 pb-0">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
@@ -64,23 +64,29 @@
     </div>
 
 </div>
-<script src="{{ asset('js/Facility/Tariff.js') }}"></script>
-
+ <script src="{{ asset('js/Facility/Tariff.js') }}"></script>
+ 
+<script src="{{ asset('js/Facility/help.js') }}"></script>
   <script>
+    const workerUrl = "{{ asset('workers/TarWorker.js') }}";
+  
    document.addEventListener('DOMContentLoaded', () => {
     const cart=@json($category);
     const data=@json($tariff);
+
   
     ShowTariff(data,cart[0])
+    startWorker(data,cart[0],workerUrl)
 
-
-    const FacSheet=document.querySelectorAll(".Fac-sheets");
+   const FacSheet=document.querySelectorAll(".Fac-sheets");
 
     FacSheet.forEach(sheet => {
         sheet.addEventListener('click',()=>{
              handleSheetChange(data,sheet.innerHTML)
         })
     });
+
+
 
 })
 </script>

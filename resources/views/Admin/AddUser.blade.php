@@ -41,7 +41,7 @@
         {{ session('success') }}
     </div>
 @endif
-      <input type="file" name="file" accept=".csv" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" required>
+      <input type="file" name="file"  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" required>
       <button type="submit" class="px-5 py-2.5 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 hover:shadow-lg transition transform hover:scale-105">Upload Excel</button>
     </form>
 

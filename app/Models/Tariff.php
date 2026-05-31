@@ -17,6 +17,7 @@ class Tariff extends Model
         'Negotiated',
         'Mapped',
         'score',
-        'code'
+        'code',
+        'accept'
     ];
 }
