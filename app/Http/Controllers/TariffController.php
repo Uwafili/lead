@@ -104,4 +104,30 @@ class TariffController extends Controller
         $names=Admintariffname::where('Admin_id',auth()->id())->get();
         return view('Admin.Tariff.ViewTariff',compact('names'));
    }
+
+   public function getExcelData($category) {
+       $filePath = storage_path("app/Tariffs/{$category}.json");
+       
+       if (!file_exists($filePath)) {
+           return response()->json(['error' => 'Tariff not found'], 404);
+       }
+
+       $json = file_get_contents($filePath);
+       $data = json_decode($json, true);
+       
+       // Transform nested SERVICES array into a flat key-value format
+       $transformed = [];
+       
+       foreach ($data as $sheetName => $services) {
+           if (is_array($services)) {
+               foreach ($services as $service) {
+                   if (isset($service['DESCRIPTION OF SERVICE']) && isset($service['TARIFF'])) {
+                       $transformed[$service['DESCRIPTION OF SERVICE']] = $service['TARIFF'];
+                   }
+               }
+           }
+       }
+       
+       return response()->json($transformed);
+   }
 }

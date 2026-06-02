@@ -26,19 +26,13 @@
 <body class="flex flex-col min-h-screen">
 
   <!-- Top Navbar -->
-  <header class="bg-orange-400 bg-opacity-95 text-black shadow-md">
+  <header class="bg-red-500 bg-opacity-95 text-black shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
       @auth
       <h1 class="text-2xl font-extrabold tracking-wide">welcome {{ Auth()->user()->name }}</h1>
       @endauth
       <nav class="space-x-6 flex items-center">
-        <a href="{{ route('home') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
-          <!-- Home Icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
-          </svg>
-          Home
-        </a>
+      
         @guest
           
         <a href="{{ route('register') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
@@ -98,14 +92,6 @@
   
 <aside class="w-28 bg-white bg-opacity-80 shadow-lg flex flex-col items-center py-8 space-y-8">
    
-          <a href="{{route('home')}}" class="flex flex-col items-center group">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 group-hover:text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <rect x="6" y="6" width="12" height="12" rx="3" stroke-width="2" stroke="currentColor" fill="none"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6" />
-              </svg>
-            <span class="text-xs mt-1 text-gray-700">Leadway</span>
-          </a>
-         
           <a href="{{route('currTarView')}}" class="flex flex-col items-center group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600 group-hover:text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <circle cx="12" cy="8" r="4" stroke-width="2" stroke="currentColor" fill="none"/>
@@ -148,13 +134,12 @@
 @endauth
 
 
-  <!-- Laboratory Icon (Beaker) -->
-  <a href="#" class="flex flex-col items-center group">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500 group-hover:text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 19H5l7-7V5a2 2 0 10-4 0v7l7 7z" />
-    </svg>
-    <span class="text-xs mt-1 text-gray-700">Laboratory</span>
-  </a>
+   <a href="" class="flex flex-col items-center group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 group-hover:text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0018 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            <span class="text-xs mt-1 text-gray-700">Notification</span>
+          </a>
 </aside>
 @endauth
 
