@@ -1,5 +1,3 @@
-const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
 
 function ShowTariff(data,cart) {
 
@@ -16,16 +14,43 @@ function ShowTariff(data,cart) {
     }
     }
     present.forEach(prep => {
-         html +=`              <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium btn${prep['id']}">${prep['SERVICE']}</td>
-                                    <td class="px-6 py-4">#${strN(prep['TARIFF'])}</td>
-                                    <td class="px-6 py-4"><div class="relative w-32"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span><input type="number" index="${prep['id']}" name="requested" value="${ strN(prep['Edited_Tariff']?.trim() ? prep['Edited_Tariff'] : prep['TARIFF'])}"  class="w-full pl-7 pr-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition newTar" placeholder="0.00"></div></td>
-                                    <td class="px-6 py-4"><span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 nepo${prep['id']} Nego">${prep['Negotiated']}</span> </td>
-                                    <td class="px-6 py-4 text-right space-x-2"> <div class="inline-flex gap-2"><button class="accept-price bg-green-500 text-white px-3 py-1 rounded-lg text-xs" index=".btn${prep['id']}" nepo=".nepo${prep['id']}" data-id="${prep['id']}">  <svg class="hidden spinner animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                            </svg><span class="label">${prep['accept']=='yes'?'Reject':'Accept'}</span></button></div></td>
-                                </tr>
+         html +=` <tr class="hover:bg-gray-50 putTr">
+    <td class="px-6 py-4 font-medium btn${prep['id']}">
+        <div class="relative w-full min-w-[220px] drpMapClick" gth="${prep['id']}" id="itemHolder${prep['id']}">
+         
+            <p>${prep['Edited_Service'].length !==0?prep['SERVICE']:''}</p>
+            <input type="text" index="${prep['id']}" name="service_name" value="${prep['Edited_Service'].length==0?prep['SERVICE']:prep['Edited_Service']}"   class="serviceInput serput${prep['id']} w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-700 font-medium shadow-sm" />
+          
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" id="${prep['id']}">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+       </div>
+    </td>
+
+    <td class="px-6 py-4">#${strN(prep['TARIFF'])}</td>
+    <td class="px-6 py-4">
+        <div class="relative w-32">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span>
+            <input type="number" index="${prep['id']}" name="requested" value="${ strN(prep['Edited_Tariff']?.trim() ? prep['Edited_Tariff'] : prep['TARIFF'])}"  class="w-full pl-7 pr-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition newTar" placeholder="0.00">
+        </div>
+    </td>
+    <td class="px-6 py-4">
+        <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 nepo${prep['id']} Nego">${prep['Negotiated']}</span>
+    </td>
+    <td class="px-6 py-4 text-right space-x-2"> 
+        <div class="inline-flex gap-2">
+            <button class="accept-price bg-green-500 text-white px-3 py-1 rounded-lg text-xs" index=".btn${prep['id']}" nepo=".nepo${prep['id']}" data-id="${prep['id']}">  
+                <svg class="hidden spinner animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span class="label">${prep['accept']=='yes'?'Reject':'Accept'}</span>
+            </button>
+        </div>
+    </td>
+</tr>
                         `
     });
     bodHold.innerHTML=html

@@ -1,285 +1,107 @@
-console.log("e")
-
-
 let dictionary = null;
-function smartFuzzySearch(searchTerm, dataset, limit = 10) {
-  const ignore = new Set([
-    "tablet", "tablets", "tab", "tabs",
-    "capsule", "capsules", "cap", "caps",
-    "softgel", "softgels",
-    "pill", "pills",
+let indexedEntries;
 
-    "syrup", "syrups", "syr",
-    "suspension", "susp", "suspensions",
-    "solution", "solutions", "sol", "soln",
-    "mixture", "mix",
-    "elixir",
-    "emulsion",
-    "linctus",
+//DrugEngine
+function DrugLord() {
+  /* CORE SMART FUZZY SEARCH ENGINE                      */
+  function smartFuzzyTop10(searchTerm) {
+  // 1. Extract if the user typed a specific strength in their query (e.g., "625mg", "5ml")
+  const queryStrength = extractStrength(searchTerm);
+  
+          // 2. Tokenize the input string into a clean array of lowercase words
+          const queryTokens = tokenizeDrugWithNoise(searchTerm); 
+  if (queryTokens.length === 0) return [];
 
-    "cream", "creams",
-    "ointment", "ointments", "oint",
-    "gel", "gels",
-    "lotion", "lotions",
+          // 3. Separate the user's search query into Core Drugs vs Requested Forms
+  const coreQueryDrugs = queryTokens.filter(t => !ignore.has(t));
+  const requestedForms = queryTokens.filter(t => ignore.has(t));
 
-    "drop", "drops",
-    "spray", "sprays",
+          // CRITICAL GATE: If there are no active ingredient keywords, exit immediately 
+          // to prevent matching purely on words like "tablet" or "syrup".
+  if (coreQueryDrugs.length === 0) return [];
 
-    "injection", "injectable", "injectables",
-    "inj", "iv", "im", "sc",
-    "ampoule", "ampoules",
-    "vial", "vials",
+  const results = [];
 
-    "inhaler", "inhalers",
-    "neb", "nebs",
+          // 4. Loop through the pre-tokenized background database
+  for (const item of indexedEntries) {
+    if (item.tokens.length === 0) continue;
 
-    "patch", "patches",
-    "device", "devices",
+    let totalDrugScore = 0;
 
-    "powder", "powders",
-    "granule", "granules",
-    "sachet", "sachets",
+            /* ------------------- STAGE 1: CORE DRUG NAME MATCHING ------------------- */
+            // Focus explicitly on matching the active ingredients, ignoring background noise words
+    for (const qDrug of coreQueryDrugs) {
+      let maxDrugScore = 0;
 
-    "forte",
-    "plus",
-    "extra",
-    "max",
+      for (const dToken of item.tokens) {
+                if (dToken.isNoise) continue; // Skip matching active ingredients against filler words
 
-    "percent",
-    "mg", "g", "kg",
-    "mcg", "ug",
-    "ml", "mls",
-
-    "per",
-    "with",
-    "and",
-    "for",
-    "of",
-
-    "generic",
-    "brand",
-    "drug",
-    "medicine",
-    "medication"
-  ]);
-
-  function normalize(text) {
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, " ")
-      // remove dosage/alphanumeric dosage
-    .replace(/\b\d+[a-z0-9.%]*\b/g, " ")
-    // split
-      .split(/\s+/)
-      .filter(Boolean)
-      .join(" ")
-      .trim();
-  }
-
-  function ngrams(str, n = 2) {
-    if (str.length < n) return [str];
-
-    const grams = [];
-
-    for (let i = 0; i <= str.length - n; i++) {
-      grams.push(str.slice(i, i + n));
+        const score = getLevenshteinSimilarity(qDrug, dToken.text);
+        if (score > maxDrugScore) {
+          maxDrugScore = score;
+        }
+      }
+      totalDrugScore += maxDrugScore;
     }
 
-    return grams;
-  }
+            // Baseline score derived strictly from active pharmaceutical ingredients
+    let finalScore = totalDrugScore / coreQueryDrugs.length;
 
-  function phonetic(str) {
-    return str
-      .replace(/[aeiou]/g, "")
-      .replace(/ph/g, "f")
-      .replace(/ck/g, "k")
-      .replace(/q/g, "k")
-      .replace(/z/g, "s");
-  }
+            // HARD GATE: Active ingredient must be a solid match (75%+) or it's dropped completely
+    if (finalScore < 0.75) continue; 
 
-  function cosineSimilarity(a, b) {
-    const setA = new Set(a);
-    const setB = new Set(b);
 
-    let intersection = 0;
+            /* ------------------- STAGE 2: DOSAGE FORM TIE-BREAKER ------------------- */
+            // PRIORITY 1: If the user explicitly requested a format (e.g., "syrup"), reward matches heavily
+    if (requestedForms.length > 0) {
+      let matchedFormCount = 0;
 
-    for (const x of setA) {
-      if (setB.has(x)) intersection++;
-    }
+      for (const rForm of requestedForms) {
+        for (const dToken of item.tokens) {
+                  // If it's a database noise token and matches what the user typed
+          if (dToken.isNoise && getLevenshteinSimilarity(rForm, dToken.text) >= 0.85) {
+            matchedFormCount++;
+            break; 
+          }
+        }
+      }
 
-    return intersection / Math.sqrt(setA.size * setB.size || 1);
-  }
-
-  function weightedLevenshtein(a, b) {
-    const al = a.length;
-    const bl = b.length;
-
-    if (!al && !bl) return 1;
-
-    const dp = Array(al + 1)
-      .fill(0)
-      .map((_, i) => i);
-
-    for (let i = 1; i <= bl; i++) {
-      let prev = dp[0];
-      dp[0] = i;
-
-      for (let j = 1; j <= al; j++) {
-        const temp = dp[j];
-
-        const cost = a[j - 1] === b[i - 1] ? 0 : 1;
-
-        dp[j] = Math.min(
-          dp[j] + 1,
-          dp[j - 1] + 1,
-          prev + cost
-        );
-
-        prev = temp;
+              // High weight bonus (+0.30) ensures Form matches dominate the tie-breaker pool
+      if (matchedFormCount > 0) {
+        finalScore += (matchedFormCount / requestedForms.length) * 0.30;
       }
     }
 
-    return 1 - dp[al] / Math.max(al, bl);
+
+    /* --------------------- STAGE 3: STRENGTH TIE-BREAKER --------------------- */
+            // PRIORITY 2: Fine-tune positions based on specific numerical dosages
+    if (queryStrength) {
+      if (item.strength === queryStrength) {
+                // Perfect match on strength adds a secondary modifier boost
+        finalScore += 0.10; 
+      } else if (item.strength && item.strength !== queryStrength) {
+                // Modest penalty if a different strength exists, without overriding a correct Form match
+        finalScore -= 0.05; 
+      }
+    }
+
+
+            /* ----------------------- STAGE 4: RECORD PACKAGING ----------------------- */
+            // Collect qualified matches that pass our evaluation profile
+    if (finalScore >= 0.65) {
+      results.push({
+        service: item.original,
+        code: item.code,
+        tariff: item.tariff,
+        score: Number(finalScore.toFixed(4))
+      });
+    }
   }
 
-  const query = normalize(searchTerm);
-
-  if (!query) return [];
-
-  const queryGrams = ngrams(query);
-  const queryPhonetic = phonetic(query);
-
-  const results = dataset
-    .map(original => {
-      const text = normalize(original);
-
-      if (!text) return null;
-
-      const grams = ngrams(text);
-
-      const gramScore = cosineSimilarity(
-        queryGrams,
-        grams
-      );
-
-      const levScore = weightedLevenshtein(
-        query,
-        text
-      );
-
-      const phoneticScore =
-        queryPhonetic === phonetic(text)
-          ? 1
-          : 0;
-
-      const startsWithScore =
-        text.startsWith(query)
-          ? 1
-          : 0;
-
-      const score =
-        gramScore * 0.45 +
-        levScore * 0.40 +
-        startsWithScore * 0.10 +
-        phoneticScore * 0.05;
-
-      return {
-        item: original,
-        score: Number(score.toFixed(4))
-      };
-    })
-    .filter(Boolean)
-    .filter(r => r.score >= 0.25)
+          // 5. Sort the top matches in descending order based on final score weight profiles
+  return results
     .sort((a, b) => b.score - a.score)
-    .slice(0, limit);
-
-  return results;
-}
-const medicationForms = {
-  // vitamins
-  vit: "vitamin",
-
-  // tablets
-  tab: "tablet",
-  tabs: "tablet",
-  tablets: "tablet",
-  chewtab: "chewable tablet",
-  disptab: "dispersible tablet",
-  efftab: "effervescent tablet",
-  ectab: "enteric-coated tablet",
-  srtab: "sustained release tablet",
-  crtab: "controlled release tablet",
-  xrtab: "extended release tablet",
-  mrtab: "modified release tablet",
-
-  // capsules
-  cap: "capsule",
-  caps: "capsule",
-  capsules: "capsule",
-
-  // liquids
-  syr: "syrup",
-  syrups: "syrup",
-  susp: "suspension",
-  suspensions: "suspension",
-  elix: "elixir",
-  emuls: "emulsion",
-  lot: "lotion",
-
-  // topicals
-  cr: "cream",
-  creams: "cream",
-  oint: "ointment",
-  ointments: "ointment",
-  gel: "gel",
-  patch: "transdermal patch",
-
-  // injectable
-  inj: "injection",
-  injections: "injection",
-  injectables: "injection",
-  amp: "ampoule",
-  amps: "ampoule",
-  ampoules: "ampoule",
-  vial: "vial",
-  vials: "vial",
-
-  // solution / drops
-  sol: "solution",
-  soln: "solution",
-  solutions: "solution",
-  gtt: "drops",
-  drops: "drops",
-
-  // respiratory
-  neb: "nebulization solution",
-  nebulizer: "nebulization solution",
-  inh: "inhaler",
-
-  // others
-  supp: "suppository",
-  sachets: "sachet",
-  spray: "spray",
-  gran: "granules",
-  loz: "lozenge",
-  powd: "powder",
-
-  pcm: "paracetamol"
-};
-
-function formReplace(meds) {
-    meds = meds.toLowerCase();
-
-    let refinedMed = meds;
-
-    Object.keys(medicationForms).forEach(key => {
-        refinedMed = refinedMed.replace(
-            new RegExp(`\\b${key}\\b`, "g"),
-            medicationForms[key]
-        );
-    });
-
-    return refinedMed;
+    .slice(0, 10);
 }
 
 const ignore = new Set([
@@ -457,9 +279,14 @@ const ignore = new Set([
   "brand",
   "drug",
   "medicine",
-  "medication"
-]);
+  "medication",
+  "bottle",
 
+  // CONSULTATION.
+
+  "consultation", "consult", "visit", "review", "followup", 
+  "follow", "initial", "routine", "specialist", "clinic", "services"
+]);
 function getDrugKey(str) {
   return str
     .toLowerCase()
@@ -474,9 +301,31 @@ function getDrugKey(str) {
     .join(" ")
     .trim();
 }
-
 /* ------------------------ NORMALIZATION ------------------------ */
+
+function tokenizeDrugWithNoise(str) {
+  if (!str) return [];
+
+  return str
+    .toLowerCase()
+
+    // 1. ADVANCED MEDICAL STRENGTH REMOVAL
+    // Matches numbers, standalone fractions, decimals, and variations with spaces 
+    // (e.g., "100mg", "100 mg", "312.5 mg", "312 5mg", "0.5%", "1/2", "1g", "1 g")
+    .replace(/\b\d+[\d\s./%]*(mg|ml|g|l|mcg|ug|iu|units|percent|perc|\b)/gi, " ")
+
+    // 2. Clear out punctuation and symbols, leaving clean spaces
+    .replace(/[^a-z\s]/g, " ")
+
+    // 3. Break the string apart into an array of words
+    .split(/\s+/)
+
+    // 4. Clean up trailing spaces and drop ultra-short tokens 
+    .filter(word => word && word.length > 2);
+}
+
 function normalizeAndSort(text) {
+  
   if (!text) return "";
 
   let result = formReplace(text.toLowerCase())
@@ -487,7 +336,7 @@ function normalizeAndSort(text) {
     .replace(/%/g, "percent")
 
     // remove punctuation
-    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/[^a-z0-9\s]/g, "")
 
     // normalize spaces
     .replace(/\s+/g, " ")
@@ -497,58 +346,477 @@ result =formReplace(result);
 return result.split(" ").sort().join(" ");
 }
 
-function tokenizeDrug(str) {
-  return str
-    .toLowerCase()
+const medicationForms = {
+  // vitamins
+  vit: "vitamin",
 
-    // remove dosage/alphanumeric dosage
-    .replace(/\b\d+[a-z0-9.%]*\b/g, " ")
+  // tablets
+  tab: "tablet",
+  tabs: "tablet",
+  tablets: "tablet",
+  chewtab: "chewable tablet",
+  disptab: "dispersible tablet",
+  efftab: "effervescent tablet",
+  ectab: "enteric-coated tablet",
+  srtab: "sustained release tablet",
+  crtab: "controlled release tablet",
+  xrtab: "extended release tablet",
+  mrtab: "modified release tablet",
 
-    // remove symbols
-    .replace(/[^a-z\s]/g, " ")
+  // capsules
+  cap: "capsule",
+  caps: "capsule",
+  capsules: "capsule",
 
-    // split
-    .split(/\s+/)
+  // liquids
+  syr: "syrup",
+  syrups: "syrup",
+  susp: "suspension",
+  suspensions: "suspension",
+  elix: "elixir",
+  emuls: "emulsion",
+  lot: "lotion",
 
-    // clean
-    .filter(word =>
-      word &&
-      word.length > 2 &&
-      !ignore.has(word)
-    );
+  // topicals
+  cr: "cream",
+  creams: "cream",
+  oint: "ointment",
+  ointments: "ointment",
+  gel: "gel",
+  patch: "transdermal patch",
+
+  // injectable
+  inj: "injection",
+  injections: "injection",
+  injectables: "injection",
+  amp: "ampoule",
+  amps: "ampoule",
+  ampoules: "ampoule",
+  vial: "vial",
+  vials: "vial",
+
+  // solution / drops
+  sol: "solution",
+  soln: "solution",
+  solutions: "solution",
+  gtt: "drops",
+  drops: "drops",
+
+  // respiratory
+  neb: "nebulization solution",
+  nebulizer: "nebulization solution",
+  inh: "inhaler",
+
+  // others
+  supp: "suppository",
+  sachets: "sachet",
+  spray: "spray",
+  gran: "granules",
+  loz: "lozenge",
+  powd: "powder",
+
+  pcm: "paracetamol"
+};
+function formReplace(meds) {
+    meds = meds.toLowerCase();
+
+    let refinedMed = meds;
+
+    Object.keys(medicationForms).forEach(key => {
+        refinedMed = refinedMed.replace(
+            new RegExp(`\\b${key}\\b`, "g"),
+            medicationForms[key]
+        );
+    });
+
+    return refinedMed;
+}
+// A helper regex to extract the first clear dosage strength found (e.g., "100mg", "5ml", "0.5%")
+function extractStrength(str) {
+  const match = str.toLowerCase().match(/\b(\d+[\d\s./%]*(?:mg|ml|g|l|mcg|ug|iu|units|percent|perc|%))/i);
+  return match ? match[1].replace(/\s+/g, "") : null; // "100 mg" becomes "100mg"
+}
+
+ return {
+      smartFuzzyTop10,
+      normalizeAndSort,
+      extractStrength,
+      ignore,
+      tokenizeDrugWithNoise
+   };
+}
+
+// Consult Engine
+
+function ConsultLord() {
+
+
+
+    const consultationIgnore = new Set([
+      // consultation words
+      "consult",
+      "consultation",
+      "consulting",
+      "review",
+      "followup",
+      "follow",
+      "follow-up",
+      "revisit",
+      "visit",
+      "attendance",
+
+      // patient categories
+      "new",
+      "old",
+      "return",
+      "existing",
+      "adult",
+      "child",
+      // encounter types
+      "initial",
+      "first",
+      "routine",
+      "regular",
+      "emergency",
+      "urgent",
+      "walkin",
+      "walk-in",
+
+      // hospital/clinic words
+      "hospital",
+      "clinic",
+      "medical",
+      "health",
+      "healthcare",
+      "care",
+      "centre",
+      "center",
+
+      // service words
+      "service",
+      "services",
+      "fee",
+      "charge",
+      "charges",
+
+      // doctor references
+      "doctor",
+      "dr",
+      "consultant",
+
+      // generic descriptors
+      "comprehensive",
+      "basic",
+      "standard",
+      "normal",
+      "private",
+
+      // abbreviations
+    
+    ]);
+
+    const consultationForms = {
+  // General practice
+  gp: "general practitioner",
+  gpc: "general practitioner consultation",
+  gopd: "general outpatient department",
+
+  // Common specialties
+  ent: "ear nose throat",
+  eye: "ophthalmology",
+  oph: "ophthalmology",
+  opht: "ophthalmology",
+  ortho: "orthopaedic",
+  psych: "psychiatry",
+  derm: "dermatology",
+  cardio: "cardiology",
+  neuro: "neurology",
+  uro: "urology",
+  gyn: "gynaecology",
+  obs: "obstetrics",
+  paed: "paediatrics",
+  ped: "paediatrics",
+  gastro: "gastroenterology",
+  nephro: "nephrology",
+  pulm: "pulmonology",
+  rheum: "rheumatology",
+  endo: "endocrinology",
+  onc: "oncology",
+
+  // Facility departments
+  opd: "outpatient department",
+  ipd: "inpatient department",
+  ae: "accident and emergency",
+  er: "emergency room",
+  icu: "intensive care unit",
+
+  // Consultation types
+  cons: "consultation",
+  consult: "consultation",
+  rev: "review",
+  fup: "follow up",
+  fu: "follow up",
+
+  // Specialist levels
+  spec: "specialist",
+  sp: "specialist",
+  consultant: "specialist"
+    };
+    function formReplace(text){
+    if (!text) return;
+    text = text.toLowerCase();
+
+        let refinedConsult = text;
+
+        Object.keys(consultationForms).forEach(key => {
+            refinedConsult = refinedConsult.replace(
+                new RegExp(`\\b${key}\\b`, "g"),
+                consultationForms[key]
+            );
+        });
+
+        return refinedConsult;
+    }
+
+    // Consult Normalize
+    function consultNormalizeAndSort(text) {
+      if (!text) return;
+
+      let result = formReplace(text)
+
+          // remove punctuation
+        .replace(/[^a-z0-9\s]/g, "")
+
+        // normalize spaces
+        .replace(/\s+/g, " ")
+        .trim();
+        result =formReplace(result);
+
+      return result.split(/\s+/).sort()
+
+    }
+
+
+      /* CORE SMART FUZZY SEARCH ENGINE                      */
+  function smartFuzzyTop10(searchTerm) {
+ 
+  
+          // 2. Tokenize the input string into a clean array of lowercase words
+          const queryTokens = searchTerm; 
+  if (queryTokens.length === 0) return [];
+
+          // 3. Separate the user's search query into Core Drugs vs Requested Forms
+  const coreQueryDrugs = queryTokens.filter(t => !consultationIgnore.has(t));
+  const requestedForms = queryTokens.filter(t => consultationIgnore.has(t));
+
+          // CRITICAL GATE: If there are no active ingredient keywords, exit immediately 
+          // to prevent matching purely on words like "tablet" or "syrup".
+  if (coreQueryDrugs.length === 0) return [];
+
+  const results = [];
+
+          // 4. Loop through the pre-tokenized background database
+  for (const item of indexedEntries) {
+    if (item.tokens.length === 0) continue;
+
+    let totalDrugScore = 0;
+
+            /* ------------------- STAGE 1: CORE DRUG NAME MATCHING ------------------- */
+            // Focus explicitly on matching the active ingredients, ignoring background noise words
+    for (const qDrug of coreQueryDrugs) {
+      let maxDrugScore = 0;
+
+      for (const dToken of item.tokens) {
+                if (dToken.isNoise) continue; // Skip matching active ingredients against filler words
+
+        const score = getLevenshteinSimilarity(qDrug, dToken.text);
+        if (score > maxDrugScore) {
+          maxDrugScore = score;
+        }
+      }
+      totalDrugScore += maxDrugScore;
+    }
+
+            // Baseline score derived strictly from active pharmaceutical ingredients
+    let finalScore = totalDrugScore / coreQueryDrugs.length;
+
+            // HARD GATE: Active ingredient must be a solid match (75%+) or it's dropped completely
+    if (finalScore < 0.75) continue; 
+
+
+            /* ------------------- STAGE 2: DOSAGE FORM TIE-BREAKER ------------------- */
+            // PRIORITY 1: If the user explicitly requested a format (e.g., "syrup"), reward matches heavily
+    if (requestedForms.length > 0) {
+      let matchedFormCount = 0;
+
+      for (const rForm of requestedForms) {
+        for (const dToken of item.tokens) {
+                  // If it's a database noise token and matches what the user typed
+          if (dToken.isNoise && getLevenshteinSimilarity(rForm, dToken.text) >= 0.85) {
+            matchedFormCount++;
+            break; 
+          }
+        }
+      }
+
+              // High weight bonus (+0.30) ensures Form matches dominate the tie-breaker pool
+      if (matchedFormCount > 0) {
+        finalScore += (matchedFormCount / requestedForms.length) * 0.30;
+      }
+    }
+
+
+            /* ----------------------- STAGE 4: RECORD PACKAGING ----------------------- */
+            // Collect qualified matches that pass our evaluation profile
+    if (finalScore >= 0.65) {
+      results.push({
+        service: item.original,
+        code: item.code,
+        tariff: item.tariff,
+        score: Number(finalScore.toFixed(4))
+      });
+    }
+  }
+
+          // 5. Sort the top matches in descending order based on final score weight profiles
+  return results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+
+    return{
+        consultNormalizeAndSort,
+        consultationIgnore,
+        smartFuzzyTop10
+    }
+}
+
+/* ------------------------ THE STANDALONE LEVENSHTEIN SIMILARITY ------------------------ */
+function getLevenshteinSimilarity(a, b) {
+  const al = a.length;
+  const bl = b.length;
+  if (!al || !bl) return 0;
+
+  const dp = Array(al + 1).fill(0).map((_, i) => i);
+
+  for (let i = 1; i <= bl; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    for (let j = 1; j <= al; j++) {
+      const temp = dp[j];
+      const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+      dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + cost);
+      prev = temp;
+    }
+  }
+  // Returns a score between 0.0 (completely different) and 1.0 (identical)
+  return 1 - dp[al] / Math.max(al, bl);
 }
 
 self.onmessage = async function (e) {
    
-  const { type } = e.data;
-  if (type === "load") {
+  const { type,cartegory } = e.data;
+  if (type === "load") {    
+       const cart=cartegory;
+
+    console.log(cartegory)
     if(dictionary ===null){
       const res = await fetch("/api/hospital-pharmacy");
       const json = await res.json();
       const ret = json.data;
       rf = json.bad;
-      dictionary=ret['PHARMACY'];
+      dictionary=ret[cartegory];
+     
 
-      dictionary.forEach((p,i) => {p['DESCRIPTION']=normalizeAndSort(p['DESCRIPTION']); }); 
+
+      switch (cart) {
+        case 'PHARMACY':
+              drut()
+          break;
+        case 'CONSULTATION':
+                 const ConLord = ConsultLord();
+                 dictionary.forEach((p,i) => {p['DESCRIPTION']=ConLord.consultNormalizeAndSort(p['DESCRIPTION']); }); 
+             consulp(ConLord);
+        break;
+        default:
+          console.log("Hi")
+      }
 
       self.postMessage({ type: "loaded" });
     }
   } if (type === "search") {
-    if (!dictionary) return;
-    const {data} =e.data;
-    let dupData=new Map(data.map(item => [normalizeAndSort(item.SERVICE),item]));
 
-const exactMatches = [];
+    if (!dictionary) return;
+    const {data,cartegory} =e.data; 
+
+    const cart=cartegory;
+        switch (cart) {
+
+
+          case 'PHARMACY':
+            const drugEngine = DrugLord();
+                DrugReturn (data,drugEngine)
+            break;
+
+
+          case 'CONSULTATION':
+            const ConLord = ConsultLord();
+                  consReturn(data,ConLord)
+
+            break
+
+            default:
+            break;
+        }
+   
+
+}
+
+   
+} 
+
+
+
+/*     //Partials
+  // Define keyB once outside the loop
+const keyB = new Set(tokenizeDrugWith(B1));
+
+const related = [...dictMap]
+  .filter(([item, prop]) => {
+    const keyA = new Set(tokenizeDrugWith(item));
+    
+    for (const w of keyB) {
+      if (keyA.has(w)) {
+        justhold.add(item);
+        return true;
+      }
+    }
+    return false;
+  })
+  .map(([item, prop]) => prop);
+    if (related.length > 0) {
+      const passer={id:prop['id'],parent: B1,matches: related};
+       self.postMessage({type:'result',data:passer})
+      partialMatches.push({parent: B1,matches: related});
+    } else {
+     
+    }  */
+
+
+
+
+      function DrugReturn(data,drugEngine) {
+        const exactMatches = [];
 const partialMatches = [];
 const fuzzyMatches = [];
 const notFound = [];
 const justhold=new Set();
+const Allsearched=[];
+const Matched=[];
 
 
-// Exact lookup
-const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION,item]));
- const fgv= dictionary.map(item => item.DESCRIPTION)
-
+ const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION,item]));
+            let dupData =new Map(data.map(item => [drugEngine.normalizeAndSort(item.SERVICE),item]));
 // ---------------------------
 // MAIN LOOP
 // ---------------------------
@@ -557,48 +825,100 @@ for(const [B1,prop] of dupData.entries()){
 
    //EXACT MATCH
   const rtg = dictMap.get(B1);
+
   if (rtg !==undefined) {
-    exactMatches.push(rtg);
+      const realVT={id:prop['id'],service: rtg.DESCRIPTION, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+    const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+    Matched.push(realVT)
+    //exactMatches.push({id:prop['id'],parent:prop.SERVICE,matches:[realVT]});
+
+   Allsearched.push(passer)
+
     dupData.delete(B1)
     dictMap.delete(B1)
+
+    continue
   }
-
-    //Partials
-    const related=[...dictMap].filter(([item, prop])=>{
-
-      const keyA=new Set(tokenizeDrug(item))
-      const keyB=new Set(tokenizeDrug(B1));
+   const fuzz= drugEngine.smartFuzzyTop10(B1);
+        if (fuzz.length > 0) {
       
-      for (const w of keyB) {
-        if (keyA.has(w)){
-          justhold.add(item)
-           return true;
+          const passer={id:prop['id'],parent:B1,matches:fuzz}
+           fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+            Allsearched.push(passer)
+          fuzzyMatches.push(fuzz)
         }
+          else{
+          notFound.push(B1);
+        }
+ } 
+self.postMessage({type:'result',data:Allsearched,matched:Matched})
       }
-         return false;
-    })
-    if (related.length > 0) {
-      partialMatches.push({parent: B1,matches: related});
-    } else {
-      notFound.push(B1);
-      const rft= smartFuzzySearch(B1,fgv);
-      fuzzyMatches.push(rft)
-      //console.log(B1,rft) 
-    } 
-}
 
+      function drut() {
+          const drugEngine = DrugLord();
+           dictionary.forEach((p,i) => {p['DESCRIPTION']=drugEngine.normalizeAndSort(p['DESCRIPTION']); }); 
+          indexedEntries = dictionary.map(item => {
+          const rawDescription = item.DESCRIPTION.toLowerCase();                      // 1. Extract and store the clean structural strength (e.g., "625mg", "5ml")
+          const itemStrength = drugEngine.extractStrength(rawDescription);
+    // 2. Tokenize the remaining descriptive words using our noise-inclusive layout
+                      const rawTokens = drugEngine.tokenizeDrugWithNoise(rawDescription); 
+          const weightedTokens = rawTokens.map(word => ({
+            text: word,
+            isNoise: drugEngine.ignore.has(word)
+          }));
+          return {
+            original: item.DESCRIPTION, 
+            code: item.CODE,  
+            tariff: item.TARIFF,  
+            strength: itemStrength, // Stored safely as a standalone attribute!
+            tokens: weightedTokens 
+          };
+        });
+      }
 
+      function consulp(ConLord){
+           indexedEntries=dictionary.map(item=>{
+            const rawDescription = item.DESCRIPTION;   
+            const weightedTokens = rawDescription.map(word => ({
+            text: word,
+            isNoise: ConLord.consultationIgnore.has(word)
+          }));
+          return {original: item.DESCRIPTION,code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
+           })
+      }
 
-console.log(exactMatches)
-console.log(partialMatches)
-console.log(fuzzyMatches)
-console.log(notFound)
+      function consReturn(data,ConLord){
+          const fuzzyMatches = [];
+          const notFound = [];
+          const Allsearched=[];
+          const Matched=[];
 
-console.log(justhold)
+            const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION.join(" "),item]));
+            let dupData =new Map(data.map(item => [ConLord.consultNormalizeAndSort(item.SERVICE).join(" "),item]));
+            for(const [B1,prop] of dupData.entries()){
+                 //EXACT MATCH
+            const rtg = dictMap.get(B1);
+            if (rtg !==undefined) {
+                const realVT={id:prop['id'],service: rtg.DESCRIPTION, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+              console.log(rtg)
+              Matched.push(realVT)
 
-console.log(dupData)
-console.log(dictMap)
-//console.log(dupData)
-  }
+            Allsearched.push(passer)
 
-} 
+              dupData.delete(B1)
+              dictMap.delete(B1)
+              continue
+            }const fuzz= ConLord.smartFuzzyTop10(B1.split(" "));
+        if (fuzz.length > 0) {
+      
+          const passer={id:prop['id'],parent:B1,matches:fuzz}
+          console.log(passer)
+         /*   fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+            Allsearched.push(passer)
+          fuzzyMatches.push(fuzz) */
+        }else{
+          notFound.push(B1);
+        }
+            }
+      }
