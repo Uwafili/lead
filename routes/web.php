@@ -8,7 +8,6 @@ use App\Http\Controllers\TariffController;
 
 // Authenticated routes
 Route::middleware("auth")->group(function(){
-    Route::view('/', 'post.index')->name('home');
     Route::get('/CategoryView',[updateTariffController::class,'CategoryView'])->name('CategoryView');
     Route::get('/currTarView/',[updateTariffController::class,'currTarView'])->name('currTarView');
     Route::get('/TariffNeg', [updateTariffController::class,'showTariffNeg'])->name('TariffNeg'); 
@@ -67,6 +66,9 @@ Route::middleware(["admin"])->group(function(){
         Route::get("/Tariff/ViewTariff",[TariffController::class,'showAdTar'])->name('Ad_ViewTariff');
       
         });
+
+        // Excel/Tariff endpoints
+        Route::get('/excel/{category}', [TariffController::class, 'getExcelData'])->name('excel.tariff');
 
           // getting Tariff
 
