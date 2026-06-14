@@ -1,6 +1,11 @@
 let dictionary = null;
 let indexedEntries;
 
+function firstTwoLettersMatch(a, b) {
+  const aRR = a.map(item => item.slice(0, 2));
+  const bRR = b.map(item => item.slice(0, 2));
+  return aRR.some(item => bRR.includes(item));
+}
 //DrugEngine
 function DrugLord() {
   /* CORE SMART FUZZY SEARCH ENGINE                      */
@@ -477,7 +482,6 @@ function ConsultLord() {
       "first",
       "routine",
       "regular",
-      "emergency",
       "urgent",
       "walkin",
       "walk-in",
@@ -512,7 +516,16 @@ function ConsultLord() {
       "private",
 
       // abbreviations
-    
+     "first",
+  "second",
+  "third",
+  "fourth",
+  "fifth",
+  "1st",
+  "2nd",
+  "3rd",
+  "4th",
+  "5th"
     ]);
 
     const consultationForms = {
@@ -523,6 +536,8 @@ function ConsultLord() {
 
   // Common specialties
   ent: "ear nose throat",
+  'followup':"review",
+  surgery:'surgeon',
   eye: "ophthalmology",
   oph: "ophthalmology",
   opht: "ophthalmology",
@@ -533,9 +548,11 @@ function ConsultLord() {
   neuro: "neurology",
   uro: "urology",
   gyn: "gynaecology",
+  GYNAE:'gynaecology',
   obs: "obstetrics",
   paed: "paediatrics",
   ped: "paediatrics",
+  peadiatrics:"paediatrics",
   gastro: "gastroenterology",
   nephro: "nephrology",
   pulm: "pulmonology",
@@ -556,11 +573,20 @@ function ConsultLord() {
   rev: "review",
   fup: "follow up",
   fu: "follow up",
+    "second":"review",
+  "third":"review",
+  "fourth":"review",
+  "fifth":"review",
+  "2nd":"review",
+  "3rd":"review",
+  "4th":"review",
+  "5th":"review",
 
   // Specialist levels
   spec: "specialist",
   sp: "specialist",
-  consultant: "specialist"
+  consultant: "specialist",
+  '&':"and"
     };
     function formReplace(text){
     if (!text) return;
@@ -579,109 +605,77 @@ function ConsultLord() {
     }
 
     // Consult Normalize
-    function consultNormalizeAndSort(text) {
-      if (!text) return;
+   function consultNormalizeAndSort(text) {
+    if (!text) return [];
 
-      let result = formReplace(text)
-
-          // remove punctuation
-        .replace(/[^a-z0-9\s]/g, "")
-
-        // normalize spaces
+    let result = formReplace(text)
+        .replace(/[^a-z0-9\s]/gi, "")
         .replace(/\s+/g, " ")
         .trim();
-        result =formReplace(result);
 
-      return result.split(/\s+/).sort()
+    result = formReplace(result);
 
+    if (result.endsWith("gy")) {
+        result = result.slice(0, -2) + "gist";
+    } else if (result.endsWith("ry")) {
+        result = result.slice(0, -2) + "ist";
+    } else if(result.endsWith("tics")){
+      result = result.slice(0, -2) + "cian";
     }
 
+    return result.split(/\s+/).sort();
+}
 
-      /* CORE SMART FUZZY SEARCH ENGINE                      */
+
+      /* CORE SMART FUZZY SEARCH ENGINE*/
   function smartFuzzyTop10(searchTerm) {
- 
-  
-          // 2. Tokenize the input string into a clean array of lowercase words
-          const queryTokens = searchTerm; 
-  if (queryTokens.length === 0) return [];
+    const term=searchTerm.join(" ");
+    const matches=[]
+         const tg=[];
+       const weightedTokens = searchTerm.map(word => ({
+            text: word,
+            isNoise: consultationIgnore.has(word)
+          }));
 
-          // 3. Separate the user's search query into Core Drugs vs Requested Forms
-  const coreQueryDrugs = queryTokens.filter(t => !consultationIgnore.has(t));
-  const requestedForms = queryTokens.filter(t => consultationIgnore.has(t));
+        let NotIgnoreSearch=weightedTokens.filter((item)=>item.isNoise ===false).map(item=>item.text)
 
-          // CRITICAL GATE: If there are no active ingredient keywords, exit immediately 
-          // to prevent matching purely on words like "tablet" or "syrup".
-  if (coreQueryDrugs.length === 0) return [];
+          for(const Entries of indexedEntries){
+   
+           
+            const Edith=Entries.tokens.filter((item)=>item.isNoise== false)
+            const words=Edith.map(item=>item.text)
 
-  const results = [];
+              if (firstTwoLettersMatch(words,NotIgnoreSearch)) {
+                
+                let score = getLevenshteinSimilarity(words.join(" "), NotIgnoreSearch.join(" "));
 
-          // 4. Loop through the pre-tokenized background database
-  for (const item of indexedEntries) {
-    if (item.tokens.length === 0) continue;
+                    const EntryNTY=Entries.tokens.filter((item)=>item.isNoise== true).map(item=>item.text)
+                    const IgnoreSearch=weightedTokens.filter((item)=>item.isNoise ===true).map(item=>item.text)
+                    
 
-    let totalDrugScore = 0;
-
-            /* ------------------- STAGE 1: CORE DRUG NAME MATCHING ------------------- */
-            // Focus explicitly on matching the active ingredients, ignoring background noise words
-    for (const qDrug of coreQueryDrugs) {
-      let maxDrugScore = 0;
-
-      for (const dToken of item.tokens) {
-                if (dToken.isNoise) continue; // Skip matching active ingredients against filler words
-
-        const score = getLevenshteinSimilarity(qDrug, dToken.text);
-        if (score > maxDrugScore) {
-          maxDrugScore = score;
-        }
-      }
-      totalDrugScore += maxDrugScore;
-    }
-
-            // Baseline score derived strictly from active pharmaceutical ingredients
-    let finalScore = totalDrugScore / coreQueryDrugs.length;
-
-            // HARD GATE: Active ingredient must be a solid match (75%+) or it's dropped completely
-    if (finalScore < 0.75) continue; 
-
-
-            /* ------------------- STAGE 2: DOSAGE FORM TIE-BREAKER ------------------- */
-            // PRIORITY 1: If the user explicitly requested a format (e.g., "syrup"), reward matches heavily
-    if (requestedForms.length > 0) {
-      let matchedFormCount = 0;
-
-      for (const rForm of requestedForms) {
-        for (const dToken of item.tokens) {
-                  // If it's a database noise token and matches what the user typed
-          if (dToken.isNoise && getLevenshteinSimilarity(rForm, dToken.text) >= 0.85) {
-            matchedFormCount++;
-            break; 
+                  function getMatchScoreUnique(a, b) {
+            // Find unique overlapping words
+            const uniqueMatches = [...new Set(a)].filter(item => b.includes(item));
+            
+            // Multiply total matches by 0.25
+           return uniqueMatches.length * 0.25;
           }
-        }
-      }
+              score +=getMatchScoreUnique(EntryNTY, IgnoreSearch)
+          
+                  matches.push({ service: Entries.original,
+                                code: Entries.code,
+                                tariff: Entries.tariff,
+                                score: Number(score.toFixed(4))
+                              })
+                  //console.log(words,NotIgnoreSearch,score)
 
-              // High weight bonus (+0.30) ensures Form matches dominate the tie-breaker pool
-      if (matchedFormCount > 0) {
-        finalScore += (matchedFormCount / requestedForms.length) * 0.30;
-      }
-    }
+              }
+            
 
-
-            /* ----------------------- STAGE 4: RECORD PACKAGING ----------------------- */
-            // Collect qualified matches that pass our evaluation profile
-    if (finalScore >= 0.65) {
-      results.push({
-        service: item.original,
-        code: item.code,
-        tariff: item.tariff,
-        score: Number(finalScore.toFixed(4))
-      });
-    }
-  }
-
-          // 5. Sort the top matches in descending order based on final score weight profiles
-  return results
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
+          }
+function sortByScoreDescending(arr){return arr.sort((a, b) => b.score - a.score);}
+          const rft=sortByScoreDescending(matches);
+          return matches
 }
 
     return{
@@ -690,6 +684,271 @@ function ConsultLord() {
         smartFuzzyTop10
     }
 }
+
+/*function searchProceduresTop10(searchTerm) {
+  // 1. Check if query tokens exist
+  const queryTokens = searchTerm; // Assuming this is already an array of string tokens passed in
+  if (!queryTokens || queryTokens.length === 0) return [];
+
+  // 2. Tag the incoming query words as Core vs Noise
+  const weightedQuery = queryTokens.map(word => ({
+    text: word,
+    isNoise: procedureIgnore.has(word)
+  }));
+
+  // Separate them into flat word arrays
+  let coreQueryWords = weightedQuery.filter(item => !item.isNoise).map(item => item.text);
+  let noiseQueryWords = weightedQuery.filter(item => item.isNoise).map(item => item.text);
+
+  // CRITICAL GATE: Exit if there are no core anatomical keywords
+  if (coreQueryWords.length === 0) return [];
+
+  const results = [];
+
+  // 3. Loop through your pre-tokenized database rows
+  for (const entry of indexedEntries) {
+    const coreEntryWords = entry.tokens.filter(item => !item.isNoise).map(item => item.text);
+    if (coreEntryWords.length === 0) continue;
+
+    let totalCoreScore = 0;
+    let matchedWordsCount = 0;
+
+    // Track which database words have already been matched to avoid double-counting
+    let matchedEntryWords = new Set();
+
+    for (const qWord of coreQueryWords) {
+      let maxWordScore = 0;
+      let bestEntryWordMatch = null;
+
+      for (const eWord of coreEntryWords) {
+        if (matchedEntryWords.has(eWord)) continue; // Skip if already paired
+
+        const currentScore = getLevenshteinSimilarity(qWord, eWord);
+        
+        if (currentScore > maxWordScore) {
+          maxWordScore = currentScore;
+          bestEntryWordMatch = eWord;
+        }
+      }
+
+      // LOOSE SPELLING GATE: We accept anything above 70% as a valid keyword connection!
+      if (maxWordScore >= 0.70) {
+        totalCoreScore += maxWordScore;
+        matchedWordsCount++;
+        if (bestEntryWordMatch) {
+          matchedEntryWords.add(bestEntryWordMatch); // Lock this database word
+        }
+      }
+    }
+
+  
+    const requiredMatches = coreQueryWords.length === 1 
+      ? 1 
+      : Math.max(2, Math.ceil(coreQueryWords.length * 0.5));
+
+    // Hard Gate: Skip the item entirely if it doesn't hit the dynamic threshold requirement
+    if (matchedWordsCount < requiredMatches) continue;
+
+
+  
+    let finalScore = 0;
+
+    if (matchedWordsCount > 0) {
+      // Score based on how well the matched words scored individually
+      const matchAccuracy = totalCoreScore / matchedWordsCount;
+      
+      // Calculate how much of the dataset entry we successfully covered
+      const entryCoverage = matchedWordsCount / coreEntryWords.length;
+
+      // Combine them: rewarding high spelling accuracy and high coverage
+      finalScore = (matchAccuracy * 0.7) + (entryCoverage * 0.3);
+    }
+
+    // Secondary threshold gate to keep bad matching scores from bleeding into results
+    if (finalScore >= 0.50) {
+    
+      if (noiseQueryWords.length > 0) {
+        const noiseEntryWords = entry.tokens.filter(item => item.isNoise).map(item => item.text);
+        let matchedNoiseCount = 0;
+
+        for (const qNoise of noiseQueryWords) {
+          for (const eNoise of noiseEntryWords) {
+            if (getLevenshteinSimilarity(qNoise, eNoise) >= 0.80) {
+              matchedNoiseCount++;
+              break;
+            }
+          }
+        }
+
+        if (matchedNoiseCount > 0) {
+          finalScore += (matchedNoiseCount / noiseQueryWords.length) * 0.25;
+        }
+      }
+
+      // Record Packaging
+      results.push({
+        service: entry.original,
+        code: entry.code,
+        tariff: entry.tariff,
+        score: Number(finalScore.toFixed(4))
+      });
+    }
+  }
+
+  // 5. Sort and return the top 10 matches
+  return results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}  */
+function ProcedureLord() {
+  /* CORE SMART FUZZY SEARCH ENGINE                      */
+function searchProceduresTop10(searchTerm) {
+  // 1. Check if query tokens exist
+  const queryTokens = searchTerm; // Assuming this is an array of string tokens passed in
+  if (!queryTokens || queryTokens.length === 0) return [];
+
+  // 2. Tag the incoming query words as Core vs Noise
+  const weightedQuery = queryTokens.map(word => ({
+    text: word,
+    isNoise: procedureIgnore.has(word)
+  }));
+
+  // Separate them into flat word arrays
+  let coreQueryWords = weightedQuery.filter(item => !item.isNoise).map(item => item.text);
+  let noiseQueryWords = weightedQuery.filter(item => item.isNoise).map(item => item.text);
+
+  // Fallback: If the user ONLY typed noise words (e.g. "section"), treat them as core words 
+  // so the search doesn't return empty.
+  if (coreQueryWords.length === 0) {
+    coreQueryWords = noiseQueryWords;
+    noiseQueryWords = [];
+  }
+
+  const results = [];
+
+  // 3. Loop through your pre-tokenized database rows
+  for (const entry of indexedEntries) {
+    const coreEntryWords = entry.tokens.filter(item => !item.isNoise).map(item => item.text);
+    if (coreEntryWords.length === 0) continue;
+
+    let totalCoreScore = 0;
+    let matchedWordsCount = 0;
+    let matchedEntryWords = new Set();
+
+    /* ---------------- STAGE 1: WORD-BY-WORD CROSS CHECK ---------------- */
+    for (const qWord of coreQueryWords) {
+      let maxWordScore = 0;
+      let bestEntryWordMatch = null;
+
+      for (const eWord of coreEntryWords) {
+        if (matchedEntryWords.has(eWord)) continue; // Skip if already paired
+
+        const currentScore = getLevenshteinSimilarity(qWord, eWord);
+        
+        if (currentScore > maxWordScore) {
+          maxWordScore = currentScore;
+          bestEntryWordMatch = eWord;
+        }
+      }
+
+      // Loose connection threshold to capture typos and close variations
+      if (maxWordScore >= 0.70) {
+        totalCoreScore += maxWordScore;
+        matchedWordsCount++;
+        if (bestEntryWordMatch) {
+          matchedEntryWords.add(bestEntryWordMatch); // Lock this database word
+        }
+      }
+    }
+
+    /* ------------------- STAGE 2: INCLUSIVE SCORING MATH ------------------- */
+    // INCLUSIVE GATE: As long as AT LEAST ONE word connected, we grade it and include it!
+    if (matchedWordsCount >= 1) {
+      
+      // Calculate spelling accuracy across the specific words that matched
+      const matchAccuracy = totalCoreScore / matchedWordsCount;
+      
+      // QUERY COVERAGE BONUS: This calculates what % of the user's core search terms matched.
+      // This is the engine's primary sorting weight. It guarantees that an entry matching 
+      // "caesarean" AND "twins" scores drastically higher than one matching just "caesarean".
+      const queryCoverage = matchedWordsCount / coreQueryWords.length;
+
+      // Combine weights: 60% on spelling precision, 40% on how many query terms matched
+      let finalScore = (matchAccuracy * 0.6) + (queryCoverage * 0.4);
+
+      /* ----------------- STAGE 3: NOISE / MODIFIER BONUS ----------------- */
+      // If they matched modifiers like "section" or "lap", award an extra ranking boost
+      if (noiseQueryWords.length > 0) {
+        const noiseEntryWords = entry.tokens.filter(item => item.isNoise).map(item => item.text);
+        let matchedNoiseCount = 0;
+
+        for (const qNoise of noiseQueryWords) {
+          for (const eNoise of noiseEntryWords) {
+            if (getLevenshteinSimilarity(qNoise, eNoise) >= 0.80) {
+              matchedNoiseCount++;
+              break;
+            }
+          }
+        }
+
+        // Add modifier weight up to +0.25 to break ties among high-coverage entries
+        if (matchedNoiseCount > 0) {
+          finalScore += (matchedNoiseCount / noiseQueryWords.length) * 0.25;
+        }
+      }
+
+      // Save all matches to results without a filtering threshold minimum
+      results.push({
+        service: entry.original,
+        code: entry.code,
+        tariff: entry.tariff,
+        score: Number(finalScore.toFixed(4))
+      });
+    }
+  }
+
+  // 4. Sort descending by score. The queryCoverage + modifier bonuses ensure 
+  // that the most thoroughly related options win the top positions.
+  return results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+const procedureIgnore = new Set([
+  // Generic Action Verbs
+  "procedure", "procedures", "surgery", "operation", "management",
+  "treatment", "excision", "incision", "repair", "removal", "fixation",
+  "drainage", "biopsy", "resection", "closure", "reconstruction", "applied","minor","major","intermediate",
+"fee","fees","global","block",
+  
+  // Operational Modifiers
+  "stage", "stages", "under", "with", "without", "and", "for", "via","of", 
+  "approach", "status", "unilateral", "bilateral", "including", "except"
+]);
+
+
+function normalizeAndSortProcedures(text) {
+  if (!text) return "";
+
+  let cleaned = text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+
+
+    .replace(/\s+/g, " ")
+    .trim();
+
+  let words = cleaned.split(" ");
+
+  let structuralWords = words.filter(word => word && word.length >= 2);
+
+  return structuralWords.sort();
+}
+ return {
+      searchProceduresTop10,
+      procedureIgnore,
+      normalizeAndSortProcedures
+   };
+}
+
 
 /* ------------------------ THE STANDALONE LEVENSHTEIN SIMILARITY ------------------------ */
 function getLevenshteinSimilarity(a, b) {
@@ -736,10 +995,15 @@ self.onmessage = async function (e) {
         case 'CONSULTATION':
                  const ConLord = ConsultLord();
                  dictionary.forEach((p,i) => {p['DESCRIPTION']=ConLord.consultNormalizeAndSort(p['DESCRIPTION']); }); 
-             consulp(ConLord);
+                  
+                 consulp(ConLord);
+        break;
+         case 'SERVICES':
+                 const ProcLord = ProcedureLord();
+                 dictionary.forEach((p,i) => {p['DESCRIPTION']=ProcLord.normalizeAndSortProcedures(p['DESCRIPTION']); }); 
+                  Procedu(ProcLord);
         break;
         default:
-          console.log("Hi")
       }
 
       self.postMessage({ type: "loaded" });
@@ -763,7 +1027,12 @@ self.onmessage = async function (e) {
             const ConLord = ConsultLord();
                   consReturn(data,ConLord)
 
-            break
+            break;
+          
+         case "SERVICES":
+             const procedureEngine = ProcedureLord();
+                  procedureReturn(data,procedureEngine)
+            break; 
 
             default:
             break;
@@ -883,7 +1152,8 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
             text: word,
             isNoise: ConLord.consultationIgnore.has(word)
           }));
-          return {original: item.DESCRIPTION,code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
+         
+          return {original: item.DESCRIPTION.join(" "),code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
            })
       }
 
@@ -901,24 +1171,87 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
             if (rtg !==undefined) {
                 const realVT={id:prop['id'],service: rtg.DESCRIPTION, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
               const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
-              console.log(rtg)
+            
               Matched.push(realVT)
 
             Allsearched.push(passer)
 
               dupData.delete(B1)
               dictMap.delete(B1)
-              continue
-            }const fuzz= ConLord.smartFuzzyTop10(B1.split(" "));
-        if (fuzz.length > 0) {
-      
-          const passer={id:prop['id'],parent:B1,matches:fuzz}
-          console.log(passer)
-         /*   fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
-            Allsearched.push(passer)
-          fuzzyMatches.push(fuzz) */
-        }else{
-          notFound.push(B1);
-        }
+                console.log(passer)
+
+            }else{const fuzz= ConLord.smartFuzzyTop10(B1.split(" "))
+
+               if (fuzz.length > 0) {
+             
+              const passer={id:prop['id'],parent:B1,matches:fuzz}
+            fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+                Allsearched.push(passer)
+              
+            }else{
+              notFound.push(B1);
+              
             }
+            };
+               
+            }
+            console.log(notFound)
+            self.postMessage({type:'result',data:Allsearched,matched:Matched})
+      }
+
+      function Procedu(ProcLord) {
+          indexedEntries=dictionary.map(item=>{
+            const rawDescription = item.DESCRIPTION;
+            const weightedTokens = rawDescription.map(word => ({
+            text: word,
+            isNoise: ProcLord.procedureIgnore.has(word)
+          }));
+         
+          return {original: item.DESCRIPTION.join(" "),code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
+           }) 
+
+      }
+
+      function procedureReturn(data,procedureEngine) {
+          const fuzzyMatches = [];
+          const notFound = [];
+          const Allsearched=[];
+          const Matched=[];
+
+            const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION.join(" "),item]));
+            let dupData =new Map(data.map(item => [procedureEngine.normalizeAndSortProcedures(item.SERVICE).join(" "),item]));
+       
+              for(const [B1,prop] of dupData.entries()){
+                 //EXACT MATCH
+            const rtg = dictMap.get(B1);
+            if (rtg !==undefined) {
+                const realVT={id:prop['id'],service: rtg.DESCRIPTION, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+            
+              Matched.push(realVT)
+
+            Allsearched.push(passer)
+
+              dupData.delete(B1)
+              dictMap.delete(B1)
+
+            }else{ const fuzz= procedureEngine.searchProceduresTop10(B1.split(" "))
+
+               if (fuzz.length > 0) {
+             
+              const passer={id:prop['id'],parent:B1,matches:fuzz}
+              console.log(passer)
+            fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+                Allsearched.push(passer)
+              
+            }else{
+              notFound.push(B1);
+              
+            }
+            };
+               
+            }
+
+            self.postMessage({type:'result',data:Allsearched,matched:Matched})
+            
       }

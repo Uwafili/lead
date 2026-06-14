@@ -36,7 +36,7 @@ public function login(Request $request){
 
     ]);
     if(Auth::attempt($field,$request->remeber)){
-      return redirect()->intended();
+            return redirect()->route('Service');
     }
     else{
         return back()->withErrors([
