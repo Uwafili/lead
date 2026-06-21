@@ -60,18 +60,19 @@
     </div>
 
     <!-- Bottom Buttons (Fixed) -->
-    <div class="bg-white border-t shadow-inner">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex">     
-                @if(count($category) > 0)
-
-                    @foreach($category as $cat)
-                        <button class="py-4 w-full m-2 rounded-2xl bg-blue-50 text-blue-600 font-semibold hover:bg-blue-100 transition Fac-sheets" >{{$cat}}</button>
-                    @endforeach
-                @endif
-            </div>
+   <div class="bg-white border-t shadow-inner">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex overflow-x-auto whitespace-nowrap pb-2">     
+            @if(count($category) > 0)
+                @foreach($category as $cat)
+                    <button class="inline-block flex-shrink-0 py-4 px-6 m-2 rounded-2xl bg-blue-50 text-blue-600 font-semibold hover:bg-blue-100 transition Fac-sheets">
+                        {{$cat}}
+                    </button>
+                @endforeach
+            @endif
         </div>
     </div>
+</div>
 
 </div>
  <script src="{{ asset('js/Facility/Tariff.js') }}"></script>
@@ -119,9 +120,19 @@
          
                 function handleMappedItem(props) {
                         const Id=`#itemHolder${props['id']}`
-                    const itemHolder =document.querySelector(Id);
+                        const ServiceTag=`#ServiceTag${props['id']}`;
+                        const itemHolder =document.querySelector(Id);
                     const matches=props['matches'];
-                
+                    
+                 //set Service Tag color based on mapped;
+                 document.querySelector(ServiceTag).classList.remove("border-gray-200")
+                 if (matches.length===1 && matches[0]['score']===1) {
+                    document.querySelector(ServiceTag).classList.add("border-blue-400")
+                 }else if(matches.length===0){
+                   document.querySelector(ServiceTag).classList.add("border-red-400")
+                 }else{
+                   document.querySelector(ServiceTag).classList.add("border-green-400")                   
+                 }
                     const ulElement = document.createElement('ul');
                     ulElement.className = "py-1 text-sm text-gray-700";
 
@@ -137,6 +148,8 @@
                     itemHolder.appendChild(wrapperDiv);
  
             }
+
+
               
             function initDropMap(){
                 const dropbtn=document.querySelectorAll(".drpMapClick");
@@ -185,12 +198,14 @@
             } */
 
   
-     const FacSheet=document.querySelectorAll(".Fac-sheets");  
+    
+                const FacSheet=document.querySelectorAll(".Fac-sheets");  
      FacSheet.forEach(sheet => {sheet.addEventListener('click',()=>{handleSheetChange(data,sheet.innerHTML);WorkerWeb(sheet.innerHTML)})});
 
 
     //Functioning SearhBar
     requestSearch()
+
     function requestSearch(){
         const requestSearch =document.querySelector("#requestSearch");
 

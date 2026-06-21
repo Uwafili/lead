@@ -19,7 +19,8 @@ function ShowTariff(data,cart) {
         <div class="relative w-full min-w-[220px] drpMapClick" gth="${prep['id']}" id="itemHolder${prep['id']}">
          
             <p>${prep['Edited_Service'].length !==0?prep['SERVICE']:''}</p>
-            <input type="text" index="${prep['id']}" name="service_name" value="${prep['Edited_Service'].length==0?prep['SERVICE']:prep['Edited_Service']}"   class="serviceInput serput${prep['id']} w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-700 font-medium shadow-sm" />
+
+            <input type="text" id="ServiceTag${prep['id']}" index="${prep['id']}" name="service_name" value="${prep['Edited_Service'].length==0?prep['SERVICE']:prep['Edited_Service']}"   class="serviceInput serput${prep['id']} w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-700 font-medium shadow-sm" />
           
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" id="${prep['id']}">
                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,6 +56,8 @@ function ShowTariff(data,cart) {
     });
     bodHold.innerHTML=html
     depend()
+
+    searchService()
 }
 
 
@@ -158,5 +161,25 @@ function showAlert() {
     setTimeout(() => alert.classList.add("hidden"), 2000);
 }
 
+}
+
+// Add the search to the service input
+
+async function searchService() {
+    const res = await fetch("/js/Tar.json");
+let dictionary = await res.json();
+
+const serviceInput = document.querySelectorAll(".serviceInput");
+
+serviceInput.forEach(ser => {
+    ser.addEventListener("keyup", () => {
+        let val = ser.value.toLowerCase().trim();
+        
+        // Filters the dictionary array safely and cleanly
+        const tgf = dictionary.filter(tr =>tr['tariff_desc'] && tr['tariff_desc'].toLowerCase().includes(val) );
+
+        console.log(tgf); 
+    });
+});
 }
 

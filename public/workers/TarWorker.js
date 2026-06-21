@@ -6,6 +6,23 @@ function firstTwoLettersMatch(a, b) {
   const bRR = b.map(item => item.slice(0, 2));
   return aRR.some(item => bRR.includes(item));
 }
+
+function calculateUniqueMatchScore(a, b) {
+  // 1. Remove duplicates from both arrays by converting them to Sets
+  const setA = new Set(a);
+  const setB = new Set(b);
+  
+  // 2. Count how many items in setA also exist in setB
+  let matchCount = 0;
+  for (const item of setA) {
+    if (setB.has(item)) {
+      matchCount++;
+    }
+  }
+  
+  // 3. Multiply the unique match count by 0.25
+  return matchCount * 0.25;
+}
 //DrugEngine
 function DrugLord() {
   /* CORE SMART FUZZY SEARCH ENGINE                      */
@@ -800,11 +817,12 @@ function sortByScoreDescending(arr){return arr.sort((a, b) => b.score - a.score)
     .sort((a, b) => b.score - a.score)
     .slice(0, 10);
 }  */
-function ProcedureLord() {
+
+    function ProcedureLord() {
   /* CORE SMART FUZZY SEARCH ENGINE                      */
 function searchProceduresTop10(searchTerm) {
   // 1. Check if query tokens exist
-  const queryTokens = searchTerm; // Assuming this is an array of string tokens passed in
+  const queryTokens = searchTerm; 
   if (!queryTokens || queryTokens.length === 0) return [];
 
   // 2. Tag the incoming query words as Core vs Noise
@@ -949,6 +967,781 @@ function normalizeAndSortProcedures(text) {
    };
 }
 
+function RadLord() {
+  
+const radiologyIgnore = new Set([
+  // 1. Core Imaging Modalities & Shorthand
+  "xray", "x-ray", "uss", "ultrasound", "ultrasonography", "sonar", "scan",
+  "ct", "mri", "mra", "pet", "fluoroscopy", "", "",
+   "tomography", "radiography", "imaging",
+  
+  // 2. Views, Postures, and Anatomical Planes
+  "ap", "pa", "lateral", "lat", "oblique", "view", "views", "axial", 
+  "sagittal", "coronal", "erect", "supine", "bilateral", "unilateral","single","double",
+
+  // 3. Contrast & Technical Modifiers
+  "contrast", "with", "without", "w", "wo", "iv", "gadolinium", "dye",
+  "digital", "computed", "magnetic", "resonance", "resonance", "doppler", 
+  "duplex", "color", "high", "resolution", "hrct", "3d", "4d",
+
+  // 4. General Medical/Administrative Filler
+  "routine", "urgent", "special", "guided", "guidance", "under", "procedure",
+  "report", "film", "films", "screening", "diagnostic", "check", "and"
+]);
+
+function normalizeAndSortRadiology(text) {
+  if (!text) return "";
+
+  let cleaned = text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+
+
+    .replace(/\s+/g, " ")
+    .trim();
+
+  let words = cleaned.split(" ");
+
+  let structuralWords = words.filter(word => word && word.length >= 2);
+
+ return structuralWords.sort();
+  
+          
+            
+}
+
+
+function searchRadiologyTop10(searchTerm) {
+  // 1. Check if query tokens exist
+  const queryTokens = searchTerm; // Assuming this is an array of string tokens passed in
+  if (!queryTokens || queryTokens.length === 0) return [];
+
+  // 2. Tag the incoming query words as Core vs Noise
+  const weightedQuery = queryTokens.map(word => ({
+    text: word,
+    isNoise: radiologyIgnore.has(word)
+  }));
+
+  // Separate them into flat word arrays
+  let coreQueryWords = weightedQuery.filter(item => !item.isNoise).map(item => item.text);
+  let noiseQueryWords = weightedQuery.filter(item => item.isNoise).map(item => item.text);
+
+  // Fallback: If the user ONLY typed noise words (e.g. "section"), treat them as core words 
+  // so the search doesn't return empty.
+  if (coreQueryWords.length === 0) {
+    coreQueryWords = noiseQueryWords;
+    noiseQueryWords = [];
+  }
+
+  const results = [];
+
+  // 3. Loop through your pre-tokenized database rows
+  for (const entry of indexedEntries) {
+    const coreEntryWords = entry.tokens.filter(item => !item.isNoise).map(item => item.text);
+    if (coreEntryWords.length === 0) continue;
+
+    let totalCoreScore = 0;
+    let matchedWordsCount = 0;
+    let matchedEntryWords = new Set();
+
+    /* ---------------- STAGE 1: WORD-BY-WORD CROSS CHECK ---------------- */
+    for (const qWord of coreQueryWords) {
+      let maxWordScore = 0;
+      let bestEntryWordMatch = null;
+
+      for (const eWord of coreEntryWords) {
+        if (matchedEntryWords.has(eWord)) continue; // Skip if already paired
+
+        const currentScore = getLevenshteinSimilarity(qWord, eWord);
+        
+        if (currentScore > maxWordScore) {
+          maxWordScore = currentScore;
+          bestEntryWordMatch = eWord;
+        }
+      }
+
+      // Loose connection threshold to capture typos and close variations
+      if (maxWordScore >= 0.70) {
+        totalCoreScore += maxWordScore;
+        matchedWordsCount++;
+        if (bestEntryWordMatch) {
+          matchedEntryWords.add(bestEntryWordMatch); // Lock this database word
+        }
+      }
+    }
+
+    /* ------------------- STAGE 2: INCLUSIVE SCORING MATH ------------------- */
+    // INCLUSIVE GATE: As long as AT LEAST ONE word connected, we grade it and include it!
+    if (matchedWordsCount >= 1) {
+      
+      // Calculate spelling accuracy across the specific words that matched
+      const matchAccuracy = totalCoreScore / matchedWordsCount;
+      
+      // QUERY COVERAGE BONUS: This calculates what % of the user's core search terms matched.
+      // This is the engine's primary sorting weight. It guarantees that an entry matching 
+      // "caesarean" AND "twins" scores drastically higher than one matching just "caesarean".
+      const queryCoverage = matchedWordsCount / coreQueryWords.length;
+
+      // Combine weights: 60% on spelling precision, 40% on how many query terms matched
+      let finalScore = (matchAccuracy * 0.6) + (queryCoverage * 0.4);
+
+      /* ----------------- STAGE 3: NOISE / MODIFIER BONUS ----------------- */
+      // If they matched modifiers like "section" or "lap", award an extra ranking boost
+      if (noiseQueryWords.length > 0) {
+        const noiseEntryWords = entry.tokens.filter(item => item.isNoise).map(item => item.text);
+        let matchedNoiseCount = 0;
+
+        for (const qNoise of noiseQueryWords) {
+          for (const eNoise of noiseEntryWords) {
+            if (getLevenshteinSimilarity(qNoise, eNoise) >= 0.80) {
+              matchedNoiseCount++;
+              break;
+            }
+          }
+        }
+
+        // Add modifier weight up to +0.25 to break ties among high-coverage entries
+        if (matchedNoiseCount > 0) {
+          finalScore += (matchedNoiseCount / noiseQueryWords.length) * 0.25;
+        }
+      }
+
+      // Save all matches to results without a filtering threshold minimum
+      results.push({
+        service: entry.original,
+        code: entry.code,
+        tariff: entry.tariff,
+        score: Number(finalScore.toFixed(4))
+      });
+    }
+  }
+
+  // 4. Sort descending by score. The queryCoverage + modifier bonuses ensure 
+  // that the most thoroughly related options win the top positions.
+  return results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+return{
+  normalizeAndSortRadiology,
+  radiologyIgnore,
+  searchRadiologyTop10,
+}
+
+
+}
+
+function LabLord(){
+
+  const laboratoryIgnore = new Set([
+   // 1. Common Specimen / Fluid Types
+  "serum", "plasma", "csf", "fluid", "mcs",
+  "swab", "saliva", "tissue", "biopsy", "aspirate", "feces", "semen","stool","virus","blood",
+  // 2. Test Formats, Panels, and Groupings
+  "test", "tests", "profile", "panel", "screen","screens", "screening", "assay","donor",
+  "level", "levels", "estimation", "analysis", "culture", 
+  "sensitivity", "microscopy", "smear", "stain", "automated", "manual",
+
+  // 3. Administrative / Method Modifiers
+  "rapid", "stat", "routine", "quantitative", "qualitative", "total", 
+  "free", "index", "ratio", "fasting", "random", "serial", "post", 
+  "prandial", "timed", "24hr", "24-hour", "acute", "convalescent", 
+  "aso","ige","iga","igg","igm","ig","ab","ag","as",
+
+  // 4. General Connectors & Filler
+  "for", "and", "in", "of", "with", "without", "against", "by"
+]);
+
+const labAliasMap = new Map([
+  ["vdrl", ["venereal", "disease", "research", "laboratory"]],
+  ["eucr",["electrolyte","urea","creatinine"]],
+  ["rpr", ["rapid", "plasma", "reagin"]],
+  ["tpha", ["treponema", "pallidum", "hemagglutination", "assay"]],
+  ["crp", ["c-reactive", "protein"]],
+  ["ana", ["anti", "nuclear", "antibody"]],
+  ["hiv", ["human", "immunodeficiency", "virus"]],
+  ["hbv", ["hepatitis", "b", "virus"]],
+  ["hcv", ["hepatitis", "c", "virus"]],
+  ["hbsag", ["hepatitis", "b", "surface", "antigen"]],
+  /* ["sag", ["surface", "antigen"]],
+  ["sab", ["surface", "antibody"]],
+  ["Cab", ["", "antibody"]], */
+  ["hbsab", ["hepatitis", "b", "surface", "antibody"]],
+  ["hbeag", ["hepatitis", "b", "e", "antigen"]],
+  ["hp", ["helicobacter", "pylori"]],
+  ["h-pylori", ["helicobacter", "pylori"]],
+  ["mp", ["malaria", "parasite"]],
+  ["hep", ["hepatitis"]],
+
+  ["fbc", ["full", "blood", "count"]],
+  ["cbc", ["complete", "blood", "count"]],
+  ["pbf", ["peripheral", "blood", "film"]],
+  ["pcv", ["packed", "cell", "volume"]],
+  ["wbc", ["white", "blood", "cells"]],
+  ["rbc", ["red", "blood", "cells"]],
+  ["plt", ["platelets"]],
+  ["esr", ["erythrocyte", "sedimentation", "rate"]],
+  ["twbc", ["total", "white", "blood", "count"]],
+  ["diff", ["differential", "count"]],
+  ["mcv", ["mean", "corpuscular", "volume"]],
+  ["mch", ["mean", "corpuscular", "hemoglobin"]],
+  ["mchc", ["mean", "corpuscular", "hemoglobin", "concentration"]]
+  // ... continue the rest the same way
+]);
+
+function normalizeAndSortLab(text) {
+  if (!text) return []; // Returning an empty array to match your split() return type
+
+  let cleaned = text.toLowerCase()
+    // 1. Remove forward slashes completely so "w/o" becomes "wo" or "u/e" becomes "ue"
+    .replace(/\//g, "")
+    // 2. Turn all other non-alphanumeric characters into spaces
+    .replace(/[^a-z0-9\s]/g, " ")
+    // 3. Collapse multiple spaces down to a single space
+    .replace(/\s+/g, " ")
+    .trim();
+
+  let ty= cleaned.split(" ").sort();
+const rt=ty.indexOf('hep')
+if (rt !==-1) {
+  ty[rt]="hepatitis"
+}
+  return ty
+}
+
+
+function searchLaboratoryTop10(queryTokens) {
+  if (!queryTokens || queryTokens.length === 0) return [];
+
+  const results = [];
+
+  // 1. Normalize query tokens to lowercase arrays safely
+  const queryWords = queryTokens.map(w => w.toLowerCase().trim()).filter(w => w.length > 0);
+  if (queryWords.length === 0) return [];
+
+  // Separate query into core vs noise arrays using your laboratoryIgnore Set
+  let coreQueryWords = queryWords.filter(word => !laboratoryIgnore.has(word));
+  let noiseQueryWords = queryWords.filter(word => laboratoryIgnore.has(word));
+
+  // Fallback: If everything typed was a modifier (e.g. "blood test"), treat them as core
+  if (coreQueryWords.length === 0) {
+    coreQueryWords = noiseQueryWords;
+    noiseQueryWords = [];
+  }
+
+  // 2. Loop through your pre-tokenized database rows
+  for (const entry of indexedEntries) {
+    const entryOriginalLower = entry.original.toLowerCase().trim();
+    
+    // Extract core vs noise arrays for the database entry
+    const coreEntryWords = entry.tokens.filter(item => !item.isNoise).map(item => item.text.toLowerCase());
+    const noiseEntryWords = entry.tokens.filter(item => item.isNoise).map(item => item.text.toLowerCase());
+
+    let maxAcronymScore = 0;
+    let totalWordScore = 0;
+    let matchedWordsCount = 0;
+    let matchedEntryWords = new Set();
+
+    /* ---------------- PASS 1: ACRONYM INITIALS MATCHING ---------------- */
+    if (coreQueryWords.length === 1) {
+      const acronymInitials = coreEntryWords.map(w => w[0]).join("");
+      if (acronymInitials === coreQueryWords[0] || entryOriginalLower.replace(/[^a-z0-9]/g, "").startsWith(coreQueryWords[0])) {
+        maxAcronymScore = 0.95;
+      } else {
+        // Run a quick fuzzy acronym check in case of a small typo (e.g., "pvc" vs "pcv")
+        const acronymSimilarity = getLevenshteinSimilarity(coreQueryWords[0], acronymInitials);
+        if (acronymSimilarity >= 0.66) {
+          maxAcronymScore = 0.85 * acronymSimilarity;
+        }
+      }
+    }
+
+    /* ---------------- PASS 2: TOKEN-BY-TOKEN CROSS CHECK ---------------- */
+   
+    for (const qWord of coreQueryWords) {
+      let maxWordScore = 0;
+      let bestEntryMatch = null;
+
+      for (const eWord of coreEntryWords) {
+        if (matchedEntryWords.has(eWord)) continue; // Don't double-pair a word
+
+        const currentScore = getLevenshteinSimilarity(qWord, eWord);
+        if (currentScore > maxWordScore) {
+          maxWordScore = currentScore;
+          bestEntryMatch = eWord;
+        }
+      }
+
+      // If the word resemblance is solid, lock it in as a match
+      if (maxWordScore >= 0.70) {
+        totalWordScore += maxWordScore;
+        matchedWordsCount++;
+        if (bestEntryMatch) matchedEntryWords.add(bestEntryMatch);
+      }
+    }
+
+    /* ---------------- PASS 3: ADAPTIVE GATING ---------------- */
+    // Incorporating your match rules perfectly:
+    // - 1 to 3 core words typed: Requires AT LEAST 1 solid match
+    // - More than 3 core words typed: Requires AT LEAST 2 solid matches
+    let requiredMatches = coreQueryWords.length > 3 ? 2 : 1;
+
+    // If it didn't pass the word gate AND it didn't hit an acronym match, skip it!
+    if (matchedWordsCount < requiredMatches && maxAcronymScore === 0) continue;
+
+    /* ---------------- PASS 4: SCORING CALCULATION ---------------- */
+    let finalScore = 0;
+
+    if (matchedWordsCount > 0) {
+      const matchAccuracy = totalWordScore / matchedWordsCount; // Precision of matched words
+      const queryCoverage = matchedWordsCount / coreQueryWords.length; // How many typed terms matched
+      
+      // 60% weight on spelling precision, 40% weight on query coverage
+      finalScore = (matchAccuracy * 0.6) + (queryCoverage * 0.4);
+    }
+
+    // Take the best score between the token match and the acronym match
+    finalScore = Math.max(finalScore, maxAcronymScore);
+
+    /* ---------------- PASS 5: NOISE MODIFIER BONUS ---------------- */
+    // Add unique noise match calculations to break ties cleanly
+    if (finalScore > 0.30 && noiseQueryWords.length > 0) {
+      finalScore += calculateUniqueMatchScore(noiseEntryWords, noiseQueryWords);
+    }
+
+    // Save final qualified match to the results array
+    if (finalScore >= 0.35) {
+      results.push({
+        service: entry.original,
+        code: entry.code,
+        tariff: entry.tariff,
+        score: Number(Math.min(finalScore, 1.0).toFixed(4))
+      });
+    }
+  }
+
+  // 3. Sort descending from highest score to lowest and slice the top 10
+  return results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+
+return {
+  laboratoryIgnore,
+  normalizeAndSortLab,
+  searchLaboratoryTop10,
+  labAliasMap,
+}
+
+
+
+}
+
+function AccLord() {
+  const accommodationIgnore = new Set([
+  // 1. Generic Accommodation & Stay Fillers
+  "accommodation", "stay", "stays", "admit", "admission", "admissions",
+  "occupancy", "boarding", "lodging", "hospitalization", "inpatient", "ipd",
+
+  // 2. Redundant Temporal Units & Frequency Modifiers
+  "day", "days", "daily", "per-day", "perday", "night", "nights", "nightly",
+  "week", "weekly", "hr", "hrs", "hour", "hours", "hourly", "diem", "per-diem",
+
+  // 3. Billing, Charge, & Administrative Status
+  "charge", "charges", "rate", "rates", "fee", "fees", "tariff", "tariffs",
+  "cost", "price", "pricing", "bill", "billing", "deposit", "co-pay", "copay",
+  "applicable", "routine","basic", "service", "services",
+
+  // 4. Structural, Location, & Facility Tags
+  "room", "rooms", "bed", "beds", "bedspace", "space", "unit", "units",
+  "ward", "wards", "wing", "wings", "floor", "block", "clinic", "center", "centre",
+
+  // 5. Connectors, Prepositions & Multipliers (Global Noise)
+  "for", "and", "in", "of", "with", "without", "per", "a", "an", "the", "to",
+  "x", "1", "one", "2", "two", "3", "three", "4", "four", "5", "five"
+]);
+
+const accommodationAliasMap = new Map([
+  // --- PRIVATE WARD (Single Occupancy / Premium) ---
+  ["1-bed", "private ward"],
+  ["1bed", "private ward"],
+  ["single bed", "private ward"],
+  ["single room", "private ward"],
+  ["private room", "private ward"],
+  ["luxury", "private ward"],
+  ["deluxe", "private ward"],
+  ["suite", "private ward"],
+  ["executive", "private ward"],
+  ["vip", "private ward"],
+
+  // --- SEMI-PRIVATE WARD (Shared / 2 to 4 Beds) ---
+  ["2-bed", "semi-private ward"],
+  ["2bed", "semi-private ward"],
+  ["double bed", "semi-private ward"],
+  ["double room", "semi-private ward"],
+  ["twin bed", "semi-private ward"],
+  ["twin room", "semi-private ward"],
+  ["shared room", "semi-private ward"],
+  ["3-bed", "semi-private ward"],
+  ["4-bed", "semi-private ward"],
+  ["4bed", "semi-private ward"],
+
+  // --- GENERAL WARD (High Occupancy) ---
+  ["general", "general ward"],
+  ["public", "general ward"],
+  ["multi-bed", "general ward"],
+  ["open ward", "general ward"],
+  ["communal", "general ward"],
+  ["standard ward", "general ward"],
+  ["5-bed", "general ward"],
+  ["6-bed", "general ward"],
+
+  // --- CRITICAL CARE & SPECIALIZED ---
+  ["icu", "intensive care unit"],
+  ["itu", "intensive care unit"],
+  ["ccu", "coronary care unit"],
+  ["nicu", "neonatal intensive care unit"],
+  ["picu", "pediatric intensive care unit"],
+  ["hdu", "high dependency unit"],
+  
+  // --- ISOLATION ---
+  ["isolation", "isolation ward"],
+  ["quarantine", "isolation ward"],
+  ["negative pressure", "isolation ward"],
+  ["infectious", "isolation ward"]
+]);
+
+function convertAccommodationForm(queryTokens) {
+  // If no array or empty array passed, return an empty array
+  if (!queryTokens || queryTokens.length === 0) return [];
+  console.log(queryTokens)
+  // 1. Join tokens to reconstruct the full string block for phrase matching
+  let cleaned = queryTokens.join(" ").toLowerCase().replace(/\s+/g, " ").trim();
+
+  // 2. Direct Phrase Check (Handles keys like "double bed" or "1-bed")
+  if (accommodationAliasMap.has(cleaned)) {
+    // Return the value split into a fresh token array
+    return accommodationAliasMap.get(cleaned).split(" ");
+  }
+
+  // 3. Fallback Key Cross-Check (Scans inside the combined query)
+  for (const [key, standardizedValue] of accommodationAliasMap.entries()) {
+    if (cleaned.includes(key)) {
+      return standardizedValue.split(" ");
+    }
+  }
+
+  // 4. Fallback: If no match found, pass back the normalized original tokens array
+  return cleaned.split(" ");
+}
+function normalizeAndSortAccom(text) {
+  if (!text) return "";
+
+  let cleaned = text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+
+
+    .replace(/\s+/g, " ")
+    .trim();
+
+     return cleaned.split(" ").sort();
+
+  
+          
+            
+}
+
+function searchAccomTop10(queryTokens) {
+  if (!queryTokens || queryTokens.length === 0) return [];
+
+  const results = [];
+
+  // 1. Normalize query tokens to lowercase arrays safely
+  const queryWords =convertAccommodationForm(queryTokens);
+  if (queryWords.length === 0) return [];
+
+  // Separate query into core vs noise arrays using your AccomIgnore Set
+  let coreQueryWords = queryWords.filter(word => !accommodationIgnore.has(word));
+  let noiseQueryWords = queryWords.filter(word => accommodationIgnore.has(word));
+
+  // Fallback: If everything typed was a modifier (e.g. "blood test"), treat them as core
+  if (coreQueryWords.length === 0) {
+    coreQueryWords = noiseQueryWords;
+    noiseQueryWords = [];
+  }
+
+  // 2. Loop through your pre-tokenized database rows
+  for (const entry of indexedEntries) {
+    const entryOriginalLower = entry.original.toLowerCase().trim();
+    
+    // Extract core vs noise arrays for the database entry
+    const coreEntryWords = entry.tokens.filter(item => !item.isNoise).map(item => item.text.toLowerCase());
+    const noiseEntryWords = entry.tokens.filter(item => item.isNoise).map(item => item.text.toLowerCase());
+
+    let maxAcronymScore = 0;
+    let totalWordScore = 0;
+    let matchedWordsCount = 0;
+    let matchedEntryWords = new Set();
+
+    /* ---------------- PASS 1: ACRONYM INITIALS MATCHING ---------------- */
+    // Checks if the user's search term matches the first letters of the database entry 
+    // Example: "pcv" matching "P-acked C-ell V-olume"
+    if (coreQueryWords.length === 1) {
+      const acronymInitials = coreEntryWords.map(w => w[0]).join("");
+      if (acronymInitials === coreQueryWords[0] || entryOriginalLower.replace(/[^a-z0-9]/g, "").startsWith(coreQueryWords[0])) {
+        maxAcronymScore = 0.95;
+      } else {
+        // Run a quick fuzzy acronym check in case of a small typo (e.g., "pvc" vs "pcv")
+        const acronymSimilarity = getLevenshteinSimilarity(coreQueryWords[0], acronymInitials);
+        if (acronymSimilarity >= 0.66) {
+          maxAcronymScore = 0.85 * acronymSimilarity;
+        }
+      }
+    }
+
+    /* ---------------- PASS 2: TOKEN-BY-TOKEN CROSS CHECK ---------------- */
+    // The exact robust logic used in your drug matcher
+    for (const qWord of coreQueryWords) {
+      let maxWordScore = 0;
+      let bestEntryMatch = null;
+
+      for (const eWord of coreEntryWords) {
+        if (matchedEntryWords.has(eWord)) continue; // Don't double-pair a word
+
+        const currentScore = getLevenshteinSimilarity(qWord, eWord);
+        if (currentScore > maxWordScore) {
+          maxWordScore = currentScore;
+          bestEntryMatch = eWord;
+        }
+      }
+
+      // If the word resemblance is solid, lock it in as a match
+      if (maxWordScore >= 0.70) {
+        totalWordScore += maxWordScore;
+        matchedWordsCount++;
+        if (bestEntryMatch) matchedEntryWords.add(bestEntryMatch);
+      }
+    }
+
+    /* ---------------- PASS 3: ADAPTIVE GATING ---------------- */
+    // Incorporating your match rules perfectly:
+    // - 1 to 3 core words typed: Requires AT LEAST 1 solid match
+    // - More than 3 core words typed: Requires AT LEAST 2 solid matches
+    let requiredMatches = coreQueryWords.length > 3 ? 2 : 1;
+
+    // If it didn't pass the word gate AND it didn't hit an acronym match, skip it!
+    if (matchedWordsCount < requiredMatches && maxAcronymScore === 0) continue;
+
+    /* ---------------- PASS 4: SCORING CALCULATION ---------------- */
+    let finalScore = 0;
+
+    if (matchedWordsCount > 0) {
+      const matchAccuracy = totalWordScore / matchedWordsCount; // Precision of matched words
+      const queryCoverage = matchedWordsCount / coreQueryWords.length; // How many typed terms matched
+      
+      // 60% weight on spelling precision, 40% weight on query coverage
+      finalScore = (matchAccuracy * 0.6) + (queryCoverage * 0.4);
+    }
+
+    // Take the best score between the token match and the acronym match
+    finalScore = Math.max(finalScore, maxAcronymScore);
+
+    /* ---------------- PASS 5: NOISE MODIFIER BONUS ---------------- */
+    // Add unique noise match calculations to break ties cleanly
+    if (finalScore > 0.30 && noiseQueryWords.length > 0) {
+      finalScore += calculateUniqueMatchScore(noiseEntryWords, noiseQueryWords);
+    }
+
+    // Save final qualified match to the results array
+    if (finalScore >= 0.35) {
+      results.push({
+        service: entry.original,
+        code: entry.code,
+        tariff: entry.tariff,
+        score: Number(Math.min(finalScore, 1.0).toFixed(4))
+      });
+    }
+  }
+
+  // 3. Sort descending from highest score to lowest and slice the top 10
+  return results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+
+return{
+  accommodationIgnore,
+  convertAccommodationForm,
+  normalizeAndSortAccom,
+  accommodationAliasMap,
+  searchAccomTop10
+}
+}
+
+
+function VaccLord() {
+ const vaccineIgnore = new Set([
+  // 1. Generic Vaccine & Immunization Fillers
+  "vaccine", "vaccines", "vaccination", "vaccinations", "immunization", 
+  "immunisations", "immunisation", "immunisations", "vax", "jab", "jabs",
+
+  // 2. Administration Methods & Formats
+  "shot", "shots", "injection", "injections", "inj", "dose", "doses", 
+  "booster", "boosters", "vial", "vials", "ampoule", "oral", "nasal", "spray",
+
+  // 3. Common Target Demographics / Age Groups
+  "adult", "adults", "paediatric", "pediatric", "child", "children", 
+  "infant", "infants", "baby", "babies", "toddler", "toddlers", "travel", "travelers",
+
+  // 4. Clinical Schedules, Settings, & Status
+  "schedule", "series", "course", "routine", "required", "mandatory", 
+  "preventative", "prophylaxis", "clinic", "campaign", "dose-1", "dose-2",
+
+  // 5. Connectors & Fillers (Global Noise)
+  "for", "and", "in", "of", "with", "without", "against", "to", "by", "against",
+  "1st", "2nd", "3rd", "1", "2", "3", "a", "an", "the"
+]);
+
+
+
+function normalizeAndSortVaccine(text) {
+  if (!text) return "";
+
+  let cleaned = text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+
+
+    .replace(/\s+/g, " ")
+    .trim();
+
+     return cleaned.split(" ").sort();
+
+  
+          
+            
+}
+
+function searchVaccineTop10(queryTokens) {
+  if (!queryTokens || queryTokens.length === 0) return [];
+
+  const results = [];
+
+  // 1. Normalize query tokens to lowercase arrays safely
+  const queryWords =queryTokens;
+  if (queryWords.length === 0) return [];
+
+  // Separate query into core vs noise arrays using your AccomIgnore Set
+  let coreQueryWords = queryWords.filter(word => !vaccineIgnore.has(word));
+  let noiseQueryWords = queryWords.filter(word => vaccineIgnore.has(word));
+
+  // Fallback: If everything typed was a modifier (e.g. "blood test"), treat them as core
+  if (coreQueryWords.length === 0) {
+    coreQueryWords = noiseQueryWords;
+    noiseQueryWords = [];
+  }
+
+  // 2. Loop through your pre-tokenized database rows
+  for (const entry of indexedEntries) {
+    const entryOriginalLower = entry.original.toLowerCase().trim();
+    
+    // Extract core vs noise arrays for the database entry
+    const coreEntryWords = entry.tokens.filter(item => !item.isNoise).map(item => item.text.toLowerCase());
+    const noiseEntryWords = entry.tokens.filter(item => item.isNoise).map(item => item.text.toLowerCase());
+
+    let maxAcronymScore = 0;
+    let totalWordScore = 0;
+    let matchedWordsCount = 0;
+    let matchedEntryWords = new Set();
+
+    if (coreQueryWords.length === 1) {
+      const acronymInitials = coreEntryWords.map(w => w[0]).join("");
+      if (acronymInitials === coreQueryWords[0] || entryOriginalLower.replace(/[^a-z0-9]/g, "").startsWith(coreQueryWords[0])) {
+        maxAcronymScore = 0.95;
+      } else {
+        // Run a quick fuzzy acronym check in case of a small typo (e.g., "pvc" vs "pcv")
+        const acronymSimilarity = getLevenshteinSimilarity(coreQueryWords[0], acronymInitials);
+        if (acronymSimilarity >= 0.66) {
+          maxAcronymScore = 0.85 * acronymSimilarity;
+        }
+      }
+    }
+
+    /* ---------------- PASS 2: TOKEN-BY-TOKEN CROSS CHECK ---------------- */
+    // The exact robust logic used in your drug matcher
+    for (const qWord of coreQueryWords) {
+      let maxWordScore = 0;
+      let bestEntryMatch = null;
+
+      for (const eWord of coreEntryWords) {
+        if (matchedEntryWords.has(eWord)) continue; // Don't double-pair a word
+
+        const currentScore = getLevenshteinSimilarity(qWord, eWord);
+        if (currentScore > maxWordScore) {
+          maxWordScore = currentScore;
+          bestEntryMatch = eWord;
+        }
+      }
+
+      // If the word resemblance is solid, lock it in as a match
+      if (maxWordScore >= 0.70) {
+        totalWordScore += maxWordScore;
+        matchedWordsCount++;
+        if (bestEntryMatch) matchedEntryWords.add(bestEntryMatch);
+      }
+    }
+
+    /* ---------------- PASS 3: ADAPTIVE GATING ---------------- */
+    // Incorporating your match rules perfectly:
+    // - 1 to 3 core words typed: Requires AT LEAST 1 solid match
+    // - More than 3 core words typed: Requires AT LEAST 2 solid matches
+    let requiredMatches = coreQueryWords.length > 3 ? 2 : 1;
+
+    // If it didn't pass the word gate AND it didn't hit an acronym match, skip it!
+    if (matchedWordsCount < requiredMatches && maxAcronymScore === 0) continue;
+
+    /* ---------------- PASS 4: SCORING CALCULATION ---------------- */
+    let finalScore = 0;
+
+    if (matchedWordsCount > 0) {
+      const matchAccuracy = totalWordScore / matchedWordsCount; // Precision of matched words
+      const queryCoverage = matchedWordsCount / coreQueryWords.length; // How many typed terms matched
+      
+      // 60% weight on spelling precision, 40% weight on query coverage
+      finalScore = (matchAccuracy * 0.6) + (queryCoverage * 0.4);
+    }
+
+    // Take the best score between the token match and the acronym match
+    finalScore = Math.max(finalScore, maxAcronymScore);
+
+    /* ---------------- PASS 5: NOISE MODIFIER BONUS ---------------- */
+    // Add unique noise match calculations to break ties cleanly
+    if (finalScore > 0.30 && noiseQueryWords.length > 0) {
+      finalScore += calculateUniqueMatchScore(noiseEntryWords, noiseQueryWords);
+    }
+
+    // Save final qualified match to the results array
+    if (finalScore >= 0.35) {
+      results.push({
+        service: entry.original,
+        code: entry.code,
+        tariff: entry.tariff,
+        score: Number(Math.min(finalScore, 1.0).toFixed(4))
+      });
+    }
+  }
+
+  // 3. Sort descending from highest score to lowest and slice the top 10
+  return results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+
+return{
+  vaccineIgnore,
+  normalizeAndSortVaccine,
+  searchVaccineTop10
+}
+}
+
 
 /* ------------------------ THE STANDALONE LEVENSHTEIN SIMILARITY ------------------------ */
 function getLevenshteinSimilarity(a, b) {
@@ -972,19 +1765,24 @@ function getLevenshteinSimilarity(a, b) {
   return 1 - dp[al] / Math.max(al, bl);
 }
 
+
+
+
 self.onmessage = async function (e) {
    
   const { type,cartegory } = e.data;
   if (type === "load") {    
-       const cart=cartegory;
+       const cart=cartegory.toUpperCase();
 
-    console.log(cartegory)
+    console.log(cart)
     if(dictionary ===null){
       const res = await fetch("/api/hospital-pharmacy");
       const json = await res.json();
       const ret = json.data;
       rf = json.bad;
-      dictionary=ret[cartegory];
+      if (cart =="VACCINES") {
+          dictionary=ret["PHARMACY"];
+      }else{dictionary=ret[cart];}
      
 
 
@@ -1003,17 +1801,46 @@ self.onmessage = async function (e) {
                  dictionary.forEach((p,i) => {p['DESCRIPTION']=ProcLord.normalizeAndSortProcedures(p['DESCRIPTION']); }); 
                   Procedu(ProcLord);
         break;
+
+        case "RADIOLOGY":
+                const RadioLord= RadLord();
+                dictionary.forEach((p,i) => {p['DESCRIPTION']=RadioLord.normalizeAndSortRadiology(p['DESCRIPTION']); }); 
+                Radiol(RadioLord);
+        break;
+        case "LABORATORY":
+                const LaborLord= LabLord();
+                dictionary.forEach((p,i) => {p['DESCRIPTION']=LaborLord.normalizeAndSortLab(p['DESCRIPTION']); }); 
+                Labor(LaborLord);
+        break;
+         case "ACCOMMODATION":
+                const AccomLord= AccLord();
+                dictionary.forEach((p,i) => {p['DESCRIPTION']=AccomLord.normalizeAndSortAccom(p['DESCRIPTION']); }); 
+               
+                Accom(AccomLord);
+        break;
+         case "VACCINES":
+                const VaccomLord= VaccLord();
+                dictionary.forEach((p,i) => {p['DESCRIPTION']=VaccomLord.normalizeAndSortVaccine(p['DESCRIPTION']); }); 
+                console.log(dictionary)
+                Vacc(VaccomLord);
+        break;
         default:
       }
 
+
+
       self.postMessage({ type: "loaded" });
     }
-  } if (type === "search") {
+  } 
+  
+  
+  
+  if (type === "search") {
 
     if (!dictionary) return;
     const {data,cartegory} =e.data; 
 
-    const cart=cartegory;
+    const cart=cartegory.toUpperCase();
         switch (cart) {
 
 
@@ -1032,6 +1859,26 @@ self.onmessage = async function (e) {
          case "SERVICES":
              const procedureEngine = ProcedureLord();
                   procedureReturn(data,procedureEngine)
+            break; 
+
+             case "RADIOLOGY":
+             const RadEngine = RadLord();
+                  RadioReturn(data,RadEngine)
+            break; 
+
+             case "LABORATORY":
+             const LabEngine = LabLord();
+                  LaboReturn(data,LabEngine)
+            break; 
+
+             case "ACCOMMODATION":
+             const AccEngine = AccLord();
+                  AccReturn(data,AccEngine)
+            break; 
+
+             case "VACCINES":
+             const VaccEngine = VaccLord();
+                  VaccinReturn(data,VaccEngine)
             break; 
 
             default:
@@ -1086,9 +1933,6 @@ const Matched=[];
 
  const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION,item]));
             let dupData =new Map(data.map(item => [drugEngine.normalizeAndSort(item.SERVICE),item]));
-// ---------------------------
-// MAIN LOOP
-// ---------------------------
 
 for(const [B1,prop] of dupData.entries()){
 
@@ -1097,7 +1941,9 @@ for(const [B1,prop] of dupData.entries()){
 
   if (rtg !==undefined) {
       const realVT={id:prop['id'],service: rtg.DESCRIPTION, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
-    const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+    
+    
+      const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
     Matched.push(realVT)
     //exactMatches.push({id:prop['id'],parent:prop.SERVICE,matches:[realVT]});
 
@@ -1120,6 +1966,8 @@ for(const [B1,prop] of dupData.entries()){
           notFound.push(B1);
         }
  } 
+
+
 self.postMessage({type:'result',data:Allsearched,matched:Matched})
       }
 
@@ -1169,8 +2017,9 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                  //EXACT MATCH
             const rtg = dictMap.get(B1);
             if (rtg !==undefined) {
-                const realVT={id:prop['id'],service: rtg.DESCRIPTION, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
-              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+                const real=rtg.DESCRIPTION.join(" ")
+                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+                const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
             
               Matched.push(realVT)
 
@@ -1225,8 +2074,9 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                  //EXACT MATCH
             const rtg = dictMap.get(B1);
             if (rtg !==undefined) {
-                const realVT={id:prop['id'],service: rtg.DESCRIPTION, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
-              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+                const real=rtg.DESCRIPTION.join(" ")
+                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+                const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
             
               Matched.push(realVT)
 
@@ -1252,6 +2102,249 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                
             }
 
+            self.postMessage({type:'result',data:Allsearched,matched:Matched})
+            
+      }
+
+
+        function Radiol(RadioLord) {
+          indexedEntries=dictionary.map(item=>{
+            const rawDescription = item.DESCRIPTION;
+            const weightedTokens = rawDescription.map(word => ({
+            text: word,
+            isNoise: RadioLord.radiologyIgnore.has(word)
+          }));
+         
+          return {original: item.DESCRIPTION.join(" "),code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
+           }) 
+
+      }
+
+
+      function RadioReturn(data,RadEngine) {
+          const fuzzyMatches = [];
+          const notFound = [];
+          const Allsearched=[];
+          const Matched=[];
+
+            const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION.join(" "),item]));
+            let dupData =new Map(data.map(item => [RadEngine.normalizeAndSortRadiology(item.SERVICE).join(" "),item]));
+       
+              for(const [B1,prop] of dupData.entries()){
+                 //EXACT MATCH
+                 
+            const rtg = dictMap.get(B1);
+            if (rtg !==undefined) {
+                const real=rtg.DESCRIPTION.join(" ")
+                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+                const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+            
+              Matched.push(realVT)
+
+            Allsearched.push(passer)
+            
+              dupData.delete(B1)
+              dictMap.delete(B1)
+
+            }else{  const fuzz= RadEngine.searchRadiologyTop10(B1.split(" "))
+
+               if (fuzz.length > 0) {
+             
+              const passer={id:prop['id'],parent:B1,matches:fuzz}
+
+            fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+                Allsearched.push(passer)
+              
+            }else{
+              notFound.push(B1);
+              
+            } 
+            };
+               
+            }
+              console.log(notFound)
+            self.postMessage({type:'result',data:Allsearched,matched:Matched})
+            
+      }
+
+
+      function Labor(LaborLord) {
+          indexedEntries=dictionary.map(item=>{
+            const rawDescription = item.DESCRIPTION;
+            const weightedTokens = rawDescription.map(word => ({
+            text: word,
+            isNoise: LaborLord.laboratoryIgnore.has(word)
+          }));
+         
+          return {original: item.DESCRIPTION.join(" "),code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
+           }) 
+
+      }
+
+      function LaboReturn(data,LabEngine) {
+         const fuzzyMatches = [];
+          const notFound = [];
+          const Allsearched=[];
+          const Matched=[];
+
+            const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION.join(" "),item]));
+            let dupData =new Map(data.map(item => [LabEngine.labAliasMap.has(LabEngine.normalizeAndSortLab(item.SERVICE).join(" "))?LabEngine.labAliasMap.get(LabEngine.normalizeAndSortLab(item.SERVICE).join(" ")).join(" "):LabEngine.normalizeAndSortLab(item.SERVICE).join(" "),item]));
+            
+              for(const [B1,prop] of dupData.entries()){
+                 //EXACT MATCH
+                 
+            const rtg = dictMap.get(B1);
+            if (rtg !==undefined) {
+                const real=rtg.DESCRIPTION.join(" ")
+                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+                const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+            
+              Matched.push(realVT)
+
+            Allsearched.push(passer)
+              dupData.delete(B1)
+              dictMap.delete(B1)
+              continue
+            } else{
+               const fuzz= LabEngine.searchLaboratoryTop10(B1.split(" "))
+
+              if (fuzz.length > 0) {
+              const passer={id:prop['id'],parent:B1,matches:fuzz}
+                
+            fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+                Allsearched.push(passer)
+              
+            }else{
+              notFound.push(B1);
+              
+            }  
+            }; 
+
+            }
+              console.log(notFound)
+            self.postMessage({type:'result',data:Allsearched,matched:Matched})
+      }
+      
+        function Accom(AccLord) {
+          indexedEntries=dictionary.map(item=>{
+            const rawDescription = AccLord.convertAccommodationForm(item.DESCRIPTION);
+            console.log(rawDescription)
+            const weightedTokens = rawDescription.map(word => ({
+            text: word,
+            isNoise: AccLord.accommodationIgnore.has(word)
+          }));
+        
+            return {original: item.DESCRIPTION.join(" "),code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
+           }) 
+
+      }
+
+
+      function AccReturn(data,AccEngine) {
+          const fuzzyMatches = [];
+          const notFound = [];
+          const Allsearched=[];
+          const Matched=[];
+
+            const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION.join(" "),item]));
+            let dupData =new Map(data.map(item => [AccEngine.normalizeAndSortAccom(AccEngine.convertAccommodationForm(item.SERVICE.split(" ")).join(" ")).join(" "),item]));
+       
+              for(const [B1,prop] of dupData.entries()){
+                 //EXACT MATCH
+                 
+            const rtg = dictMap.get(B1);
+
+            if (rtg !==undefined) {
+              const real=rtg.DESCRIPTION.join(" ")
+                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+            
+              Matched.push(realVT)
+
+            Allsearched.push(passer)
+            
+              dupData.delete(B1)
+              dictMap.delete(B1)
+
+            }else{  const fuzz= AccEngine.searchAccomTop10(B1.split(" "))
+
+               if (fuzz.length > 0) {
+             
+              const passer={id:prop['id'],parent:B1,matches:fuzz}
+
+            fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+                Allsearched.push(passer)
+              
+            }else{
+              notFound.push(B1);
+              
+            } 
+            };
+               
+            }
+              console.log(notFound)
+            self.postMessage({type:'result',data:Allsearched,matched:Matched})
+            
+      }
+
+
+         function Vacc(VaccLord) {
+          indexedEntries=dictionary.map(item=>{
+            const rawDescription =item.DESCRIPTION;
+            const weightedTokens = rawDescription.map(word => ({
+            text: word,
+            isNoise: VaccLord.vaccineIgnore.has(word)
+          }));
+        
+            return {original: item.DESCRIPTION.join(" "),code: item.CODE,tariff: item.TARIFF,tokens: weightedTokens};
+           }) 
+
+      }
+
+
+      function VaccinReturn(data,VaccEngine) {
+          const fuzzyMatches = [];
+          const notFound = [];
+          const Allsearched=[];
+          const Matched=[];
+
+            const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION.join(" "),item]));
+            let dupData =new Map(data.map(item => [VaccEngine.normalizeAndSortVaccine(item.SERVICE).join(" "),item]));
+       
+              for(const [B1,prop] of dupData.entries()){
+                 //EXACT MATCH
+                 
+            const rtg = dictMap.get(B1);
+
+            if (rtg !==undefined) {
+              const real=rtg.DESCRIPTION.join(" ")
+                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+            
+              Matched.push(realVT)
+
+            Allsearched.push(passer)
+            
+              dupData.delete(B1)
+              dictMap.delete(B1)
+
+            }else{  const fuzz= VaccEngine.searchVaccineTop10(B1.split(" "))
+
+               if (fuzz.length > 0) {
+             
+              const passer={id:prop['id'],parent:B1,matches:fuzz}
+
+            fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
+                Allsearched.push(passer)
+              
+            }else{
+              notFound.push(B1);
+              
+            } 
+            };
+               
+            }
+              console.log(notFound)
             self.postMessage({type:'result',data:Allsearched,matched:Matched})
             
       }
