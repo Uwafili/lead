@@ -75,7 +75,8 @@
 </div>
 
 </div>
- <script src="{{ asset('js/Facility/Tariff.js') }}"></script>
+ <script src="{{ asset('js/Facility/TariffPageHandler.js') }}"></script>
+ <script src="{{ asset('js/Facility/TariffMapHandler.js') }}"></script>
  
   <script>
     const workerUrl = "{{ asset('workers/TarWorker.js') }}";
@@ -84,167 +85,13 @@
    document.addEventListener('DOMContentLoaded', () => {
     const cart=@json($category);
     const data=@json($tariff);
+
     ShowTariff(data,cart[0])
-    let MatchedMap;
-
-
-            //Web Worker handler.
-
-             function WorkerWeb(cart) {
-                const workerUl = "/workers/TarWorker.js";
-                const worker = new Worker(workerUl);
-
-                worker.postMessage({ type: "load",cartegory:cart });
-                    worker.onmessage = function (e) {
-                                document.querySelector("#mapIndicator").classList.add("from-red-600", "via-red-700", "to-red-800")
-                            if (e.data.type === "loaded") {
-                                const present= data.filter((val)=>val['category']==cart)  
-                                worker.postMessage({type: "search",data: present,cartegory:cart});                    }
-                    if (e.data.type === "result") {
-                    document.querySelector("#mapIndicator").classList.add("from-blue-600", "via-blue-700", "to-blue-800")
-
-                        const mapped=e.data.data;
-                        MatchedMap=e.data.matched
-
-                        console.log(mapped)
-                        
-                        mapped.forEach(map => {
-                            handleMappedItem(map)
-                        });
-                         initDropMap()
-                        clickToAddMapped() 
-                    }
-                        };      
-            }
-            WorkerWeb(cart[0])
-         
-                function handleMappedItem(props) {
-                        const Id=`#itemHolder${props['id']}`
-                        const ServiceTag=`#ServiceTag${props['id']}`;
-                        const itemHolder =document.querySelector(Id);
-                    const matches=props['matches'];
-                    
-                 //set Service Tag color based on mapped;
-                 document.querySelector(ServiceTag).classList.remove("border-gray-200")
-                 if (matches.length===1 && matches[0]['score']===1) {
-                    document.querySelector(ServiceTag).classList.add("border-blue-400")
-                 }else if(matches.length===0){
-                   document.querySelector(ServiceTag).classList.add("border-red-400")
-                 }else{
-                   document.querySelector(ServiceTag).classList.add("border-green-400")                   
-                 }
-                    const ulElement = document.createElement('ul');
-                    ulElement.className = "py-1 text-sm text-gray-700";
-
-                    matches.forEach(pk => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<p id="${props['id']}"  class="mpb w-full text-left px-4 py-2 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">${pk['service']}</p>`;
-                        ulElement.appendChild(li);
-                    });
-
-                    const wrapperDiv = document.createElement('div');
-                    wrapperDiv.className = `absolute drpMap${props['id']} z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto hidden`;
-                    wrapperDiv.appendChild(ulElement);
-                    itemHolder.appendChild(wrapperDiv);
  
-            }
+    WorkerWeb(cart[0],data)
 
-
-              
-            function initDropMap(){
-                const dropbtn=document.querySelectorAll(".drpMapClick");
-
-                dropbtn.forEach(btn => {
-                   
-                    btn.addEventListener('click',()=>{
-                        
-                         const drpMapClass=".drpMap"+Number(btn.getAttribute("gth"));
-                         const drpMap=document.querySelector(drpMapClass)
-                            drpMap.classList.toggle('hidden');
-                            
-                    })
-                });
-                
-            }
-
-            function clickToAddMapped() {
-               
-                const mpb=document.querySelectorAll(".mpb");
-                mpb.forEach(bp => {
-                    bp.addEventListener('click',()=>{
-                        const idcl=`.serput${Number(bp.id)}`
-                        const ser=bp.innerHTML;
-                        //change input to clicked dropped
-                        document.querySelector(idcl).value=ser;
-                        
-                            //ADD CHOSEEN SERVICE TO DB
-                            saveService(bp.innerHTML,bp.id)
-                    })
-                });
-            }
-
-           // BlurServiceInput()
-        /*     function BlurServiceInput(){
-                const serviceInput=document.querySelectorAll(".serviceInput");
-                serviceInput.forEach(ser => {
-                    ser.addEventListener('blur',()=>{
-                         const drpMapClass=".drpMap"+Number(ser.getAttribute("index"));
-                         const drpMap=document.querySelector(drpMapClass)
-                        if (!drpMap.classList.contains('hidden')) {
-                          drpMap.classList.add('hidden');
-                            }   
-                    })
-                });
-            } */
-
-  
-    
-                const FacSheet=document.querySelectorAll(".Fac-sheets");  
-     FacSheet.forEach(sheet => {sheet.addEventListener('click',()=>{handleSheetChange(data,sheet.innerHTML);WorkerWeb(sheet.innerHTML)})});
-
-
-    //Functioning SearhBar
-    requestSearch()
-
-    function requestSearch(){
-        const requestSearch =document.querySelector("#requestSearch");
-
-        requestSearch.addEventListener('keyup',()=>{
-            const requestValue=requestSearch.value.toLowerCase();
-            const putTr=document.querySelectorAll(".putTr");
-            putTr.forEach(tr => {
-                const inputVal= tr.querySelector(".serviceInput").value.toLowerCase();
-
-                if (inputVal.indexOf(requestValue) == -1) {
-                        tr.classList.add('hidden')
-                }else{
-                  tr.classList.remove('hidden')
-                }
-            });
-        })
-    }
-
-
-    //ADD CHOSEEN SERVICE TO DB
-
-   async function saveService(text,id){
-    console.log(MatchedMap)
-        const filtMap=MatchedMap.filter((item)=>{
-            if (item['service']==text && item['id']==id) {
-              return true  
-            }
-        })
-
-        const data =filtMap[0];
-        console.log(data)
-            const body={ id: data['id'],des:data['service'],code:data['code'],type:'drops',score:data['score']}
-     const res = await fetch('/UpdateSinTar', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify(body)
-            }); 
-    }
-
+          const FacSheet=document.querySelectorAll(".Fac-sheets");  
+     FacSheet.forEach(sheet => {sheet.addEventListener('click',()=>{handleSheetChange(data,(sheet.innerHTML).trim());WorkerWeb((sheet.innerHTML).trim(),data)})});
 
 })
 
