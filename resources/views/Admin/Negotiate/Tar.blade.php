@@ -77,6 +77,7 @@
 </div>
  <script src="{{ asset('js/Facility/TariffPageHandler.js') }}"></script>
  <script src="{{ asset('js/Facility/TariffMapHandler.js') }}"></script>
+ <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
  
   <script>
     const workerUrl = "{{ asset('workers/TarWorker.js') }}";

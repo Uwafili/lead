@@ -1,4 +1,17 @@
-   let MatchedMap;
+ // 1. Reusable debounce helper function
+function debounce(func, delay = 500) {
+    let timeoutId;
+    return (...args) => {
+        // Clear the previous timer if the user is still typing
+        clearTimeout(timeoutId);
+        // Start a new timer
+        timeoutId = setTimeout(() => {
+            func(...args);
+        }, delay);
+    };
+}
+ 
+ let MatchedMap;
 
 
             //Web Worker handler.
@@ -81,7 +94,10 @@
                         
                          const drpMapClass=".drpMap"+Number(btn.getAttribute("gth"));
                          const drpMap=document.querySelector(drpMapClass)
-                            drpMap.classList.toggle('hidden');
+                         if ( drpMap !==null) {
+                               drpMap.classList.toggle('hidden');
+                         }
+                         
                             
                     })
                 });
@@ -98,7 +114,7 @@
                         const ser=bp.innerHTML;
                         let TC=bp.getAttribute("code");
                         let Ismapped;
-                        if (TC !== undefined) {
+                        if (TC !== null) {
                             Ismapped=false
                         }else{
                             Ismapped=true
@@ -153,6 +169,16 @@
     //ADD CHOSEEN SERVICE TO DB
 
    async function saveService(text,id,Ismapped,TC){
+    //GETTING AND SETTING THE BORDER COLORS OF INPUT ON SAVE
+    const cla=`.serput${id}`;
+    const StyleId=`#Style${id}`;
+    const inp=document.querySelector(cla);
+    const currtClass=inp.className;
+
+    console.log(currtClass)
+    document.querySelector(cla).className=`serviceInput serput${id} relative w-full rounded-[6px] bg-white border-amber-600 px-4 py-2 text-slate-900 placeholder-slate-400 focus:outline-none`
+    document.querySelector(StyleId).classList.toggle("hidden")
+
    let body;
     if (Ismapped) {
              //trying to get the score from the mapped
@@ -171,11 +197,23 @@
     }
       
 
-       const res = await fetch('/UpdateSinTar', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify(body)
-            }); 
+                try {
+                const res = await fetch('/UpdateSinTar', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    document.querySelector(cla).className=currtClass
+                    document.querySelector(StyleId).classList.toggle("hidden")
+                } else {
+                    console.warn(`Request finished, but server responded with code: ${res.status}`);
+                }
+            } catch (error) {
+                console.error('The request failed entirely due to a network error:', error);
+            }
+            
     }
 
 
@@ -188,7 +226,7 @@ let dictionary = await res.json();
 const serviceInput = document.querySelectorAll(".serviceInput");
 
 serviceInput.forEach(ser => {
-    ser.addEventListener("keyup", () => {
+   ser.addEventListener("keyup", debounce((event) => {
         const ID=ser.getAttribute('index');
         
          let wrapperDiv =document.querySelector(`#WDE${ID}`)
@@ -203,17 +241,16 @@ serviceInput.forEach(ser => {
 
             const retId= `#itemHolder${ID}`
         const itemHolder =document.querySelector(retId);
-        let val = ser.value.toLowerCase().trim();
-        
+       let val = ser.value.toLowerCase().trim();
+
         // Filters the dictionary array safely and cleanly
         const matches = dictionary.filter(tr =>tr['tariff_desc'] && tr['tariff_desc'].toLowerCase().includes(val) );
 
-       const ulElement = document.createElement('ul');
+                 const ulElement = document.createElement('ul');
                     ulElement.className = "py-1 text-sm text-gray-700";
 
                     
                     matches.forEach(pk => {
-                        console.log(pk)
                         const li = document.createElement('li');
                         li.innerHTML = `<p id="${ID}" code="${pk['tariff_code']}"  class="mpb w-full text-left px-4 py-2 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">${pk['tariff_desc']}</p>`;
                         ulElement.appendChild(li);
@@ -223,8 +260,7 @@ serviceInput.forEach(ser => {
                     itemHolder.appendChild(wrapperDiv);
 
                  clickToAddMapped()
-    });
-    
+   }, 500));
 });
 
 

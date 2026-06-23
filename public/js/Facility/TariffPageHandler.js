@@ -20,8 +20,10 @@ function ShowTariff(data,cart) {
          
             <p>${prep['Edited_Service'].length !==0?prep['SERVICE']:''}</p>
 
+              <div class="relative p-[3px]  overflow-hidden rounded-lg">
+               <div id="Style${prep['id']}" class="hidden  absolute inset-0 bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-pink-500 bg-[length:200%_200%] animate-gradient-shift"></div>
             <input type="text" id="ServiceTag${prep['id']}" index="${prep['id']}" name="service_name" value="${prep['Edited_Service'].length==0?prep['SERVICE']:prep['Edited_Service']}"   class="serviceInput serput${prep['id']} w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-700 font-medium shadow-sm" />
-          
+                </div>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" id="${prep['id']}">
                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />

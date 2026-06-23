@@ -21,6 +21,15 @@
       background: rgba(255, 255, 255, 0.386);
       min-height: 100vh;
     }
+   
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .animate-gradient-shift {
+      animation: gradient-shift 6s ease infinite;
+    }
+  
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
