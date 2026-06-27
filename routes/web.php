@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\updateTariffController;
 use App\Http\Controllers\TariffController;
@@ -12,7 +13,9 @@ Route::middleware("auth")->group(function(){
     Route::get('/currTarView/',[updateTariffController::class,'currTarView'])->name('currTarView');
     Route::get('/TariffNeg', [updateTariffController::class,'showTariffNeg'])->name('TariffNeg'); 
     Route::view('/Service', 'follow.Service')->name('Service'); 
-
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/message', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::post('/chat/mark-read', [ChatController::class, 'markRead'])->name('chat.markread');
 
     Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
