@@ -35,7 +35,7 @@
 <body class="flex flex-col min-h-screen">
 
   <!-- Top Navbar -->
-  <header class="bg-red-500 bg-opacity-95 text-black shadow-md">
+  <header class="bg-red-600  text-black shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
       @auth
       <h1 class="text-2xl font-extrabold tracking-wide">welcome {{ Auth()->user()->name }}</h1>
@@ -44,14 +44,14 @@
       
         @guest
           
-        <a href="{{ route('register') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
+        <a href="{{ route('register') }}" class="inline-flex items-center hover:underline font-medium transition-colors text-white duration-200">
           <!-- Register Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
           </svg>
           Register
         </a>
-        <a href="{{ route('login') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
+        <a href="{{ route('login') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200 text-white">
           <!-- Login Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H3m0 0l4-4m-4 4l4 4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -60,7 +60,7 @@
         </a>
         @endguest
         @auth
-        <a href="#" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
+        <a href="" class="inline-flex items-center hover:underline font-medium transition-colors duration-200 text-white" >
           <!-- Settings Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -72,21 +72,22 @@
 
        @auth
     @if(Auth::user() && Auth::user()->usertype == 'admin')
-        <a href="{{route('admin.dashboard') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200">
+        <a href="{{route('admin.dashboard') }}" class="inline-flex items-center hover:underline font-medium transition-colors duration-200 text-white">
           <!-- Admin Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Admin   
         </a>
-        @else   <p class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"><a href="{{route('updateTar')}}">Update Tariff</a></p>
+        @else  
+         <p class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"><a href="{{route('updateTar')}}">Update Tariff</a></p>
 
     @endif
 @endauth
 
      <form action="{{ route('logoutDemo') }}" method="POST">
     @csrf
-    <button type="submit" class="text-black-600 hover:underline">
+    <button type="submit" class="text-white hover:underline">
         Logout
     </button>
 </form>
@@ -110,13 +111,13 @@
           </a>
           
           <!-- Service Icon (Clipboard) -->
-          <a href="{{route('Service')}}" class="flex flex-col items-center group">
+          {{-- <a href="{{route('Service')}}" class="flex flex-col items-center group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-500 group-hover:text-orange-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <rect x="6" y="4" width="12" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6M9 12h6M9 16h6" />
             </svg>
             <span class="text-xs mt-1 text-gray-700">Service</span>
-          </a>
+          </a> --}}
           
           
             @auth

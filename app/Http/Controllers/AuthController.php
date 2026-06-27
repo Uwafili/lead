@@ -6,9 +6,8 @@ use App\Models\User;
 use App\Models\Tariff;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
-
-
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -25,7 +24,7 @@ class AuthController extends Controller
 
       Auth::login($user);
 
-      return redirect()->route('Service');
+      return redirect()->route('currTarView');
 
 }
 
@@ -35,14 +34,31 @@ public function login(Request $request){
          'password'=>['required']
 
     ]);
-    if(Auth::attempt($field,$request->remeber)){
-            return redirect()->route('Service');
+    if(Auth::attempt($field,$request->remember)){
+            return redirect()->route('currTarView');
     }
     else{
         return back()->withErrors([
             'failed'=>'Username/password is not valid'
         ]);
     }
+}
+
+public function showForgotPasswordForm(){
+    return view('Auth.forgot-password');
+}
+
+public function resetPassword(Request $request){
+    $field = $request->validate([
+        'email' => ['required','email','exists:users,email'],
+        'password' => ['required','confirmed', Password::min(8)->mixedCase()],
+    ]);
+
+    $user = User::where('email', $field['email'])->first();
+    $user->password = Hash::make($field['password']);
+    $user->save();
+
+    return redirect()->route('login')->with('status', 'Password reset successfully. Please sign in.');
 }
 
 public function adminDashboard(){
@@ -80,5 +96,10 @@ public function adminTar($id){
 public function show(){
         $users = User::all();
         return view('admin.users',compact('users'));
+    }
+
+    public function deleteUser(User $user){
+        $user->delete();
+        return redirect()->route('admin.users')->with('status', 'User deleted successfully.');
     }
 }

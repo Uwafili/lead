@@ -1,12 +1,12 @@
 @extends('layouts.layout')
 @section('content')
 
-<div class="bg-orange-50 min-h-screen p-6">
+<div class="bg-red-50 min-h-screen p-6">
 
  <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-lg p-8">
 <div class="flex items-center justify-between mb-6">
-<h1 class="text-3xl font-bold text-orange-600">All Facilities</h1>
- <a href="{{ route('addFacility') }}" class="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-semibold shadow-md hover:bg-orange-700 hover:shadow-lg transition transform hover:scale-105"> 
+<h1 class="text-3xl font-bold text-red-600">All Users</h1>
+ <a href="{{ route('addFacility') }}" class="px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold shadow-md hover:bg-red-700 hover:shadow-lg transition transform hover:scale-105"> 
 Add New Facility
 </a>
 </div>
@@ -14,59 +14,33 @@ Add New Facility
 
 <div class="overflow-x-auto">
 <table class="min-w-full divide-y divide-gray-200">
-<thead class="bg-orange-100">
+<thead class="bg-red-100">
 <tr>
-<th class="px-6 py-3 text-left text-xs font-medium text-orange-700 uppercase tracking-wider">Facility Name</th>
-<th class="px-6 py-3 text-left text-xs font-medium text-orange-700 uppercase tracking-wider">Email</th>
-<th class="px-6 py-3 text-left text-xs font-medium text-orange-700 uppercase tracking-wider">Password</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Name</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Email</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Password</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Action</th>
 </tr>
 </thead>
 
 
 <tbody class="bg-white divide-y divide-gray-200">
-<!-- Example Row (You will populate dynamically with Laravel) -->
-
-{{-- @foreach ( $users as $user )
-    
-<tr class="hover:bg-orange-50 transition">
-    <td class="px-6 py-4 whitespace-nowrap">{{$user['name']}}</td>
-    <td class="px-6 py-4 whitespace-nowrap">{{$user['email']}}</td>
+@forelse ($users as $user)
+<tr class="hover:bg-red-50 transition">
     <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
+    <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
+    <td class="px-6 py-4 whitespace-nowrap">{{ $user->password }}</td>
+    <td class="px-6 py-4 whitespace-nowrap">
+      <form method="POST" action="{{ route('admin.users.delete', $user) }}" onsubmit="return confirm('Delete this user?');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="px-3 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition">Delete</button>
+      </form>
+    </td>
 </tr>
-@endforeach --}}
-
- {{-- @forelse ($users as $user)
-            <tr>
-                <td class="px-6 py-4 text-sm text-gray-900">{{ $user->id }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900">{{ $user->name }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900">{{ $user->email }}</td>
-                <td class="px-6 py-4 text-sm">
-                    <form method="POST" action="{{ route('admin.users.delete', $user) }}" style="display:inline;">
-                        @csrf @method('DELETE')
-                        <button class="text-red-600 hover:text-red-900">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            @empty
-            <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>
-            @endforelse --}}
-
-
-<tr class="hover:bg-orange-50 transition">
-<td class="px-6 py-4 whitespace-nowrap">Chivar Specialist Hospital</td>
-<td class="px-6 py-4 whitespace-nowrap">chivar@example.com</td>
-<td class="px-6 py-4 whitespace-nowrap">••••••••</td>
-
-</tr>
-
-
-<tr class="hover:bg-orange-50 transition">
-<td class="px-6 py-4 whitespace-nowrap">prime Specialist Hospital</td>
-<td class="px-6 py-4 whitespace-nowrap">prime@example.com</td>
-<td class="px-6 py-4 whitespace-nowrap">••••••••</td>
-
-</tr>
-<!-- Repeat as needed -->
+@empty
+<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>
+@endforelse
 </tbody>
 </table>
 </div>

@@ -59,7 +59,7 @@
       </div>
       <!-- Register Button -->
       <button type="submit"
-  class="w-full px-4 py-2 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition duration-200 font-semibold">
+  class="w-full px-4 py-2 text-white bg-red-600 rounded-lg transition duration-200 font-semibold">
   Sign In
 </button>
     </form>

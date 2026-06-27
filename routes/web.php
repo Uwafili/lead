@@ -31,12 +31,14 @@ Route::put('/updatePrice',[updateTariffController::class,'updatePrice'])->name('
 Route::view('/register','Auth.register')->name('register');
 Route::post('/register',[AuthController::class,'register'])->name('register.store');
 
+
+Route::view('/','post.index')->name('home');
 // Guest routes
 Route::middleware("guest")->group(function(){
     Route::view('/login','Auth.login')->name('login');
+    Route::get('/forgot-password',[AuthController::class,'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password',[AuthController::class,'resetPassword'])->name('password.update');
     Route::post('/login',[AuthController::class,'login'])->name('login.store'); // POST
-    
-    
     Route::get('/download-tariff', [TariffController::class, 'downloadFullTariff'])->name('tariff.download');
     
 });
@@ -56,7 +58,7 @@ Route::middleware(["admin"])->group(function(){
         Route::view("/addFacility",'Admin.AddUser')->name('addFacility');
         // Route::get('/users', [FacilityController::class,'getUsers'])->name('admin.users');
 
-        //Route::get('/users', [FacilityController::class, 'users'])->name('admin.users');
+        // Route::get('/', [FacilityController::class, 'users'])->name('admin.users');
 
 //Tariff Controller
 
