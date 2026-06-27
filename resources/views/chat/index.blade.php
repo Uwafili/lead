@@ -45,7 +45,7 @@
         <section class="lg:col-span-2 p-6 flex flex-col h-full">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h1 class="text-2xl font-bold text-gray-900">{{ $currentUser->usertype === 'admin' ? ($selectedUser ? $selectedUser->name : 'Select a user') : 'Admin Chat' }}</h1>
+              <h1 class="text-2xl font-bold text-gray-900">{{ $currentUser->usertype === 'admin' ? ($selectedUser ? $selectedUser->name : 'Select a user') : ($selectedUser ? $selectedUser->name : 'Chat') }}</h1>
               <p class="text-sm text-gray-500">{{ $currentUser->usertype === 'admin' ? 'Send messages to the selected user.' : 'Send a message to admin.' }}</p>
             </div>
             @if($selectedUser)
@@ -60,16 +60,21 @@
             <div class="space-y-4">
               @foreach($messages as $message)
                 @php $isMine = $message->sender_id === $currentUser->id; @endphp
-                <div class="max-w-xl {{ $isMine ? 'ml-auto bg-red-600 text-white' : 'mr-auto bg-white text-gray-900' }} rounded-2xl px-5 py-3 shadow-sm">
-                  <div class="flex items-center justify-between text-xs uppercase tracking-wide font-semibold {{ $isMine ? 'text-red-100' : 'text-red-600' }}">
-                    <span>{{ $isMine ? 'You' : 'Them' }}</span>
+                <div class="flex {{ $isMine ? 'justify-end' : 'justify-start' }}">
+                  <div class="max-w-[70%] rounded-3xl px-5 py-4 shadow-sm {{ $isMine ? 'bg-red-600 text-white' : 'bg-red-50 border border-red-100 text-gray-900' }}">
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                      <span class="text-[11px] font-semibold uppercase tracking-wide {{ $isMine ? 'text-red-100' : 'text-red-600' }}">{{ $isMine ? 'You' : ($currentUser->usertype === 'admin' ? ($message->sender->name ?? 'User') : 'Admin') }}</span>
+                      <span class="text-[11px] {{ $isMine ? 'text-red-100' : 'text-red-600' }}">{{ $message->created_at->format('H:i') }}</span>
+                    </div>
+                    <p class="text-sm leading-6">{{ $message->body }}</p>
                     @if($isMine)
-                      <span class="text-xs {{ $message->read_at ? 'text-red-100' : 'text-red-200' }}">{{ $message->read_at ? 'Seen' : 'Delivered' }}</span>
+                      <div class="mt-3 text-[11px] flex items-center gap-1 {{ $message->read_at ? 'text-red-100' : 'text-red-200' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{{ $message->read_at ? 'Seen' : 'Sent' }}</span>
+                      </div>
                     @endif
-                  </div>
-                  <p class="mt-2">{{ $message->body }}</p>
-                  <div class="mt-2 text-xs {{ $isMine ? 'text-red-100' : 'text-gray-500' }}">
-                    {{ $message->created_at->format('M d, H:i') }}
                   </div>
                 </div>
               @endforeach
