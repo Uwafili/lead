@@ -55,7 +55,6 @@ Route::middleware(["admin"])->group(function(){
         
         Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
         Route::get('/Admin/users', [AuthController::class, 'show'])->name('admin.users');
-        Route::get('/export-tariffs-csv/{id?}', [updateTariffController::class, 'exportTariffsCsv'])->name('tariffs.export');
         Route::post("/uploadFacilityExcel",[FacilityController::class,'uploadFacilityExcel'])->name('uploadFacilityExcel');
 
         Route::view("/addFacility",'Admin.AddUser')->name('addFacility');
@@ -70,6 +69,11 @@ Route::middleware(["admin"])->group(function(){
         Route::post("/Tariff/AddTariff",[TariffController::class, 'AddTariff'])->name("Post_Ad_AddTariff");
         Route::get("/Tariff/ViewTariff",[TariffController::class,'showAdTar'])->name('Ad_ViewTariff');
       
+
+        //Download Tariff Button After Mapped
+
+         Route::get('/export-tariffs-csv/{id?}', [updateTariffController::class, 'downloadTariffMapped'])->name('tariff.dowload');
+
         });
 
         // Excel/Tariff endpoints

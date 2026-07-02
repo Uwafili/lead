@@ -28,8 +28,8 @@
     <div class="flex-1 p-6 overflow-hidden">
         <div class="max-w-7xl mx-auto h-full flex flex-col">
 
-            <div class="bg-white rounded-2xl shadow-lg flex-1 flex flex-col overflow-hidden">
-
+            <div class="relative bg-white rounded-2xl shadow-lg flex-1 flex flex-col overflow-hidden">
+<div id="runningDB" class="hidden h-[4px] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-pink-500 bg-[length:200%_200%] animate-gradient-shift"></div>
                 <!-- Scroll container -->
                 <div class="flex-1 overflow-auto">
                     
@@ -74,6 +74,10 @@
     </div>
 </div>
 
+<div>
+          <p  class="bg-orange-600 w-full text-white px-4 py-2 rounded-xl shadow hover:bg-orange-700 transition whitespace-nowrap"><a a href="{{route('tariff.dowload',['id'=>$id])}}">Download Tariff</a></p>
+</div>
+
 </div>
  <script src="{{ asset('js/Facility/TariffPageHandler.js') }}"></script>
  <script src="{{ asset('js/Facility/TariffMapHandler.js') }}"></script>
@@ -92,7 +96,11 @@
     WorkerWeb(cart[0],data)
 
           const FacSheet=document.querySelectorAll(".Fac-sheets");  
-     FacSheet.forEach(sheet => {sheet.addEventListener('click',()=>{handleSheetChange(data,(sheet.innerHTML).trim());WorkerWeb((sheet.innerHTML).trim(),data)})});
+     FacSheet.forEach(sheet => {sheet.addEventListener('click',()=>{
+        
+     handleSheetChange(data,(sheet.innerHTML).trim());WorkerWeb((sheet.innerHTML).trim(),data)
+    
+    })});
 
 })
 

@@ -1,5 +1,23 @@
 let dictionary = null;
 let indexedEntries;
+let AllDiction=null;
+
+async function startAll(params) {
+  const resAll = await fetch("/api/hospital-pharmacy-All");
+      const jsonAll = await resAll.json();
+            AllDiction=jsonAll.bad
+            AllDiction.forEach((p) => {p[1]=Lord.normalizeAndSortAll(p[1]); }); 
+                AllDiction.map(item=>{
+            const rawDescription =item[1];
+            const weightedTokens = rawDescription.map(word => ({
+            text: word,
+            isNoise: Lord.IgnoreList.has(word)
+          }));
+            console.log({original: item[1],code: item[0],tokens: weightedTokens});
+           }) 
+
+}
+startAll()
 
 function firstTwoLettersMatch(a, b) {
   const aRR = a.map(item => item.slice(0, 2));
@@ -131,7 +149,7 @@ const ignore = new Set([
   // -------------------------
   // BASIC DOSAGE FORMS
   // -------------------------
-  "tablet", "tablets", "tab", "tabs",
+  "tablet", "tablets", "tab", "tabs","co",
   "capsule", "capsules", "cap", "caps",
   "softgel", "softgels",
   "pill", "pills",
@@ -304,10 +322,6 @@ const ignore = new Set([
   "medication",
   "bottle",
 
-  // CONSULTATION.
-
-  "consultation", "consult", "visit", "review", "followup", 
-  "follow", "initial", "routine", "specialist", "clinic", "services"
 ]);
 function getDrugKey(str) {
   return str
@@ -1189,6 +1203,7 @@ const labAliasMap = new Map([
 ]);
 
 function normalizeAndSortLab(text) {
+  console.log(text)
   if (!text) return []; // Returning an empty array to match your split() return type
 
   let cleaned = text.toLowerCase()
@@ -1743,6 +1758,371 @@ return{
 }
 
 
+function LordForAll(){
+
+  function normalizeAndSortAll(text) {
+  if (!text) return [];
+
+  let cleaned = text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+
+  let words = cleaned.split(" ").sort();
+
+  return words
+}
+
+const IgnoreList=new Set([
+  
+  // -------------------------
+  // BASIC DOSAGE FORMS
+  // -------------------------
+  "co",
+  "tablet", "tablets", "tab", "tabs",
+  "capsule", "capsules", "cap", "caps",
+  "softgel", "softgels",
+  "pill", "pills",
+
+  // -------------------------
+  // LIQUIDS
+  // -------------------------
+  "syrup", "syrups", "syr",
+  "suspension", "susp", "suspensions",
+  "solution", "solutions", "sol", "soln",
+  "mixture", "mix",
+  "elixir",
+  "emulsion",
+  "linctus",
+
+  // -------------------------
+  // TOPICALS
+  // -------------------------
+  "cream", "creams",
+  "ointment", "ointments", "oint",
+  "gel", "gels",
+  "lotion", "lotions",
+  "paste",
+  "foam",
+  "shampoo",
+  "soap",
+
+  // -------------------------
+  // DROPS / SPRAYS
+  // -------------------------
+  "drop", "drops", "gtt",
+  "spray", "sprays",
+  "mist",
+
+  // -------------------------
+  // INJECTIONS
+  // -------------------------
+  "injection", "injectable", "injectables",
+  "inj", "iv", "im", "sc", "subcut",
+  "amp", "amps",
+  "ampoule", "ampoules",
+  "vial", "vials",
+  "prefilled", "prefill",
+
+  // -------------------------
+  // RESPIRATORY
+  // -------------------------
+  "inhaler", "inhalers",
+  "neb", "nebs",
+  "nebulizer",
+  "nebulisation",
+  "nebulization",
+  "respules",
+  "rotacap",
+
+  // -------------------------
+  // PATCHES / DEVICES
+  // -------------------------
+  "patch", "patches",
+  "device",  "devices",
+  "kit",  "kits",
+
+  // -------------------------
+  // POWDERS / GRANULES
+  // -------------------------
+  "powder", "powders",
+  "granule", "granules",
+  "sachet", "sachets",
+
+  // -------------------------
+  // SPECIAL TABLET TYPES
+  // -------------------------
+  "chewable",
+  "chewtab",
+  "dispersible",
+  "disptab",
+  "effervescent",
+  "efftab",
+  "enteric",
+  "coated",
+  "film",
+  "filmcoated",
+  "sustained",
+  "controlled",
+  "extended",
+  "modified",
+  "release",
+
+  // -------------------------
+  // RELEASE ABBREVIATIONS
+  // -------------------------
+  "sr", "cr", "xr", "mr", "er", "dr", "ir",
+
+  // -------------------------
+  // ROUTES OF ADMINISTRATION
+  // -------------------------
+  "oral",
+  "topical",
+  "nasal",
+  "ophthalmic",
+  "otic",
+  "rectal",
+  "vaginal",
+  "buccal",
+  "sublingual",
+  "inhalation",
+
+  // -------------------------
+  // BODY/USE DESCRIPTORS
+  // -------------------------
+ /*  "eye",
+  "ear",
+  "nose",
+  "skin", */
+
+  // -------------------------
+  // PACKAGING
+  // -------------------------
+  "bottle", "bot",
+  "pack", "packs",
+  "strip", "strips",
+  "blister",
+
+  // -------------------------
+  // STRENGTH / MARKETING
+  // -------------------------
+  "forte",
+  "plus",
+  "extra",
+  "double",
+  "maximum",
+  "max",
+
+  // -------------------------
+  // MEASUREMENT WORDS
+  // -------------------------
+  "percent",
+  "mg", "g", "kg",
+  "mcg", "ug",
+  "ml", "mls",
+  "l", "litre", "liter",
+  "iu", "units",
+  "mmol",
+  "meq",
+
+  // -------------------------
+  // COMMON FILLER WORDS
+  // -------------------------
+  "per",
+  "with",
+  "and",
+  "for",
+  "of",
+  'piece',
+  "pieces",
+
+  // -------------------------
+  // COMMON MEDICAL ABBREVIATIONS
+  // -------------------------
+  "od", "bd", "tds", "qid",
+  "prn", "stat",
+
+  // -------------------------
+  // COMMON NOISE TOKENS
+  // -------------------------
+  "generic",
+  "brand",
+  "drug",
+  "medicine",
+  "medication",
+  "bottle",,
+    // consultation words
+      "consult",
+      "consultation",
+      "consulting",
+      "review",
+      "followup",
+      "follow",
+      "follow-up",
+      "revisit",
+      "visit",
+      "attendance",
+
+      // patient categories
+      "new",
+      "old",
+      "return",
+      "existing",
+      "adult",
+      "child",
+      // encounter types
+      "initial",
+      "first",
+      "routine",
+      "regular",
+      "urgent",
+      "walkin",
+      "walk-in",
+
+      // hospital/clinic words
+      "hospital",
+      "clinic",
+      "medical",
+      "health",
+      "healthcare",
+      "care",
+      "centre",
+      "center",
+
+      // service words
+      "service",
+      "services",
+      "fee",
+      "charge",
+      "charges",
+
+      // doctor references
+      "doctor",
+      "dr",
+      "consultant",
+
+      // generic descriptors
+      "comprehensive",
+      "basic",
+      "standard",
+      "normal",
+      "private",
+
+      // abbreviations
+     "first",
+  "second",
+  "third",
+  "fourth",
+  "fifth",
+  "1st",
+  "2nd",
+  "3rd",
+  "4th",
+  "5th",
+  // 1. Generic Vaccine & Immunization Fillers
+  "vaccine", "vaccines", "vaccination", "vaccinations", "immunization", 
+  "immunisations", "immunisation", "immunisations", "vax", "jab", "jabs",
+
+  // 2. Administration Methods & Formats
+  "shot", "shots", "injection", "injections", "inj", "dose", "doses", 
+  "booster", "boosters", "vial", "vials", "ampoule", "oral", "nasal", "spray",
+
+  // 3. Common Target Demographics / Age Groups
+  "adult", "adults", "paediatric", "pediatric", "child", "children", 
+  "infant", "infants", "baby", "babies", "toddler", "toddlers", "travel", "travelers",
+
+  // 4. Clinical Schedules, Settings, & Status
+  "schedule", "series", "course", "routine", "required", "mandatory", 
+  "preventative", "prophylaxis", "clinic", "campaign", "dose-1", "dose-2",
+
+  // 5. Connectors & Fillers (Global Noise)
+  "for", "and", "in", "of", "with", "without", "against", "to", "by", "against",
+  "1st", "2nd", "3rd", "1", "2", "3", "a", "an", "the",
+   // 1. Generic Accommodation & Stay Fillers
+  "accommodation", "stay", "stays", "admit", "admission", "admissions",
+  "occupancy", "boarding", "lodging", "hospitalization", "inpatient", "ipd",
+
+  // 2. Redundant Temporal Units & Frequency Modifiers
+  "day", "days", "daily", "per-day", "perday", "night", "nights", "nightly",
+  "week", "weekly", "hr", "hrs", "hour", "hours", "hourly", "diem", "per-diem",
+
+  // 3. Billing, Charge, & Administrative Status
+  "charge", "charges", "rate", "rates", "fee", "fees", "tariff", "tariffs",
+  "cost", "price", "pricing", "bill", "billing", "deposit", "co-pay", "copay",
+  "applicable", "routine","basic", "service", "services",
+
+  // 4. Structural, Location, & Facility Tags
+  "room", "rooms", "bed", "beds", "bedspace", "space", "unit", "units",
+  "ward", "wards", "wing", "wings", "floor", "block", "clinic", "center", "centre",
+
+  // 5. Connectors, Prepositions & Multipliers (Global Noise)
+  "for", "and", "in", "of", "with", "without", "per", "a", "an", "the", "to",
+  "x", "1", "one", "2", "two", "3", "three", "4", "four", "5", "five",
+   // 1. Common Specimen / Fluid Types
+  "serum", "plasma", "csf", "fluid", "mcs",
+  "swab", "saliva", "tissue", "biopsy", "aspirate", "feces", "semen","stool","virus","blood",
+  // 2. Test Formats, Panels, and Groupings
+  "test", "tests", "profile", "panel", "screen","screens", "screening", "assay","donor",
+  "level", "levels", "estimation", "analysis", "culture", 
+  "sensitivity", "microscopy", "smear", "stain", "automated", "manual",
+
+  // 3. Administrative / Method Modifiers
+  "rapid", "stat", "routine", "quantitative", "qualitative", "total", 
+  "free", "index", "ratio", "fasting", "random", "serial", "post", 
+  "prandial", "timed", "24hr", "24-hour", "acute", "convalescent", 
+  "aso","ige","iga","igg","igm","ig","ab","ag","as",
+
+  // 4. General Connectors & Filler
+  "for", "and", "in", "of", "with", "without", "against", "by",
+  // 1. Core Imaging Modalities & Shorthand
+  "xray", "x-ray", "uss", "ultrasound", "ultrasonography", "sonar", "scan",
+  "ct", "mri", "mra", "pet", "fluoroscopy", "", "",
+   "tomography", "radiography", "imaging",
+  
+  // 2. Views, Postures, and Anatomical Planes
+  "ap", "pa", "lateral", "lat", "oblique", "view", "views", "axial", 
+  "sagittal", "coronal", "erect", "supine", "bilateral", "unilateral","single","double",
+
+  // 3. Contrast & Technical Modifiers
+  "contrast", "with", "without", "w", "wo", "iv", "gadolinium", "dye",
+  "digital", "computed", "magnetic", "resonance", "resonance", "doppler", 
+  "duplex", "color", "high", "resolution", "hrct", "3d", "4d",
+
+  // 4. General Medical/Administrative Filler
+  "routine", "urgent", "special", "guided", "guidance", "under", "procedure",
+  "report", "film", "films", "screening", "diagnostic", "check", "and",
+   // Generic Action Verbs
+  "procedure", "procedures", "surgery", "operation", "management",
+  "treatment", "excision", "incision", "repair", "removal", "fixation",
+  "drainage", "biopsy", "resection", "closure", "reconstruction", "applied","minor","major","intermediate",
+"fee","fees","global","block",
+  
+  // Operational Modifiers
+  "stage", "stages", "under", "with", "without", "and", "for", "via","of", 
+  "approach", "status", "unilateral", "bilateral", "including", "except"
+]);
+
+
+function LordFuzzy(query){
+    //console.log(query)
+  for([code,entry] of dictionary){
+      if (!entry) {
+        
+      }else{
+    const score=getLevenshteinSimilarity(entry,query)
+
+    if (score>0.3) {
+      console.log(score,query,entry)
+    }
+  }
+  }
+}
+
+return{
+  normalizeAndSortAll,
+  LordFuzzy,
+  IgnoreList
+}
+}
+
 /* ------------------------ THE STANDALONE LEVENSHTEIN SIMILARITY ------------------------ */
 function getLevenshteinSimilarity(a, b) {
   const al = a.length;
@@ -1778,12 +2158,17 @@ self.onmessage = async function (e) {
     if(dictionary ===null){
       const res = await fetch("/api/hospital-pharmacy");
       const json = await res.json();
-      const ret = json.data;
+       const ret = json.data;
       rf = json.bad;
+      ///GETTING ALL RECORDS FOR CATEGORY NOT FOUND
+       
+     
       if (cart =="VACCINES") {
           dictionary=ret["PHARMACY"];
-      }else{dictionary=ret[cart];}
+      }
+      else{dictionary=ret[cart];}
      
+      
 
 
       switch (cart) {
@@ -1793,7 +2178,6 @@ self.onmessage = async function (e) {
         case 'CONSULTATION':
                  const ConLord = ConsultLord();
                  dictionary.forEach((p,i) => {p['DESCRIPTION']=ConLord.consultNormalizeAndSort(p['DESCRIPTION']); }); 
-                  
                  consulp(ConLord);
         break;
          case 'SERVICES':
@@ -1821,10 +2205,12 @@ self.onmessage = async function (e) {
          case "VACCINES":
                 const VaccomLord= VaccLord();
                 dictionary.forEach((p,i) => {p['DESCRIPTION']=VaccomLord.normalizeAndSortVaccine(p['DESCRIPTION']); }); 
-                console.log(dictionary)
+                
                 Vacc(VaccomLord);
         break;
         default:
+           const Lord = LordForAll();
+                
       }
 
 
@@ -1882,7 +2268,7 @@ self.onmessage = async function (e) {
             break; 
 
             default:
-            break;
+              MapAll(data)
         }
    
 
@@ -1953,7 +2339,7 @@ for(const [B1,prop] of dupData.entries()){
     dictMap.delete(B1)
 
     continue
-  }
+  }else{
    const fuzz= drugEngine.smartFuzzyTop10(B1);
         if (fuzz.length > 0) {
       
@@ -1963,8 +2349,11 @@ for(const [B1,prop] of dupData.entries()){
           fuzzyMatches.push(fuzz)
         }
           else{
-          notFound.push(B1);
+            const passer={id:prop['id'],parent:B1,matches:[]}
+              Allsearched.push(passer)
+              notFound.push(B1);
         }
+      }
  } 
 
 
@@ -2038,13 +2427,15 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                 Allsearched.push(passer)
               
             }else{
+              const passer={id:prop['id'],parent:B1,matches:[]}
+              Allsearched.push(passer)
               notFound.push(B1);
               
             }
             };
                
             }
-            console.log(notFound)
+            
             self.postMessage({type:'result',data:Allsearched,matched:Matched})
       }
 
@@ -2090,11 +2481,13 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                if (fuzz.length > 0) {
              
               const passer={id:prop['id'],parent:B1,matches:fuzz}
-              console.log(passer)
+              
             fuzz.forEach(f => {f['id']=prop['id'];Matched.push(f)});
                 Allsearched.push(passer)
               
             }else{
+              const passer={id:prop['id'],parent:B1,matches:[]}
+              Allsearched.push(passer)
               notFound.push(B1);
               
             }
@@ -2156,8 +2549,9 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                 Allsearched.push(passer)
               
             }else{
+              const passer={id:prop['id'],parent:B1,matches:[]}
+              Allsearched.push(passer)
               notFound.push(B1);
-              
             } 
             };
                
@@ -2187,7 +2581,7 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
           const Allsearched=[];
           const Matched=[];
 
-            const dictMap = new Map( dictionary.map(item => [item.DESCRIPTION.join(" "),item]));
+            const dictMap = new Map( dictionary.map(item => [LabEngine.labAliasMap.has(LabEngine.normalizeAndSortLab(item.original).join(" "))?LabEngine.labAliasMap.get(LabEngine.normalizeAndSortLab(item.original).join(" ")).join(" "):LabEngine.normalizeAndSortLab(item.original).join(" "),item]));
             let dupData =new Map(data.map(item => [LabEngine.labAliasMap.has(LabEngine.normalizeAndSortLab(item.SERVICE).join(" "))?LabEngine.labAliasMap.get(LabEngine.normalizeAndSortLab(item.SERVICE).join(" ")).join(" "):LabEngine.normalizeAndSortLab(item.SERVICE).join(" "),item]));
             
               for(const [B1,prop] of dupData.entries()){
@@ -2215,6 +2609,8 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                 Allsearched.push(passer)
               
             }else{
+              const passer={id:prop['id'],parent:B1,matches:[]}
+              Allsearched.push(passer)
               notFound.push(B1);
               
             }  
@@ -2276,6 +2672,8 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                 Allsearched.push(passer)
               
             }else{
+              const passer={id:prop['id'],parent:B1,matches:[]}
+              Allsearched.push(passer)
               notFound.push(B1);
               
             } 
@@ -2338,6 +2736,8 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
                 Allsearched.push(passer)
               
             }else{
+              const passer={id:prop['id'],parent:B1,matches:[]}
+              Allsearched.push(passer)
               notFound.push(B1);
               
             } 
@@ -2347,4 +2747,36 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
               console.log(notFound)
             self.postMessage({type:'result',data:Allsearched,matched:Matched})
             
+      }
+
+      function Mapcc(dictionary) {
+        const Lord= LordForAll();
+          //indexedEntries=
+      }
+
+      function MapAll(data){
+     const Lord= LordForAll();
+          let dupData =new Map(data.map(item => [Lord.normalizeAndSortAll(item.SERVICE).join(" "),item]));
+
+            for( const[B1,props] of dupData.entries()){
+             
+              //const rtg = dictMap.get(B1);
+
+            if (rtg !== undefined) {
+
+              //console.log(rtg)
+
+              /* const real=rtg.DESCRIPTION.join(" ")
+                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
+              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
+            
+              Matched.push(realVT)
+
+            Allsearched.push(passer)
+            
+              dupData.delete(B1)
+              dictMap.delete(B1) */
+
+            }
+            } 
       }

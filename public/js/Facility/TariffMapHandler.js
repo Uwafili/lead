@@ -27,14 +27,18 @@ function debounce(func, delay = 500) {
                                 const present= data.filter((val)=>val['category']==cart)  
                                 worker.postMessage({type: "search",data: present,cartegory:cart});                    }
                     if (e.data.type === "result") {
+                    document.querySelector("#mapIndicator").classList.remove("from-red-600", "via-red-700", "to-red-800")
+
                     document.querySelector("#mapIndicator").classList.add("from-blue-600", "via-blue-700", "to-blue-800")
 
+                    setTimeout(()=>{document.querySelector("#mapIndicator").classList.remove("from-blue-600", "via-blue-700", "to-blue-800")},3000)
                         const mapped=e.data.data;
                         MatchedMap=e.data.matched
 
-                        console.log(mapped)
+                        //console.log(mapped)
                         
                         mapped.forEach(map => {
+                          
                             handleMappedItem(map)
                         });
                          
@@ -48,17 +52,22 @@ function debounce(func, delay = 500) {
                         const Id=`#itemHolder${props['id']}`
                         const ServiceTag=`#ServiceTag${props['id']}`;
                         const itemHolder =document.querySelector(Id);
-                    const matches=props['matches'];
-                    
-                 //set Service Tag color based on mapped;
-                 document.querySelector(ServiceTag).classList.remove("border-gray-200")
-                 if (matches.length===1 && matches[0]['score']===1) {
-                    document.querySelector(ServiceTag).classList.add("border-blue-400")
-                 }else if(matches.length===0){
-                   document.querySelector(ServiceTag).classList.add("border-red-400")
-                 }else{
-                   document.querySelector(ServiceTag).classList.add("border-green-400")                   
-                 }
+                    const matches = props.matches;
+
+const serviceTag = document.querySelector(ServiceTag);
+
+if (!serviceTag) return;
+
+serviceTag.classList.remove("border-gray-200","border-blue-400","border-red-400","border-green-400");
+
+if (matches.length === 1 && matches[0].score === 1) {
+  serviceTag.classList.add("border-blue-400");
+} else if (matches.length === 0) {
+    
+  serviceTag.classList.add("border-red-400");
+} else {
+  serviceTag.classList.add("border-green-400");
+}
                   let wrapperDiv =document.querySelector(`#WDE${props['id']}`)
                    if (wrapperDiv !==null) {
                      document.querySelector(`#WDE${props['id']}`).replaceChildren();
@@ -121,7 +130,7 @@ function debounce(func, delay = 500) {
                         }
                         //change input to clicked dropped
                         document.querySelector(idcl).value=ser;
-                        
+                        console.log(document.querySelector(idcl).className)
                             //ADD CHOSEEN SERVICE TO DB
                             saveService(bp.innerHTML,bp.id,Ismapped,TC)
                     })
@@ -170,15 +179,7 @@ function debounce(func, delay = 500) {
 
    async function saveService(text,id,Ismapped,TC){
     //GETTING AND SETTING THE BORDER COLORS OF INPUT ON SAVE
-    const cla=`.serput${id}`;
-    const StyleId=`#Style${id}`;
-    const inp=document.querySelector(cla);
-    const currtClass=inp.className;
-
-    console.log(currtClass)
-    document.querySelector(cla).className=`serviceInput serput${id} relative w-full rounded-[6px] bg-white border-amber-600 px-4 py-2 text-slate-900 placeholder-slate-400 focus:outline-none`
-    document.querySelector(StyleId).classList.toggle("hidden")
-
+document.querySelector("#runningDB").classList.toggle('hidden')
    let body;
     if (Ismapped) {
              //trying to get the score from the mapped
@@ -205,8 +206,7 @@ function debounce(func, delay = 500) {
                 });
 
                 if (res.ok) {
-                    document.querySelector(cla).className=currtClass
-                    document.querySelector(StyleId).classList.toggle("hidden")
+                   document.querySelector("#runningDB").classList.toggle('hidden')
                 } else {
                     console.warn(`Request finished, but server responded with code: ${res.status}`);
                 }
@@ -235,7 +235,7 @@ serviceInput.forEach(ser => {
                     }else{
                     wrapperDiv= document.createElement('div');
                     wrapperDiv.id=`WDE${ID}`
-                    wrapperDiv.className = `absolute drpMap${props['id']} z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto hidden`;
+                    wrapperDiv.className = `absolute drpMap${ID} z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto hidden`;
                     
                     }
 

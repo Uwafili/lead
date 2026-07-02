@@ -92,7 +92,7 @@ class updateTariffController extends Controller
         $tariff=Tariff::where('user_id',$id)->get();
         $category = Tariff::distinct()->where('user_id', $id)->pluck('category');   
 
-        return view("Admin.Negotiate.Tar", compact('category','tariff'));
+        return view("Admin.Negotiate.Tar", compact('category','tariff','id'));
     }
 
     public function showTariffNeg(){
@@ -142,14 +142,11 @@ class updateTariffController extends Controller
  }
 
 
-public function exportTariffsCsv($id){
+public function downloadTariffMapped($id){
 
 
-
-            $tariffs = Tariff::where('user_id', $id)
-                ->whereNotNull('code')
-                ->where('code', '<>', '')
-                ->get(['Edited_Service','SERVICE', 'Edited_Tariff', 'TARIFF', 'code']);
+                     $tariffs = Tariff::where('user_id', $id)
+                               ->get(['Edited_Service','SERVICE', 'Edited_Tariff', 'TARIFF', 'code']);
 
                     // Set CSV headers
                 $headers = [
@@ -166,13 +163,16 @@ public function exportTariffsCsv($id){
                     // Add data rows
                     foreach ($tariffs as $tariff) {
                         $tar;
+                        $ser;
                         if (strlen($tariff['Edited_Tariff'])===0) {$tar=$tariff['TARIFF'];}else{ $tar=$tariff['Edited_Tariff'];}   
-                        fputcsv($file, [ $tariff->Edited_Service,$tariff->$tar,$tariff->code]);
+                        if (strlen($tariff['Edited_Service'])===0) {$ser=$tariff['SERVICE'];}else{ $ser=$tariff['Edited_Service'];}   
+
+                        fputcsv($file, [$ser,$tar,$tariff->code]);
                     }
 
                     fclose($file);
                 };
-
+ 
             
             /*  $Pendtariff = PendingTariff::where('user_id', $id)->first();
 
