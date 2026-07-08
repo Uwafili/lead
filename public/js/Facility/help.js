@@ -6,8 +6,11 @@
  worker.onmessage = function (e) {
 
         if (e.data.type === "loaded") {
-               const present= data.filter((val)=>val['category']==cart)  
-               worker.postMessage({type: "search",data: present,});
+               let present= data.filter((val)=>val['category']==cart);
+               //send only unmapped
+                 present= data.filter((val)=>val['score']==0);
+                 console.log(present)
+               //worker.postMessage({type: "search",data: present,});
                return "hi"
         }
 if (e.data.type === "result") {

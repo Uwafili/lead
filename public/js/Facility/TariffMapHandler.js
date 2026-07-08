@@ -19,13 +19,16 @@ function debounce(func, delay = 500) {
              function WorkerWeb(cart,data) {
                 const workerUl = "/workers/TarWorker.js";
                 const worker = new Worker(workerUl);
-
+                let Ematches=[];
                 worker.postMessage({ type: "load",cartegory:cart });
                     worker.onmessage = function (e) {
                                 document.querySelector("#mapIndicator").classList.add("from-red-600", "via-red-700", "to-red-800")
                             if (e.data.type === "loaded") {
-                                const present= data.filter((val)=>val['category']==cart)  
-                                worker.postMessage({type: "search",data: present,cartegory:cart});                    }
+                                let present= data.filter((val)=>val['category']==cart)  
+                                 present= present.filter((val)=>val['score']==0);
+                                    
+                              worker.postMessage({type: "search",data: present,cartegory:cart});    
+                                              }
                     if (e.data.type === "result") {
                     document.querySelector("#mapIndicator").classList.remove("from-red-600", "via-red-700", "to-red-800")
 
@@ -34,14 +37,20 @@ function debounce(func, delay = 500) {
                     setTimeout(()=>{document.querySelector("#mapIndicator").classList.remove("from-blue-600", "via-blue-700", "to-blue-800")},3000)
                         const mapped=e.data.data;
                         MatchedMap=e.data.matched
-
-                        //console.log(mapped)
-                        
                         mapped.forEach(map => {
+                           const matches= map['matches'];
+                            
+                           if (matches.length===1)  {
+                            if (matches[0].score===1) {
+                                
+                                Ematches.push(matches[0])
+                            }
                           
+                           }
                             handleMappedItem(map)
                         });
                          
+                        BulkSaveService(Ematches)
                         clickToAddMapped() 
                     }
                         };      
@@ -179,7 +188,7 @@ if (matches.length === 1 && matches[0].score === 1) {
 
    async function saveService(text,id,Ismapped,TC){
     //GETTING AND SETTING THE BORDER COLORS OF INPUT ON SAVE
-document.querySelector("#runningDB").classList.toggle('hidden')
+       document.querySelector("#runningDB").classList.remove('hidden')
    let body;
     if (Ismapped) {
              //trying to get the score from the mapped
@@ -204,15 +213,11 @@ document.querySelector("#runningDB").classList.toggle('hidden')
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                     body: JSON.stringify(body)
                 });
-
+                    document.querySelector("#runningDB").classList.add('hidden')
                 if (res.ok) {
-                   document.querySelector("#runningDB").classList.toggle('hidden')
-                } else {
-                    console.warn(`Request finished, but server responded with code: ${res.status}`);
-                }
-            } catch (error) {
-                console.error('The request failed entirely due to a network error:', error);
-            }
+                   
+                } else {document.querySelector("#SaveTarError").innerHTML=`Request finished, but server responded with code: ${res.status}`}
+            } catch (error) {cdocument.querySelector("#SaveTarError").innerHTML='The request failed entirely due to a network error:'}
             
     }
 
@@ -268,3 +273,19 @@ initDropMap()
 
 }
  
+
+async function BulkSaveService(body) {
+       document.querySelector("#runningDB").classList.remove('hidden')
+      try {
+                const res = await fetch('/UpdateBulkTar', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify(body)
+                });
+                    document.querySelector("#runningDB").classList.add('hidden')
+                if (res.ok) {
+                   
+                } else {document.querySelector("#SaveTarError").innerHTML=`Request finished, but server responded with code: ${res.status}`}
+            } catch (error) {cdocument.querySelector("#SaveTarError").innerHTML='The request failed entirely due to a network error:'}
+            
+}
