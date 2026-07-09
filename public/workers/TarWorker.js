@@ -22,7 +22,6 @@ function calculateUniqueMatchScore(a, b) {
       matchCount++;
     }
   }
-  
   // 3. Multiply the unique match count by 0.25
   return matchCount * 0.25;
 }
@@ -1630,7 +1629,7 @@ return{
 }
 
 
-const STRENGTH_REGEX = /\b(\d+[\d\s./%]*(?:mg|ml|g|l|mcg|ug|iu|units|percent|perc|%)?)/i;
+const STRENGTH_REGEX = /\b(\d+[\d\s./%]*(?:mg|mls|ml|g|l|mcg|ug|iu|units|percent|perc|%)?)/i;
 function LordForAll() {
   function normalizeAndSortAll(text) {
     if (!text) return [];
@@ -2055,7 +2054,8 @@ const medicationForms = {
   loz: "lozenge",
   powd: "powder",
 
-  pcm: "paracetamol"
+  pcm: "paracetamol",
+  "mls":"ml"
 };
 
 function LordFuzzy(query){
@@ -2082,8 +2082,11 @@ function LordFuzzy(query){
 
       if (score > 0.5) {
         let extra = calculateUniqueMatchScore(item.noiseArray, noiseQueryWords);
-        score = score + extra;
-        rtg.push({ score,service:item['state'], code: item.code });
+        if (extra==0) {
+          score = score -0.25;
+        }else{ score = score + extra;}
+       
+        rtg.push({ score:score.toFixed(2),service:item['state'], code: item.code });
       }
     }
 
@@ -2281,7 +2284,7 @@ for(const [B1,prop] of dupData.entries()){
     
       const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
     Matched.push(realVT)
-    //exactMatches.push({id:prop['id'],parent:prop.SERVICE,matches:[realVT]});
+   
 
    Allsearched.push(passer)
 

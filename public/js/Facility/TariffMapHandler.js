@@ -88,14 +88,21 @@ if (matches.length === 1 && matches[0].score === 1) {
                     }
 
                     const ulElement = document.createElement('ul');
-                    ulElement.className = "py-1 text-sm text-gray-700";
+                   ulElement.className = "py-1 text-sm text-gray-700";
 
-                    matches.forEach(pk => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<p id="${props['id']}"  class="mpb w-full text-left px-4 py-2 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">${pk['service']}</p>`;
-                        ulElement.appendChild(li);
-                    });
-
+                        matches.forEach(pk => {
+                            const li = document.createElement('li');
+                            
+                            // We use flexbox (flex, justify-between, items-center) to align the text and badge.
+                            li.innerHTML = `
+                                <p id="${props['id']}" class="mpb w-full flex justify-between items-center px-4 py-2 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer group">
+                                    <span class="font-medium text-left truncate pr-4 spak">${pk['service']}</span>
+                                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors shrink-0">Score: ${pk['score']}</span>
+                                </p>
+                            `;
+                            
+                            ulElement.appendChild(li);
+                        });
                     wrapperDiv.appendChild(ulElement);
                     itemHolder.appendChild(wrapperDiv);
  
@@ -129,7 +136,7 @@ if (matches.length === 1 && matches[0].score === 1) {
                     
                     bp.addEventListener('click',()=>{
                         const idcl=`.serput${Number(bp.id)}`
-                        const ser=bp.innerHTML;
+                        const ser=bp.querySelector(".spak").innerHTML;
                         let TC=bp.getAttribute("code");
                         let Ismapped;
                         if (TC !== null) {
@@ -141,7 +148,7 @@ if (matches.length === 1 && matches[0].score === 1) {
                         document.querySelector(idcl).value=ser;
                         console.log(document.querySelector(idcl).className)
                             //ADD CHOSEEN SERVICE TO DB
-                            saveService(bp.innerHTML,bp.id,Ismapped,TC)
+                            saveService(ser,bp.id,Ismapped,TC)
                     })
                 });
             }
@@ -275,17 +282,39 @@ initDropMap()
  
 
 async function BulkSaveService(body) {
+        
+        
        document.querySelector("#runningDB").classList.remove('hidden')
-      try {
-                const res = await fetch('/UpdateBulkTar', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify(body)
-                });
-                    document.querySelector("#runningDB").classList.add('hidden')
-                if (res.ok) {
-                   
-                } else {document.querySelector("#SaveTarError").innerHTML=`Request finished, but server responded with code: ${res.status}`}
-            } catch (error) {cdocument.querySelector("#SaveTarError").innerHTML='The request failed entirely due to a network error:'}
-            
+ const errorElement = document.querySelector("#SaveTarError");
+
+try {
+    document.querySelector("#runningDB").classList.remove("hidden");
+
+    const res = await fetch("/UpdateBulkTar", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken,
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+        throw new Error(`Server responded with status ${res.status}`);
+    }
+
+    // Success
+} catch (error) {
+    errorElement.textContent =
+        error.message || "A network error occurred. Please try again.";
+
+    console.error(error);
+
+    setTimeout(() => {
+        errorElement.textContent = "";
+    }, 3000);
+} finally {
+    document.querySelector("#runningDB").classList.add("hidden");
+}
+         
 }

@@ -80,7 +80,7 @@
 
 </div>
 
-<div class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm fixed top-20 right-5" id="SaveTarError" role="alert"></div>
+<div class="items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm fixed top-20 right-5 " id="SaveTarError" role="alert"></div>
 
 
  <script src="{{ asset('js/Facility/TariffPageHandler.js') }}"></script>
