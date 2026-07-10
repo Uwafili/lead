@@ -114,6 +114,7 @@ class updateTariffController extends Controller
             }
     }
 
+    //Single Tariff Upload
  public function Sin(Request $request){
 
     $id=$request['id'];
@@ -131,7 +132,7 @@ class updateTariffController extends Controller
              $tariff['accept']=$request['accept'];
             $tariff['Negotiated']='Negotiated';
          }
-            $tariff->save();              // Save changes to DB
+            $tariff->save(); // Save changes to DB
             return response()->json(['message'=>"successful",200]);
         }else{
             return response()->json(['message'=>"something went wrong",500]);
@@ -141,6 +142,30 @@ class updateTariffController extends Controller
 
  }
 
+ //BUlk Tariff Upload
+public function BulkTar(Request $request)
+{
+    try {
+        foreach ($request->all() as $item) {
+            Tariff::where('id', $item['id'])->update([
+                'Edited_Service' => $item['service'],
+                'code' => $item['code'],
+                'Mapped' => 'Mapped',
+                'score' => $item['score'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Successful'
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Something went wrong',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 public function downloadTariffMapped($id){
 

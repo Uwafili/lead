@@ -21,11 +21,12 @@ Route::middleware("auth")->group(function(){
 
     Route::view("/logout",'logout')->name('logoutDemo');
 
-     Route::view('/updateTariff',"Facility.updateTar")->name('updateTar');
-     Route::post('/UpdateTar',[updateTariffController::class,'index'])->name('UpdateTar');
-     Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateSinTar');
-     Route::put('/updatePrice',[updateTariffController::class,'updatePrice'])->name('updatePrice');
-     
+Route::view('/updateTariff',"Facility.updateTar")->name('updateTar');
+Route::post('/UpdateTar',[updateTariffController::class,'index'])->name('UpdateTar');
+Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateSinTar');
+ 
+Route::put('/updatePrice',[updateTariffController::class,'updatePrice'])->name('updatePrice');
+ 
 
 });
 

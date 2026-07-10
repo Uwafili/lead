@@ -2,22 +2,7 @@ let dictionary = null;
 let indexedEntries;
 let AllDiction=null;
 
-async function startAll(params) {
-  const resAll = await fetch("/api/hospital-pharmacy-All");
-      const jsonAll = await resAll.json();
-            AllDiction=jsonAll.bad
-            AllDiction.forEach((p) => {p[1]=Lord.normalizeAndSortAll(p[1]); }); 
-                AllDiction.map(item=>{
-            const rawDescription =item[1];
-            const weightedTokens = rawDescription.map(word => ({
-            text: word,
-            isNoise: Lord.IgnoreList.has(word)
-          }));
-            console.log({original: item[1],code: item[0],tokens: weightedTokens});
-           }) 
 
-}
-startAll()
 
 function firstTwoLettersMatch(a, b) {
   const aRR = a.map(item => item.slice(0, 2));
@@ -37,7 +22,6 @@ function calculateUniqueMatchScore(a, b) {
       matchCount++;
     }
   }
-  
   // 3. Multiply the unique match count by 0.25
   return matchCount * 0.25;
 }
@@ -453,6 +437,8 @@ const medicationForms = {
 
   pcm: "paracetamol"
 };
+
+
 function formReplace(meds) {
     meds = meds.toLowerCase();
 
@@ -467,6 +453,7 @@ function formReplace(meds) {
 
     return refinedMed;
 }
+
 // A helper regex to extract the first clear dosage strength found (e.g., "100mg", "5ml", "0.5%")
 function extractStrength(str) {
   const match = str.toLowerCase().match(/\b(\d+[\d\s./%]*(?:mg|ml|g|l|mcg|ug|iu|units|percent|perc|%))/i);
@@ -715,122 +702,6 @@ function sortByScoreDescending(arr){return arr.sort((a, b) => b.score - a.score)
         smartFuzzyTop10
     }
 }
-
-/*function searchProceduresTop10(searchTerm) {
-  // 1. Check if query tokens exist
-  const queryTokens = searchTerm; // Assuming this is already an array of string tokens passed in
-  if (!queryTokens || queryTokens.length === 0) return [];
-
-  // 2. Tag the incoming query words as Core vs Noise
-  const weightedQuery = queryTokens.map(word => ({
-    text: word,
-    isNoise: procedureIgnore.has(word)
-  }));
-
-  // Separate them into flat word arrays
-  let coreQueryWords = weightedQuery.filter(item => !item.isNoise).map(item => item.text);
-  let noiseQueryWords = weightedQuery.filter(item => item.isNoise).map(item => item.text);
-
-  // CRITICAL GATE: Exit if there are no core anatomical keywords
-  if (coreQueryWords.length === 0) return [];
-
-  const results = [];
-
-  // 3. Loop through your pre-tokenized database rows
-  for (const entry of indexedEntries) {
-    const coreEntryWords = entry.tokens.filter(item => !item.isNoise).map(item => item.text);
-    if (coreEntryWords.length === 0) continue;
-
-    let totalCoreScore = 0;
-    let matchedWordsCount = 0;
-
-    // Track which database words have already been matched to avoid double-counting
-    let matchedEntryWords = new Set();
-
-    for (const qWord of coreQueryWords) {
-      let maxWordScore = 0;
-      let bestEntryWordMatch = null;
-
-      for (const eWord of coreEntryWords) {
-        if (matchedEntryWords.has(eWord)) continue; // Skip if already paired
-
-        const currentScore = getLevenshteinSimilarity(qWord, eWord);
-        
-        if (currentScore > maxWordScore) {
-          maxWordScore = currentScore;
-          bestEntryWordMatch = eWord;
-        }
-      }
-
-      // LOOSE SPELLING GATE: We accept anything above 70% as a valid keyword connection!
-      if (maxWordScore >= 0.70) {
-        totalCoreScore += maxWordScore;
-        matchedWordsCount++;
-        if (bestEntryWordMatch) {
-          matchedEntryWords.add(bestEntryWordMatch); // Lock this database word
-        }
-      }
-    }
-
-  
-    const requiredMatches = coreQueryWords.length === 1 
-      ? 1 
-      : Math.max(2, Math.ceil(coreQueryWords.length * 0.5));
-
-    // Hard Gate: Skip the item entirely if it doesn't hit the dynamic threshold requirement
-    if (matchedWordsCount < requiredMatches) continue;
-
-
-  
-    let finalScore = 0;
-
-    if (matchedWordsCount > 0) {
-      // Score based on how well the matched words scored individually
-      const matchAccuracy = totalCoreScore / matchedWordsCount;
-      
-      // Calculate how much of the dataset entry we successfully covered
-      const entryCoverage = matchedWordsCount / coreEntryWords.length;
-
-      // Combine them: rewarding high spelling accuracy and high coverage
-      finalScore = (matchAccuracy * 0.7) + (entryCoverage * 0.3);
-    }
-
-    // Secondary threshold gate to keep bad matching scores from bleeding into results
-    if (finalScore >= 0.50) {
-    
-      if (noiseQueryWords.length > 0) {
-        const noiseEntryWords = entry.tokens.filter(item => item.isNoise).map(item => item.text);
-        let matchedNoiseCount = 0;
-
-        for (const qNoise of noiseQueryWords) {
-          for (const eNoise of noiseEntryWords) {
-            if (getLevenshteinSimilarity(qNoise, eNoise) >= 0.80) {
-              matchedNoiseCount++;
-              break;
-            }
-          }
-        }
-
-        if (matchedNoiseCount > 0) {
-          finalScore += (matchedNoiseCount / noiseQueryWords.length) * 0.25;
-        }
-      }
-
-      // Record Packaging
-      results.push({
-        service: entry.original,
-        code: entry.code,
-        tariff: entry.tariff,
-        score: Number(finalScore.toFixed(4))
-      });
-    }
-  }
-
-  // 5. Sort and return the top 10 matches
-  return results
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
-}  */
 
     function ProcedureLord() {
   /* CORE SMART FUZZY SEARCH ENGINE                      */
@@ -1758,17 +1629,32 @@ return{
 }
 
 
-function LordForAll(){
-
+const STRENGTH_REGEX = /\b(\d+[\d\s./%]*(?:mg|mls|ml|g|l|mcg|ug|iu|units|percent|perc|%)?)/i;
+function LordForAll() {
   function normalizeAndSortAll(text) {
-  if (!text) return [];
+    if (!text) return [];
+      let result = formReplace(text.toLowerCase())
+    .toLowerCase()
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ")
+          .trim();
+result =formReplace(result);
+    return result.split(" ").sort();
+  }
 
-  let cleaned = text.toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+  function formReplace(meds) {
+    meds = meds.toLowerCase();
 
-  let words = cleaned.split(" ").sort();
+    let refinedMed = meds;
 
-  return words
+    Object.keys(medicationForms).forEach(key => {
+        refinedMed = refinedMed.replace(
+            new RegExp(`\\b${key}\\b`, "g"),
+            medicationForms[key]
+        );
+    });
+
+    return refinedMed;
 }
 
 const IgnoreList=new Set([
@@ -1776,8 +1662,7 @@ const IgnoreList=new Set([
   // -------------------------
   // BASIC DOSAGE FORMS
   // -------------------------
-  "co",
-  "tablet", "tablets", "tab", "tabs",
+  "tablet", "tablets", "tab", "tabs","co",
   "capsule", "capsules", "cap", "caps",
   "softgel", "softgels",
   "pill", "pills",
@@ -2100,27 +1985,120 @@ const IgnoreList=new Set([
   "approach", "status", "unilateral", "bilateral", "including", "except"
 ]);
 
+const medicationForms = {
+  // vitamins
+  vit: "vitamin",
+
+  // tablets
+  tab: "tablet",
+  tabs: "tablet",
+  tablets: "tablet",
+  chewtab: "chewable tablet",
+  disptab: "dispersible tablet",
+  efftab: "effervescent tablet",
+  ectab: "enteric-coated tablet",
+  srtab: "sustained release tablet",
+  crtab: "controlled release tablet",
+  xrtab: "extended release tablet",
+  mrtab: "modified release tablet",
+
+  // capsules
+  cap: "capsule",
+  caps: "capsule",
+  capsules: "capsule",
+
+  // liquids
+  syr: "syrup",
+  syrups: "syrup",
+  susp: "suspension",
+  suspensions: "suspension",
+  elix: "elixir",
+  emuls: "emulsion",
+  lot: "lotion",
+
+  // topicals
+  cr: "cream",
+  creams: "cream",
+  oint: "ointment",
+  ointments: "ointment",
+  gel: "gel",
+  patch: "transdermal patch",
+
+  // injectable
+  inj: "injection",
+  injections: "injection",
+  injectables: "injection",
+  amp: "ampoule",
+  amps: "ampoule",
+  ampoules: "ampoule",
+  vial: "vial",
+  vials: "vial",
+
+  // solution / drops
+  sol: "solution",
+  soln: "solution",
+  solutions: "solution",
+  gtt: "drops",
+  drops: "drops",
+
+  // respiratory
+  neb: "nebulization solution",
+  nebulizer: "nebulization solution",
+  inh: "inhaler",
+
+  // others
+  supp: "suppository",
+  sachets: "sachet",
+  spray: "spray",
+  gran: "granules",
+  loz: "lozenge",
+  powd: "powder",
+
+  pcm: "paracetamol",
+  "mls":"ml"
+};
 
 function LordFuzzy(query){
-    //console.log(query)
-  for([code,entry] of dictionary){
-      if (!entry) {
-        
-      }else{
-    const score=getLevenshteinSimilarity(entry,query)
+ 
+   // Extract core vs noise arrays for the database entry
+    const coreQueryWords = query.tokens.filter(item => !item.isNoise).map(item => item.text.toLowerCase()).join("");
+    const noiseQueryWords = query.tokens.filter(item => item.isNoise).map(item => item.text.toLowerCase());
+    
+    const queryLen = coreQueryWords.length;
+    const rtg = [];
 
-    if (score>0.3) {
-      console.log(score,query,entry)
+    // Loop through the pre-computed dictionary
+    for (const [search, item] of indexedEntries.entries()) {
+      const targetCore = item.coreString;
+      
+      // FAST FAIL: If the length difference is too large, it's mathematically 
+     
+      if (Math.abs(targetCore.length - queryLen) > Math.ceil(queryLen * 0.5)) {
+        continue; 
+      }
+
+      // Calculate score only for reasonably matched string lengths
+      let score = getLevenshteinSimilarity(targetCore, coreQueryWords);
+
+      if (score > 0.5) {
+        let extra = calculateUniqueMatchScore(item.noiseArray, noiseQueryWords);
+        if (extra==0) {
+          score = score -0.25;
+        }else{ score = score + extra;}
+       
+        rtg.push({ score:score.toFixed(2),service:item['state'], code: item.code });
+      }
     }
-  }
-  }
-}
 
-return{
-  normalizeAndSortAll,
-  LordFuzzy,
-  IgnoreList
-}
+    // Sort by score descending and return top 10
+    return rtg.sort((a, b) => b.score - a.score).slice(0, 10);
+  }
+
+  return {
+    normalizeAndSortAll,
+    LordFuzzy,
+    IgnoreList
+  };
 }
 
 /* ------------------------ THE STANDALONE LEVENSHTEIN SIMILARITY ------------------------ */
@@ -2161,9 +2139,13 @@ self.onmessage = async function (e) {
        const ret = json.data;
       rf = json.bad;
       ///GETTING ALL RECORDS FOR CATEGORY NOT FOUND
+       const resAll = await fetch("/api/hospital-pharmacy-All");
+      const jsonAll = await resAll.json();
        
+       if (ret[cart]== undefined) {
+        dictionary=jsonAll.bad
      
-      if (cart =="VACCINES") {
+      }else if (cart =="VACCINES") {
           dictionary=ret["PHARMACY"];
       }
       else{dictionary=ret[cart];}
@@ -2210,7 +2192,8 @@ self.onmessage = async function (e) {
         break;
         default:
            const Lord = LordForAll();
-                
+                dictionary.forEach((p) => {p['state']=p[1]; p[1]=Lord.normalizeAndSortAll(p[1]); }); 
+                Mapcc(dictionary)
       }
 
 
@@ -2277,36 +2260,6 @@ self.onmessage = async function (e) {
    
 } 
 
-
-
-/*     //Partials
-  // Define keyB once outside the loop
-const keyB = new Set(tokenizeDrugWith(B1));
-
-const related = [...dictMap]
-  .filter(([item, prop]) => {
-    const keyA = new Set(tokenizeDrugWith(item));
-    
-    for (const w of keyB) {
-      if (keyA.has(w)) {
-        justhold.add(item);
-        return true;
-      }
-    }
-    return false;
-  })
-  .map(([item, prop]) => prop);
-    if (related.length > 0) {
-      const passer={id:prop['id'],parent: B1,matches: related};
-       self.postMessage({type:'result',data:passer})
-      partialMatches.push({parent: B1,matches: related});
-    } else {
-     
-    }  */
-
-
-
-
       function DrugReturn(data,drugEngine) {
         const exactMatches = [];
 const partialMatches = [];
@@ -2331,7 +2284,7 @@ for(const [B1,prop] of dupData.entries()){
     
       const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
     Matched.push(realVT)
-    //exactMatches.push({id:prop['id'],parent:prop.SERVICE,matches:[realVT]});
+   
 
    Allsearched.push(passer)
 
@@ -2749,34 +2702,81 @@ self.postMessage({type:'result',data:Allsearched,matched:Matched})
             
       }
 
-      function Mapcc(dictionary) {
-        const Lord= LordForAll();
-          //indexedEntries=
+    // 2. Pre-compute the core and noise strings when compiling the dictionary
+function Mapcc(dictionary) {
+  const Lord=LordForAll()
+  indexedEntries= new Map(dictionary.map(item => {
+    const rawDescription = item[1];
+    
+    const weightedTokens = rawDescription.map(word => {
+      const isNoise = Lord.IgnoreList.has(word) || STRENGTH_REGEX.test(word);
+      return { text: word, isNoise: isNoise };
+    });
+
+    // PRE-COMPUTE: Do this once here, not during the fuzzy search loop!
+    const coreString = weightedTokens.filter(t => !t.isNoise).map(t => t.text.toLowerCase()).join("");
+    const noiseArray = weightedTokens.filter(t => t.isNoise).map(t => t.text.toLowerCase());
+
+    return [rawDescription.join(""), {
+      revamp: rawDescription,
+      code: item[0],
+      state: item["state"],
+      tokens: weightedTokens,
+      coreString: coreString,   // Stored for instant access
+      noiseArray: noiseArray    // Stored for instant access
+    }];
+  }));
+}
+     
+function MapAll(data) {
+  const Lord = LordForAll();
+  const notFound = [];
+  const Allsearched = [];
+  const Matched = [];
+
+  let dupData = new Map(data.map((item) => {
+    const desc = Lord.normalizeAndSortAll(item['SERVICE']);
+    const weighed = desc.map((word) => {
+      const isNoise = Lord.IgnoreList.has(word) || STRENGTH_REGEX.test(word);
+      return { text: word, isNoise: isNoise };
+    });
+    item['tokens'] = weighed;
+    return [desc.join(""), item];
+  }));
+
+  for (const [B1, prop] of dupData.entries()) {
+    // EXACT MATCH
+    const rtg = indexedEntries.get(B1);
+
+    if (rtg !== undefined) {
+      const real = rtg.state;
+      const realVT = { id: prop['id'], service: real, code: rtg.code, score: 1 };
+      const passer = { id: prop['id'], parent: prop.SERVICE, matches: [realVT] };
+
+      Matched.push(realVT);
+      Allsearched.push(passer);
+      
+      dupData.delete(B1);
+      
+      indexedEntries.delete(B1); 
+       
+      continue;
+    } else {
+      // Pass indexedEntries explicitly to the fuzzy matcher
+      const fuzz = Lord.LordFuzzy(prop, indexedEntries);
+      
+      if (fuzz.length > 0) {
+        const passer = { id: prop['id'], parent: B1, matches: fuzz };
+        fuzz.forEach(f => { f['id'] = prop['id']; Matched.push(f); });
+        Allsearched.push(passer);
+         
+      } else {
+        const passer = { id: prop['id'], parent: B1, matches: [] };
+        Allsearched.push(passer);
+        notFound.push(B1);
       }
+    }
+  }
+ self.postMessage({ type: 'result', data: Allsearched, matched: Matched });
 
-      function MapAll(data){
-     const Lord= LordForAll();
-          let dupData =new Map(data.map(item => [Lord.normalizeAndSortAll(item.SERVICE).join(" "),item]));
-
-            for( const[B1,props] of dupData.entries()){
-             
-              //const rtg = dictMap.get(B1);
-
-            if (rtg !== undefined) {
-
-              //console.log(rtg)
-
-              /* const real=rtg.DESCRIPTION.join(" ")
-                const realVT={id:prop['id'],service: real, code: rtg.CODE, 'tariff':rtg.TARIFF,score: 1}
-              const passer={id:prop['id'],parent:prop.SERVICE,matches:[realVT]};
-            
-              Matched.push(realVT)
-
-            Allsearched.push(passer)
-            
-              dupData.delete(B1)
-              dictMap.delete(B1) */
-
-            }
-            } 
-      }
+}

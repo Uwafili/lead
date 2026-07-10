@@ -63,9 +63,7 @@ public function resetPassword(Request $request){
 
 public function adminDashboard(){
     if(Auth::check()&& Auth::user()->usertype=='admin'){
-      $users=user::with('pendingtariffs')->get();
-      
-
+      $users=user::with('pendingtariffs')->orderBy('id','desc')->get();
       
       return view('admin.dashboard', compact('users'));
     }
