@@ -24,9 +24,7 @@ Route::middleware("auth")->group(function(){
 Route::view('/updateTariff',"Facility.updateTar")->name('updateTar');
 Route::post('/UpdateTar',[updateTariffController::class,'index'])->name('UpdateTar');
 Route::put('/UpdateSinTar',[updateTariffController::class,'Sin'])->name('UpdateSinTar');
-//Bulk Tarrif update
- Route::put('/UpdateBulkTar',[updateTariffController::class,'BulkTar'])->name('UpdateBulkTar');
-
+ 
 Route::put('/updatePrice',[updateTariffController::class,'updatePrice'])->name('updatePrice');
  
 
