@@ -46,6 +46,13 @@ function debounce(func, delay = 500) {
                                 Ematches.push(matches[0])
                             }
                           
+                           }else if(matches.length>1){
+                            const rt1=matches[0]['score'];
+                            const rt2=matches[1]['score']
+                                if (rt1>=1 && (rt1-rt2)>=0.15) {
+                                    matches['tag']='blue'
+                                    Ematches.push(matches[0])
+                                }
                            }
                             handleMappedItem(map)
                         });
@@ -74,7 +81,10 @@ if (matches.length === 1 && matches[0].score === 1) {
 } else if (matches.length === 0) {
     
   serviceTag.classList.add("border-red-400");
-} else {
+} else if (matches['tag']=='blue'){
+    serviceTag.classList.add("border-orange-800");
+}
+ else {
   serviceTag.classList.add("border-green-400");
 }
                   let wrapperDiv =document.querySelector(`#WDE${props['id']}`)

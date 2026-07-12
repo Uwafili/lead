@@ -24,6 +24,91 @@
         </button>
     </div>
 </div>
+<!-- Sticky Wrapper -->
+<div class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
+
+  <!-- Toolbar -->
+  <div class="max-w-full px-4 py-3">
+    <div class="flex flex-wrap items-center gap-3">
+
+
+
+      <!-- Reduce Price -->
+      <button id="reducePrice" class="px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">Reduce Price</button>
+      <input type="number" placeholder="%" class="RedInp w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"/>
+  <!-- Divider -->
+      <div class="hidden md:block h-6 w-px bg-gray-300 mx-2"></div>
+        
+      <!-- Increase Price -->
+      <button id="increasePrice" class="px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600">Increase Price</button>
+        <input type="number" placeholder="%" class="w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400 INInp"/>
+
+
+         <!-- Filter Dropdown -->
+    <div class="relative">
+        <button id="filter" class="px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200 flex items-center gap-1">
+          Filter
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="dropFilt" class="absolute  right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+         
+       <div class="relative group">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-between items-center">Price<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg> </button>
+            <!-- Price Nested Dropdown -->
+            <div class="absolute top-0 left-full mt-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="decPri">Decending</label>
+                <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="ascPri">Ascending</label>
+            </div>
+
+        </div>
+
+          <!-- Negotiation Filter -->
+          <div class="relative group">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-between items-center">Negotiation<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /> </svg></button>
+
+            <!-- Negotiation Nested Dropdown -->
+            <div class="absolute top-0 left-full mt-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="NN">Not Negotiated</label>
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="Ne" >Negotiated</label>
+            </div>
+
+
+          </div>
+
+
+            <!-- Mapped Filter -->
+          <div class="relative group">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-between items-center">Mapped<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /> </svg></button>
+
+            <!-- Mapped Nested Dropdown -->
+            <div class="absolute top-0 left-full mt-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="NM">Not Mapped</label>
+              <label class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-100" id="Mp" >Mapped</label>
+            </div>
+
+
+          </div>
+
+
+
+
+        </div>
+      </div>
+
+
+   
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+      <button class="px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200">Reset</button>
+
+    </div>
+  </div>
+</div>
+
     <!-- Table Section (Scrollable Area) -->
     <div class="flex-1 p-6 overflow-hidden">
         <div class="max-w-7xl mx-auto h-full flex flex-col">
@@ -85,6 +170,7 @@
 
  <script src="{{ asset('js/Facility/TariffPageHandler.js') }}"></script>
  <script src="{{ asset('js/Facility/TariffMapHandler.js') }}"></script>
+ <script src="{{ asset('js/Facility/TariffMenuHandler.js') }}"></script>
  
   <script>
     const workerUrl = "{{ asset('workers/TarWorker.js') }}";

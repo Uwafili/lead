@@ -11,19 +11,27 @@ function firstTwoLettersMatch(a, b) {
 }
 
 function calculateUniqueMatchScore(a, b) {
-  // 1. Remove duplicates from both arrays by converting them to Sets
-  const setA = new Set(a);
-  const setB = new Set(b);
-  
-  // 2. Count how many items in setA also exist in setB
-  let matchCount = 0;
-  for (const item of setA) {
-    if (setB.has(item)) {
-      matchCount++;
+  const normalize = (arr) => arr.map(item => item.replace(/s\b/gi, ''));
+    // Remove duplicates
+    const setA = new Set(normalize(a));
+    const setB = new Set(normalize(b));
+
+    // Count matching unique items
+    let matches = 0;
+    for (const item of setA) {
+        if (setB.has(item)) {
+            matches++;
+        }
     }
-  }
-  // 3. Multiply the unique match count by 0.25
-  return matchCount * 0.25;
+
+    // Count unique items that don't match
+    const nonMatches =(setA.size - matches)+(setB.size - matches);
+
+    // Reward matches and penalize differences
+    const reward = matches * 0.25;
+    const penalty = nonMatches * 0.1;
+
+    return reward - penalty;
 }
 //DrugEngine
 function DrugLord() {
@@ -1633,9 +1641,7 @@ const STRENGTH_REGEX = /\b(\d+[\d\s./%]*(?:mg|mls|ml|g|l|mcg|ug|iu|units|percent
 function LordForAll() {
   function normalizeAndSortAll(text) {
     if (!text) return [];
-      let result = formReplace(text.toLowerCase())
-    .toLowerCase()
-      .toLowerCase()
+      let result =text.toLowerCase()
       .replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ")
           .trim();
 result =formReplace(result);
@@ -1875,7 +1881,6 @@ const IgnoreList=new Set([
       // service words
       "service",
       "services",
-      "fee",
       "charge",
       "charges",
 
@@ -2055,7 +2060,8 @@ const medicationForms = {
   powd: "powder",
 
   pcm: "paracetamol",
-  "mls":"ml"
+  "mls":"ml",
+  "&":'and',
 };
 
 function LordFuzzy(query){
@@ -2082,9 +2088,7 @@ function LordFuzzy(query){
 
       if (score > 0.5) {
         let extra = calculateUniqueMatchScore(item.noiseArray, noiseQueryWords);
-        if (extra==0) {
-          score = score -0.25;
-        }else{ score = score + extra;}
+        score = score + extra;
        
         rtg.push({ score:score.toFixed(2),service:item['state'], code: item.code });
       }
@@ -2725,7 +2729,9 @@ function Mapcc(dictionary) {
       coreString: coreString,   // Stored for instant access
       noiseArray: noiseArray    // Stored for instant access
     }];
+    console.log(rawDescription.join(""),noiseArray)
   }));
+  
 }
      
 function MapAll(data) {

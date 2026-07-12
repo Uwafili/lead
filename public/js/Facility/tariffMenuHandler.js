@@ -1,12 +1,10 @@
-const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-
 /// SETTING THE TRs TO CHECKED WHEN DOUBLE CLICKED
 
 const TarTR=document.querySelectorAll(".TarTR");
 TarTR.forEach(d => {
     d.addEventListener("dblclick",()=>{
-       const label=d.querySelector(".check");
+        console.log("gh")
+      /*  const label=d.querySelector(".check");
        if (label.classList.contains('flex')) {
          label.classList.remove("flex");
        label.classList.add("hidden");
@@ -17,7 +15,7 @@ TarTR.forEach(d => {
         inp.checked=true
         label.classList.add("flex");
        label.classList.remove("hidden")
-       }
+       } */
       
     })
 });
@@ -148,21 +146,6 @@ async function sert(type,rowId,description,code,score,newTar,spinner,label,butto
 } 
 
 
-///USING THE SEARCH INPUT
-
-const sech=document.querySelector("#sech")
-
-sech.addEventListener("keyup",()=>{
-   const val=sech.value.toUpperCase()
-   const drp=document.querySelectorAll(".dropdownButton");
-   drp.forEach(d => {
-     d.closest('tr').classList.remove('hidden')
-        if (d.innerHTML.toUpperCase().indexOf(val) ==-1) {
-            d.closest('tr').classList.add('hidden')
-        }
-   });
-})
-
 
 ///Filter Dropdown
 
@@ -271,10 +254,34 @@ const items = Array.from(TarTR);
 items.forEach(el => el.parentNode.appendChild(el));
 })
 
+///Filter MApped By Mapped
+const Mapped=document.querySelector("#Mp");
+Mapped.addEventListener("click",()=>{
+    const putTr=document.querySelectorAll(".putTr");
+    putTr.forEach(tr => {
+        tr.classList.remove("hidden")
+        if (tr.getAttribute('stat')!=="Mapped") {
+            tr.classList.add("hidden")
+        }
+    });
+})
+
+///Filter Mapped By UnMapped
+const UnMapped=document.querySelector("#NM");
+UnMapped.addEventListener("click",()=>{
+    const putTr=document.querySelectorAll(".putTr");
+    putTr.forEach(tr => {
+        tr.classList.remove("hidden")
+        if (tr.getAttribute('stat') =="Mapped") {
+            tr.classList.add("hidden")
+        }
+    });
+})
+
 
 ////selectAll
 
-const selectAll=document.querySelector("#selectAll");
+/* const selectAll=document.querySelector("#selectAll");
 selectAll.addEventListener('click',()=>{
     console.log(selectAll.checked)
    
@@ -294,4 +301,4 @@ selectAll.addEventListener('click',()=>{
          
      });
      
-})
+}) */
